@@ -1,16 +1,14 @@
-> **Notice:** This repository now uses the new Laravel-based rebuild on the `main` branch. The previous legacy version may remain in an older branch for reference.
-
 # HR Payroll
 
-ZerithonLabs - A modern Human Resource Management and Payroll system rebuilt with Laravel.
+Zerithonlabs - Modern HRM + Payroll platform rebuilt with Laravel for real company workflows and long-term maintainability.
 
-## Overview
+> Legacy version note: this `main` branch is the Laravel rebuild. Older legacy implementation may exist in a separate branch.
 
-HR Payroll is a complete HRM and payroll solution designed to help businesses manage employees, attendance, leave, payroll, expenses, notices, tasks, and billing from one central platform.
+## Why This Project
 
-This project is a Laravel-based rebuild of the previous version and is being developed with a cleaner architecture, improved maintainability, and better long-term scalability.
+A complete HRM and Payroll platform for organizations that need one system to manage employee lifecycle, attendance, leave, payroll, approvals, and reporting.
 
-It is suitable for companies, offices, agencies, and growing businesses that need a reliable system for day-to-day HR and payroll operations.
+It is designed with a modular Laravel architecture so teams can run day-to-day HR operations with cleaner structure, maintainability, and long-term scalability.
 
 ## Main Features
 
@@ -49,25 +47,105 @@ It is suitable for companies, offices, agencies, and growing businesses that nee
 - Easy-to-use interface
 - Responsive design
 
-## Technology Stack
+## Tech Stack
 
-- Laravel
-- PHP
+- PHP 8.2+
+- Laravel 12
 - MySQL
-- Blade / Livewire (planned or current depending on implementation)
-- Bootstrap / Admin UI
-- JavaScript
+- Blade templates
+- Bootstrap-based admin UI
+- Vite
 
-## Project Status
+## Quick Start
 
-This repository contains the new Laravel-based version of HR Payroll.
-
-The project is currently under active development and migration from the previous legacy version. Features will be rebuilt module by module with improved code structure and performance.
-
-## Installation
-
-Clone the repository:
+1. Clone and enter the project
 
 ```bash
 git clone https://github.com/Devnawjesh/hr-payroll.git
 cd hr-payroll
+```
+
+2. Install dependencies
+
+```bash
+composer install
+npm install
+```
+
+3. Configure environment
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+4. Set DB credentials in `.env`, then run:
+
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+5. Run app
+
+```bash
+php artisan serve
+npm run dev
+```
+
+## Default Seeded Admin
+
+- Email: `admin@hr-payroll.local`
+- Password: `P@ssw0rd`
+
+## Access Model (Current)
+
+- `super-admin`: full access
+- `hr-manager`: HR operational access
+- `department-head`: limited operational access + self-service
+- `employee`: self-service access
+
+Employee management menus are restricted for non-HR roles.  
+Self-service profile update remains available via topbar dropdown when user is linked to an employee profile.
+
+## SMTP and Outbound Email
+
+SMTP values are configured from the **Settings** page and stored in DB-backed system settings.
+
+Current implemented email flow:
+
+- when HR/Super Admin creates a user, credentials can be emailed
+- sender config is loaded from system settings (mailer/host/port/username/password/from)
+
+## Project Structure (High Level)
+
+- `app/Modules/Employees` employee domain
+- `app/Modules/Users` user, role, permission domain
+- `app/Modules/Settings` system and SMTP settings
+- `resources/views/hr` backend UI
+- `database/seeders` initial roles, permissions, settings, admin user
+
+## Contributing
+
+Contributions are welcome.
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit with clear messages
+4. Open a pull request with:
+   - problem statement
+   - approach
+   - screenshots (if UI)
+   - migration/seed impact
+
+## Roadmap
+
+- stronger test coverage (feature + service tests)
+- audit trail improvements
+- notification system enhancements
+- API layer for external integrations
+- richer reporting and exports
+
+## License
+
+MIT
