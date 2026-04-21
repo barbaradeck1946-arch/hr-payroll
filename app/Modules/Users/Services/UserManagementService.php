@@ -2,10 +2,16 @@
 
 namespace App\Modules\Users\Services;
 
+use App\Mail\UserAccountCredentialsMail;
+use App\Models\SystemSetting;
 use App\Models\User;
 use App\Modules\Users\Repositories\UserRepository;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class UserManagementService
 {
@@ -21,12 +27,16 @@ class UserManagementService
     {
         return DB::transaction(function () use ($payload, $actorId): User {
              $status = $payload['account_status'] ?? 'active';
+            $plainPassword = (string) ($payload['password'] ?? '');
+            if ($plainPassword === '') {
+                $plainPassword = Str::random(12);
+            }
 
             $user = $this->userRepository->create([
                 'name' => $payload['name'],
                 'email' => $payload['email'],
                 'phone' => $payload['phone'] ?? null,
-                'password' => Hash::make($payload['password']),
+                'password' => Hash::make($plainPassword),
                 'account_status' => $status,
                 'approved_by' => $status === 'active' ? $actorId : null,
                 'approved_at' => $status === 'active' ? now() : null,
@@ -35,8 +45,45 @@ class UserManagementService
 
             $this->syncRoles($user, $payload['role_ids'] ?? [], $actorId);
 
+            DB::afterCommit(function () use ($user, $plainPassword): void {
+                try {
+                    $this->applySmtpSettingsFromDatabase();
+
+                    Mail::mailer((string) Config::get('mail.default', 'smtp'))
+                        ->to($user->email)
+                        ->send(new UserAccountCredentialsMail(
+                        $user->name,
+                        $user->email,
+                        $plainPassword
+                    ));
+                } catch (\Throwable $exception) {
+                    Log::error('Failed to send new user credentials email.', [
+                        'user_id' => $user->id,
+                        'email' => $user->email,
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
+            });
+
             return $user;
         });
+    }
+
+    private function applySmtpSettingsFromDatabase(): void
+    {
+        $settings = SystemSetting::autoloaded();
+
+        if (! empty($settings['mail_mailer'])) {
+            Config::set('mail.default', $settings['mail_mailer']);
+        }
+
+        Config::set('mail.mailers.smtp.host', $settings['mail_host'] ?? Config::get('mail.mailers.smtp.host'));
+        Config::set('mail.mailers.smtp.port', $settings['mail_port'] ?? Config::get('mail.mailers.smtp.port'));
+        Config::set('mail.mailers.smtp.username', $settings['mail_username'] ?? Config::get('mail.mailers.smtp.username'));
+        Config::set('mail.mailers.smtp.password', $settings['mail_password'] ?? Config::get('mail.mailers.smtp.password'));
+        Config::set('mail.mailers.smtp.encryption', $settings['mail_encryption'] ?? Config::get('mail.mailers.smtp.encryption'));
+        Config::set('mail.from.address', $settings['mail_from_address'] ?? Config::get('mail.from.address'));
+        Config::set('mail.from.name', $settings['mail_from_name'] ?? Config::get('mail.from.name'));
     }
 
     /**

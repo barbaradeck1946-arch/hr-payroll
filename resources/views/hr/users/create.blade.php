@@ -42,12 +42,15 @@
                             </div>
 
                             <div class="col-md-6 form-group">
-                                <label>{{ $mode === 'edit' ? 'New Password (Optional)' : 'Password' }}</label>
-                                <input type="password" name="password" class="form-control" {{ $mode === 'create' ? 'required' : '' }}>
+                                <label>{{ $mode === 'edit' ? 'New Password (Optional)' : 'Password (Optional)' }}</label>
+                                <input type="password" name="password" class="form-control">
+                                @if($mode === 'create')
+                                    <small class="text-muted">If blank, a secure password will be auto-generated and sent by email.</small>
+                                @endif
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>{{ $mode === 'edit' ? 'Confirm New Password' : 'Confirm Password' }}</label>
-                                <input type="password" name="password_confirmation" class="form-control" {{ $mode === 'create' ? 'required' : '' }}>
+                                <input type="password" name="password_confirmation" class="form-control">
                             </div>
 
                             <div class="col-md-12 form-group">

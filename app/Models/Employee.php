@@ -69,4 +69,34 @@ class Employee extends Model
     {
         return $this->hasMany(PayrollItem::class);
     }
+
+    public function profileUpdateRequests(): HasMany
+    {
+        return $this->hasMany(EmployeeProfileUpdateRequest::class);
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(EmployeeAddress::class);
+    }
+
+    public function bankAccounts(): HasMany
+    {
+        return $this->hasMany(EmployeeBankAccount::class);
+    }
+
+    public function emergencyContacts(): HasMany
+    {
+        return $this->hasMany(EmployeeEmergencyContact::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(EmployeeDocument::class);
+    }
+
+    public function deductions(): HasMany
+    {
+        return $this->hasMany(EmployeeDeduction::class);
+    }
 }

@@ -63,19 +63,24 @@ class RolePermissionSeeder extends Seeder
 
         if ($departmentHead) {
             $departmentHead->permissions()->sync(
-                Permission::query()->whereIn('group_name', [
-                    'dashboard',
-                    'employee',
-                    'attendance',
-                    'leave',
-                    'team',
-                    'task',
-                    'project',
-                    'announcement',
-                    'report',
-                    'file',
-                    'expense',
-                    'notification',
+                Permission::query()->whereIn('slug', [
+                    'dashboard.view',
+                    'dashboard.change-password',
+                    'employee.profile-update-request-submit',
+                    'employee.profile-update-request-view',
+                    'employee.view-hierarchy',
+                    'attendance.view',
+                    'attendance.approve-time-change',
+                    'leave.view',
+                    'leave.approve',
+                    'task.view',
+                    'task.assign',
+                    'task.comment',
+                    'report.view',
+                    'file.view',
+                    'file.preview',
+                    'file.comment',
+                    'notification.view',
                 ])->pluck('id')
             );
         }
@@ -87,6 +92,10 @@ class RolePermissionSeeder extends Seeder
                     'employee.view',
                     'employee.view-profile',
                     'employee.view-hierarchy',
+                    'employee.profile-update-request-view',
+                    'employee.profile-update-request-review',
+                    'employee.profile-update-request-approve',
+                    'employee.profile-update-request-reject',
                     'attendance.view',
                     'attendance.approve-time-change',
                     'leave.view',
@@ -120,6 +129,8 @@ class RolePermissionSeeder extends Seeder
             $employee->permissions()->sync(
                 Permission::query()->whereIn('slug', [
                     'dashboard.view',
+                    'employee.profile-update-request-submit',
+                    'employee.profile-update-request-view',
                     'attendance.clock',
                     'attendance.view',
                     'leave.apply',

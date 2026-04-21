@@ -57,7 +57,7 @@ class UserController extends Controller
     {
         $this->userManagementService->createUser($request->validated(), (int) $request->user()->id);
 
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        return redirect()->route('users.index')->with('success', 'User created successfully. Login credentials have been sent by email.');
     }
 
     // User edit form

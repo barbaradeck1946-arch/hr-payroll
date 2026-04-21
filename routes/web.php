@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Modules\Settings\Http\Controllers\SettingsController;
 use App\Modules\Departments\Http\Controllers\DepartmentController;
 use App\Modules\Designations\Http\Controllers\DesignationController;
+use App\Modules\Employees\Http\Controllers\EmployeeController;
+use App\Modules\Employees\Http\Controllers\EmployeeProfileUpdateRequestController;
 use App\Modules\Users\Http\Controllers\PermissionController;
 use App\Modules\Users\Http\Controllers\RoleController;
 use App\Modules\Users\Http\Controllers\UserController;
@@ -35,11 +37,37 @@ Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->
 
 Route::middleware('auth')->group(function (): void {
     Route::view('/dashboard', 'hr.dashboard.dashboard')->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/dashboard/change-password', [AuthenticatedSessionController::class, 'editPassword'])->name('dashboard.password.edit');
+    Route::put('/dashboard/change-password', [AuthenticatedSessionController::class, 'updatePassword'])->name('dashboard.password.update');
     Route::get('/settings', [SettingsController::class, 'edit'])->middleware('permission:settings.view')->name('settings.edit');
     Route::put('/settings', [SettingsController::class, 'update'])->middleware('permission:settings.update')->name('settings.update');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
+    Route::prefix('employee/profile-updates')->name('employees.profile-updates.')->group(function (): void {
+        Route::get('/create', [EmployeeProfileUpdateRequestController::class, 'create'])->middleware('permission:employee.profile-update-request-submit')->name('create');
+        Route::post('/', [EmployeeProfileUpdateRequestController::class, 'store'])->middleware('permission:employee.profile-update-request-submit')->name('store');
+    });
+
+    Route::get('/organization-structure', [EmployeeController::class, 'organizationStructure'])->name('organization.structure');
+
     Route::middleware('role.any:super-admin,hr-manager')->group(function (): void {
+
+        Route::prefix('employees')->name('employees.')->group(function (): void {
+            Route::get('/', [EmployeeController::class, 'index'])->middleware('permission:employee.view')->name('index');
+            Route::get('/create', [EmployeeController::class, 'create'])->middleware('permission:employee.create')->name('create');
+            Route::post('/', [EmployeeController::class, 'store'])->middleware('permission:employee.create')->name('store');
+            Route::get('/{employee}', [EmployeeController::class, 'show'])->middleware('permission:employee.view,employee.view-profile')->name('show');
+            Route::get('/{employee}/edit', [EmployeeController::class, 'edit'])->middleware('permission:employee.update')->name('edit');
+            Route::put('/{employee}', [EmployeeController::class, 'update'])->middleware('permission:employee.update')->name('update');
+            Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->middleware('permission:employee.delete')->name('destroy');
+        });
+
+        Route::prefix('employee/profile-updates')->name('employees.profile-updates.')->group(function (): void {
+            Route::get('/', [EmployeeProfileUpdateRequestController::class, 'index'])->middleware('permission:employee.update')->name('index');
+            Route::get('/{profileUpdateRequest}', [EmployeeProfileUpdateRequestController::class, 'show'])->middleware('permission:employee.update')->name('show');
+            Route::post('/{profileUpdateRequest}/process', [EmployeeProfileUpdateRequestController::class, 'process'])->middleware('permission:employee.update')->name('process');
+        });
+
         Route::prefix('departments')->name('departments.')->group(function (): void {
             Route::get('/', [DepartmentController::class, 'index'])->middleware('permission:department.view')->name('index');
             Route::get('/create', [DepartmentController::class, 'create'])->middleware('permission:department.create')->name('create');

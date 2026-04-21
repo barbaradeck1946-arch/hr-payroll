@@ -3,6 +3,8 @@
         <nav class="sidebar-nav">
             @php
                 $s = $sidebarState ?? [];
+                $authUser = auth()->user();
+                $avatarPath = $authUser?->employee?->avatar_path ?: 'assets/img/user/default.jpg';
             @endphp
             <div class="sidebar-header text-center" style="padding: 25px 0; position: relative; top: 0;">
                 <figure class="side-user-bg" style="background-image: url('assets/img/sidebar.jpg'); margin: 0; position: absolute; top: 0; right: 0; bottom: 0; left: 0; opacity: 0.2; background-size: cover; background-position: center center;">
@@ -10,13 +12,13 @@
                 </figure>
 
                 <img
-                    src="assets/img/user/default.jpg"
+                    src="{{ asset($avatarPath) }}"
                     alt="profile image"
                     style="width: 50px; height: 50px; border-radius: 50%; margin: 0 auto; object-fit: cover;"
                 >
 
                 <h5 class="text-center font-weight-medium" style="color: #ffffff; padding-bottom: 10px;">
-                    HR Payroll User
+                    {{ $authUser?->name ?? 'HR Payroll User' }}
                 </h5>
             </div>
 
@@ -27,16 +29,29 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
+                <li id="menu-organization-structure" data-id="menu-organization-structure" class="main {{ ($s['isOrganizationStructure'] ?? false) ? 'active' : '' }}">
+                    <a href="{{ route('organization.structure') }}">
+                        <i class="icon-share-alt"></i>
+                        <span>Organization Structure</span>
+                    </a>
+                </li>
 
-                @if(($s['canDepartmentView'] ?? false) || ($s['canDepartmentCreate'] ?? false) || ($s['canDesignationView'] ?? false) || ($s['canDesignationCreate'] ?? false))
+                @if(($s['canEmployeeView'] ?? false) || ($s['canEmployeeCreate'] ?? false) || ($s['canEmployeeUpdate'] ?? false) || ($s['canDepartmentView'] ?? false) || ($s['canDepartmentCreate'] ?? false) || ($s['canDesignationView'] ?? false) || ($s['canDesignationCreate'] ?? false))
                     <li id="menu-employees" data-id="menu-employees" class="main {{ ($s['isEmployees'] ?? false) ? 'active' : '' }}">
                         <a class="has-arrow" href="#" aria-expanded="{{ ($s['isEmployees'] ?? false) ? 'true' : 'false' }}">
                             <i class="icon-user"></i>
                             <span>Employees</span>
                         </a>
                         <ul aria-expanded="{{ ($s['isEmployees'] ?? false) ? 'true' : 'false' }}">
-                            <li><a href="#">Employee List</a></li>
-                            <li><a href="#">Add Employee</a></li>
+                            @if($s['canEmployeeView'] ?? false)
+                                <li class="{{ request()->routeIs('employees.index') || request()->routeIs('employees.show') || request()->routeIs('employees.edit') ? 'active' : '' }}"><a href="{{ route('employees.index') }}">Employee List</a></li>
+                            @endif
+                            @if($s['canEmployeeCreate'] ?? false)
+                                <li class="{{ request()->routeIs('employees.create') ? 'active' : '' }}"><a href="{{ route('employees.create') }}">Add Employee</a></li>
+                            @endif
+                            @if($s['canEmployeeUpdate'] ?? false)
+                                <li class="{{ request()->routeIs('employees.profile-updates.index') || request()->routeIs('employees.profile-updates.show') ? 'active' : '' }}"><a href="{{ route('employees.profile-updates.index') }}">Update Approval Queue</a></li>
+                            @endif
                             @if($s['canDepartmentView'] ?? false)
                                 <li class="{{ request()->routeIs('departments.index') || request()->routeIs('departments.edit') ? 'active' : '' }}"><a href="{{ route('departments.index') }}">Departments</a></li>
                             @endif

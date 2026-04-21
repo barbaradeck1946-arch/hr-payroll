@@ -14,8 +14,20 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $groups = [
-            'dashboard' => ['view'],
-            'employee' => ['view', 'create', 'update', 'delete', 'view_profile', 'view_hierarchy'],
+            'dashboard' => ['view', 'change_password'],
+            'employee' => [
+                'view',
+                'create',
+                'update',
+                'delete',
+                'view_profile',
+                'view_hierarchy',
+                'profile_update_request_submit',
+                'profile_update_request_view',
+                'profile_update_request_review',
+                'profile_update_request_approve',
+                'profile_update_request_reject',
+            ],
             'attendance' => ['view', 'clock', 'manage', 'approve_time_change', 'report'],
             'leave' => ['view', 'apply', 'approve', 'manage_categories', 'manage_quotas', 'report'],
             'payroll' => ['view', 'generate', 'manage_salary_templates', 'manage_bonus', 'manage_loan', 'manage_deduction', 'manage_pf', 'report'],

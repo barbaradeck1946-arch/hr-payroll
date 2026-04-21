@@ -27,17 +27,23 @@ class AppServiceProvider extends ServiceProvider
             $user = auth()->user();
             $can = fn (string $permission): bool => $user?->hasPermission($permission) ?? false;
             $canAny = fn (array $permissions): bool => $user?->hasAnyPermission($permissions) ?? false;
+            $isEmployeeAdmin = $user?->roles()->whereIn('slug', ['super-admin', 'hr-manager'])->exists() ?? false;
 
             $view->with('sidebarState', [
                 'isDashboard' => request()->routeIs('dashboard'),
-                'isEmployees' => request()->routeIs('departments.*') || request()->routeIs('designations.*'),
+                'isOrganizationStructure' => request()->routeIs('organization.structure'),
+                'isEmployees' => request()->routeIs('employees.*') || request()->routeIs('departments.*') || request()->routeIs('designations.*'),
                 'isUserManagement' => request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('permissions.*'),
                 'isSettings' => request()->routeIs('settings.*'),
 
-                'canDepartmentView' => $can('department.view'),
-                'canDepartmentCreate' => $can('department.create'),
-                'canDesignationView' => $can('designation.view'),
-                'canDesignationCreate' => $can('designation.create'),
+                'canEmployeeView' => $isEmployeeAdmin && $can('employee.view'),
+                'canEmployeeCreate' => $isEmployeeAdmin && $can('employee.create'),
+                'canEmployeeUpdate' => $isEmployeeAdmin && $can('employee.update'),
+                'canEmployeeProfileUpdateSubmit' => ($user?->employee !== null) && $can('employee.profile-update-request-submit'),
+                'canDepartmentView' => $isEmployeeAdmin && $can('department.view'),
+                'canDepartmentCreate' => $isEmployeeAdmin && $can('department.create'),
+                'canDesignationView' => $isEmployeeAdmin && $can('designation.view'),
+                'canDesignationCreate' => $isEmployeeAdmin && $can('designation.create'),
 
                 'canRoleView' => $can('role.view'),
                 'canRoleCreate' => $can('role.create'),

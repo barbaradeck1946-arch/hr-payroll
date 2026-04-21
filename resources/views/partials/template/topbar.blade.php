@@ -4,6 +4,10 @@
 </noscript>
 
 <header class="topbar clearfix">
+    @php
+        $authUser = auth()->user();
+        $avatarPath = $authUser?->employee?->avatar_path ?: 'assets/img/user/default.jpg';
+    @endphp
     <nav class="navbar navbar-light app-topbar-nav">
         <div class="app-topbar-left">
             <div class="logo-container" style="min-width: 210px; height: 50px; background-color: rgba(255, 255, 255, 1); text-align:center">
@@ -25,7 +29,7 @@
         <div class="app-topbar-right">
             <ul class="navbar-nav ms-auto" style="display: flex; flex-direction: row;">
 
-                        <li class="dropdown d-none d-sm-block">
+                        <li class="dropdown d-none d-sm-block topbar-notification-menu">
                             <a href="#" class="dropdown-toggle topbar-hold-trigger" data-bs-toggle="dropdown" role="button" aria-expanded="false" title="Notifications">
                                 <i class="icon-bell"></i>
                                 <span class="hold-badge">3</span>
@@ -77,19 +81,19 @@
                             </select>
                         </li>
 
-                        <li class="dropdown">
+                        <li class="dropdown topbar-user-menu">
                             <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                                 <span class="user-img float-start">
-                                    <img alt="user" src="{{ asset('assets/img/user/default.jpg') }}">
+                                    <img alt="user" src="{{ asset($avatarPath) }}">
                                 </span>
                             </a>
 
-                            <div class="dropdown-menu topbar-dropdown-wrapper" role="menu">
+                            <div class="dropdown-menu dropdown-menu-end topbar-dropdown-wrapper" role="menu">
                                 <ul class="dropdown-user-inner">
                                     <li>
                                         <div class="dd-userbox">
                                             <div class="dd-img">
-                                                <img alt="user" src="{{ asset('assets/img/user/default.jpg') }}">
+                                                <img alt="user" src="{{ asset($avatarPath) }}">
                                             </div>
                                             <div class="dd-info">
                                                 <h4>{{ auth()->user()->name ?? 'User' }}</h4>
@@ -99,7 +103,11 @@
                                     </li>
 
                                     <li class="divider"></li>
-                                    <li><a href="{{ route('password.request') }}"><i class="icon-lock mr10"></i> Change Password</a></li>
+                                    @if($authUser?->employee && $authUser->hasPermission('employee.profile-update-request-submit'))
+                                        <li><a href="{{ route('employees.profile-updates.create') }}"><i class="icon-note mr10"></i> Update Profile</a></li>
+                                        <li class="divider"></li>
+                                    @endif
+                                    <li><a href="{{ route('dashboard.password.edit') }}"><i class="icon-lock mr10"></i> Change Password</a></li>
                                     <li class="divider"></li>
                                     <li>
                                         <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -117,3 +125,32 @@
         </div>
     </nav>
 </header>
+
+<style>
+    .topbar,
+    .topbar .app-topbar-nav,
+    .topbar .app-topbar-right,
+    .topbar .app-topbar-right .navbar-nav {
+        overflow: visible !important;
+    }
+
+    .topbar .topbar-user-menu,
+    .topbar .topbar-notification-menu {
+        position: relative;
+    }
+
+    .topbar .app-topbar-right .navbar-nav {
+        gap: 14px;
+    }
+
+    .topbar .app-topbar-right .dropdown-menu,
+    .topbar .app-topbar-right .topbar-dropdown-wrapper,
+    .topbar .app-topbar-right .hold-notification-dropdown {
+        position: absolute !important;
+        top: calc(100% + 8px) !important;
+        right: 0 !important;
+        left: auto !important;
+        z-index: 1100 !important;
+        margin-top: 0 !important;
+    }
+</style>
