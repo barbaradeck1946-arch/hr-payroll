@@ -62,17 +62,19 @@
                     </li>
                 @endif
 
-                <li id="menu-attendance" data-id="menu-attendance" class="main">
-                    <a class="has-arrow" href="#">
-                        <i class="icon-clock"></i>
-                        <span>Attendance</span>
-                    </a>
-                    <ul aria-expanded="true">
-                        <li><a href="#">Attendance List</a></li>
-                        <li><a href="#">Add Attendance</a></li>
-                        <li><a href="#">Attendance Approvals</a></li>
-                    </ul>
-                </li>
+                @if(($s['canAttendanceView'] ?? false) || ($s['canAttendanceClock'] ?? false) || ($s['canAttendanceManage'] ?? false) || ($s['canAttendanceReport'] ?? false))
+                    <li id="menu-attendance" data-id="menu-attendance" class="main {{ ($s['isAttendance'] ?? false) ? 'active' : '' }}">
+                        <a class="has-arrow" href="#" aria-expanded="{{ ($s['isAttendance'] ?? false) ? 'true' : 'false' }}">
+                            <i class="icon-clock"></i>
+                            <span>Attendance</span>
+                        </a>
+                        <ul aria-expanded="{{ ($s['isAttendance'] ?? false) ? 'true' : 'false' }}">
+                            @if(($s['canAttendanceView'] ?? false) || ($s['canAttendanceManage'] ?? false))
+                                <li class="{{ request()->routeIs('attendance.index') ? 'active' : '' }}"><a href="{{ route('attendance.index') }}">Attendances</a></li>
+                            @endif
+                        </ul>
+                    </li>
+                @endif
 
                 <li id="menu-leave" data-id="menu-leave" class="main">
                     <a class="has-arrow" href="#">

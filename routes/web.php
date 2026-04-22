@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Modules\Settings\Http\Controllers\SettingsController;
 use App\Modules\Departments\Http\Controllers\DepartmentController;
 use App\Modules\Designations\Http\Controllers\DesignationController;
+use App\Modules\Attendance\Http\Controllers\AttendanceController;
 use App\Modules\Employees\Http\Controllers\EmployeeController;
 use App\Modules\Employees\Http\Controllers\EmployeeProfileUpdateRequestController;
 use App\Modules\Holidays\Http\Controllers\HolidayController;
@@ -50,6 +51,12 @@ Route::middleware('auth')->group(function (): void {
     });
 
     Route::get('/organization-structure', [EmployeeController::class, 'organizationStructure'])->name('organization.structure');
+
+    Route::prefix('attendance')->name('attendance.')->group(function (): void {
+        Route::get('/', [AttendanceController::class, 'index'])->middleware('permission:attendance.view,attendance.clock,attendance.manage')->name('index');
+        Route::post('/', [AttendanceController::class, 'store'])->middleware('permission:attendance.clock,attendance.manage')->name('store');
+        Route::get('/export', [AttendanceController::class, 'exportCsv'])->middleware('permission:attendance.report,attendance.view,attendance.manage')->name('export');
+    });
 
     Route::middleware('role.any:super-admin,hr-manager')->group(function (): void {
 

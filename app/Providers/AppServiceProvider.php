@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
                 'isDashboard' => request()->routeIs('dashboard'),
                 'isOrganizationStructure' => request()->routeIs('organization.structure'),
                 'isEmployees' => request()->routeIs('employees.*') || request()->routeIs('departments.*') || request()->routeIs('designations.*'),
+                'isAttendance' => request()->routeIs('attendance.*'),
                 'isHoliday' => request()->routeIs('holidays.*'),
                 'isUserManagement' => request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('permissions.*'),
                 'isSettings' => request()->routeIs('settings.*'),
@@ -48,6 +49,10 @@ class AppServiceProvider extends ServiceProvider
                 'canHolidayView' => $isEmployeeAdmin && $can('holiday.view'),
                 'canHolidayCreate' => $isEmployeeAdmin && $can('holiday.create'),
                 'canHolidayUpdate' => $isEmployeeAdmin && $can('holiday.update'),
+                'canAttendanceView' => $can('attendance.view'),
+                'canAttendanceClock' => $can('attendance.clock'),
+                'canAttendanceManage' => $can('attendance.manage'),
+                'canAttendanceReport' => $canAny(['attendance.report', 'attendance.export']),
 
                 'canRoleView' => $can('role.view'),
                 'canRoleCreate' => $can('role.create'),
