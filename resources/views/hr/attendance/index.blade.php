@@ -1,15 +1,21 @@
 @extends('layouts.backend')
+@section('title', 'Attendance')
 
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-clock"></i> Attendance</h1>
-        <a
-            href="{{ route('attendance.export', ['from_date' => $filters['from_date'], 'to_date' => $filters['to_date'], 'employee_id' => $filters['employee_id']]) }}"
-            class="btn btn-custom-default"
-        >
-            <i class="icon-cloud-download"></i> Export Excel (CSV)
-        </a>
+        <div class="d-flex gap-2">
+            @if($canManageAttendance && $hasAllAccess)
+                <a href="{{ route('attendance.template-download') }}" class="btn btn-custom-default">
+                    <i class="icon-doc"></i> Template Download
+                </a>
+            @endif
+            <a href="{{ route('attendance.export', ['from_date' => $filters['from_date'], 'to_date' => $filters['to_date'], 'employee_id' => $filters['employee_id']]) }}"
+                class="btn btn-custom-default">
+                <i class="icon-cloud-download"></i> Export Excel (CSV)
+            </a>
+        </div>
     </div>
 
     @include('partials.flash')
@@ -35,12 +41,10 @@
                             </div>
                         @endif
                         <div class="col-md-3">
-                            <label>Date</label>
-                            <input
-                                type="text"
+                             <label>Date</label>
+                            <input type="text"
                                 name="attendance_date"
-                                class="form-control attendance-date-picker"
-                                placeholder="YYYY-MM-DD"
+                                class="form-control attendance-date-picker" placeholder="YYYY-MM-DD"
                                 autocomplete="off"
                                 value="{{ old('attendance_date', now()->format('Y-m-d')) }}"
                                 required
@@ -56,9 +60,7 @@
                         </div>
                         <div class="col-md-2">
                             <label>Time (hh:mm AM/PM)</label>
-                            <input
-                                type="text"
-                                name="entry_time"
+                            <input type="text" name="entry_time"
                                 class="form-control attendance-time-picker"
                                 placeholder="09:01 AM"
                                 autocomplete="off"
@@ -67,15 +69,38 @@
                             >
                         </div>
                         <div class="col-md-2">
-                            <label>Remarks</label>
-                            <input type="text" name="remarks" class="form-control" value="{{ old('remarks') }}" placeholder="Optional">
-                        </div>
+                                <label>Remarks</label>
+                                <input type="text" name="remarks" class="form-control" value="{{ old('remarks') }}" placeholder="Optional">
+                            </div>
                         <div class="col-md-12 mt-2">
                             <button type="submit" class="btn btn-custom"><i class="icon-plus"></i> Add Attendance</button>
-                        </div>
+                            </div>
                     </form>
                 </div>
             </div>
+
+            @if($canManageAttendance && $hasAllAccess)
+                <div class="card no-border mb-3">
+                    <div class="content_wrapper" style="padding:20px;">
+                        <h5 class="table_banner_title mb-3">Excel Import (CSV)</h5>
+                        <form method="POST" action="{{ route('attendance.import') }}" enctype="multipart/form-data" class="row g-2">
+                            @csrf
+                            <div class="col-md-6">
+                                <label>Upload CSV File</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input id="attendance_file" type="file" name="attendance_file" accept=".csv,text/csv" required>
+                                    <label for="attendance_file" class="btn btn-custom mb-0">Choose CSV</label>
+                                    <span id="attendance_file_name" class="text-muted">No file selected</span>
+                                    </div>
+                                        <small class="text-muted">Use template columns: employee_code, attendance_date, entry_type, entry_time, remarks.</small>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button type="submit" class="btn btn-custom"><i class="icon-cloud-upload"></i> Import Attendance</button>
+                                </div>
+                        </form>
+                    </div>
+                </div>
+            @endif
 
             <div class="card no-border">
                 <div class="content_wrapper" style="padding:20px;">
@@ -84,10 +109,10 @@
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-2">
                             <input type="text" name="from_date" class="form-control attendance-date-picker" value="{{ $filters['from_date'] }}" placeholder="From date">
-                        </div>
+                            </div>
                         <div class="col-md-2">
                             <input type="text" name="to_date" class="form-control attendance-date-picker" value="{{ $filters['to_date'] }}" placeholder="To date">
-                        </div>
+                            </div>
                         <div class="col-md-3">
                             <select name="employee_id" class="form-control js-example-basic-single">
                                 <option value="0">All Employees</option>
@@ -104,12 +129,12 @@
                                 @foreach([10,20,50,100] as $size)
                                     <option value="{{ $size }}" {{ (int) $filters['per_page'] === $size ? 'selected' : '' }}>{{ $size }} / page</option>
                                 @endforeach
-                            </select>
+                                </select>
                         </div>
                         <div class="col-md-3 d-flex gap-2">
                             <button type="submit" class="btn btn-custom"><i class="icon-magnifier"></i> Filter</button>
-                            <a href="{{ route('attendance.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i></a>
-                        </div>
+                                <a href="{{ route('attendance.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i></a>
+                            </div>
                     </form>
 
                     <div class="table-responsive">
@@ -167,7 +192,9 @@
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
 <script>
+
     (function () {
+
         if (!$.fn.datepicker) {
             return;
         }
@@ -185,6 +212,18 @@
                 scrollDefault: 'now',
                 forceRoundTime: true,
                 dropdown: true
+            });
+        }
+
+        var attendanceFile = document.getElementById('attendance_file');
+        var attendanceFileName = document.getElementById('attendance_file_name');
+        if (attendanceFile && attendanceFileName) {
+            attendanceFile.addEventListener('change', function () {
+                if (attendanceFile.files && attendanceFile.files.length > 0) {
+                    attendanceFileName.textContent = attendanceFile.files[0].name;
+                } else {
+                    attendanceFileName.textContent = 'No file selected';
+                }
             });
         }
     })();

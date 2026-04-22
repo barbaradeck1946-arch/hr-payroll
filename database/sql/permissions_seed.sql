@@ -21,6 +21,8 @@ INSERT INTO `permissions` (`group_name`, `name`, `slug`, `description`, `created
 ('attendance','Approve Time Change Attendance','attendance.approve-time-change','Approve Time Change Attendance',NOW(),NOW()),
 ('attendance','Report Attendance','attendance.report','Report Attendance',NOW(),NOW()),
 ('attendance','Export Attendance','attendance.export','Export Attendance',NOW(),NOW()),
+('attendance','Import Attendance','attendance.import','Import Attendance',NOW(),NOW()),
+('attendance','Api Integration Attendance','attendance.api-integration','Api Integration Attendance',NOW(),NOW()),
 ('leave','View Leave','leave.view','View Leave',NOW(),NOW()),
 ('leave','Apply Leave','leave.apply','Apply Leave',NOW(),NOW()),
 ('leave','Approve Leave','leave.approve','Approve Leave',NOW(),NOW()),

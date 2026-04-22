@@ -19,10 +19,20 @@ class StoreAttendanceRequest extends FormRequest
     {
         return [
             'employee_id' => ['nullable', 'integer', 'exists:employees,id'],
-            'attendance_date' => ['required', 'date_format:Y-m-d'],
+            'attendance_date' => ['required', 'date_format:Y-m-d', 'before_or_equal:today'],
             'entry_type' => ['required', 'string', 'in:checkin,checkout'],
             'entry_time' => ['required', 'string', 'max:20'],
             'remarks' => ['nullable', 'string', 'max:1000'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'attendance_date.before_or_equal' => 'Only today or previous dates are allowed for attendance.',
         ];
     }
 

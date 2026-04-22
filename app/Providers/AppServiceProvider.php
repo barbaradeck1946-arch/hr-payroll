@@ -53,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
                 'canAttendanceClock' => $can('attendance.clock'),
                 'canAttendanceManage' => $can('attendance.manage'),
                 'canAttendanceReport' => $canAny(['attendance.report', 'attendance.export']),
+                'canAttendanceApiIntegration' => $canAny(['attendance.api-integration', 'attendance.manage']),
 
                 'canRoleView' => $can('role.view'),
                 'canRoleCreate' => $can('role.create'),

@@ -72,6 +72,9 @@
                             @if(($s['canAttendanceView'] ?? false) || ($s['canAttendanceManage'] ?? false))
                                 <li class="{{ request()->routeIs('attendance.index') ? 'active' : '' }}"><a href="{{ route('attendance.index') }}">Attendances</a></li>
                             @endif
+                            @if($s['canAttendanceApiIntegration'] ?? false)
+                                <li class="{{ request()->routeIs('attendance.api-docs') ? 'active' : '' }}"><a href="{{ route('attendance.api-docs') }}">API Integration</a></li>
+                            @endif
                         </ul>
                     </li>
                 @endif

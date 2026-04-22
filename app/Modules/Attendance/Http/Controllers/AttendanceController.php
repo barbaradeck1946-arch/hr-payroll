@@ -3,13 +3,18 @@
 namespace App\Modules\Attendance\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceApiClient;
+use App\Models\Employee;
 use App\Models\User;
+use App\Modules\Attendance\Http\Requests\ImportAttendanceRequest;
 use App\Modules\Attendance\Http\Requests\StoreAttendanceRequest;
 use App\Modules\Attendance\Repositories\AttendanceRepository;
 use App\Modules\Attendance\Services\AttendanceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -44,8 +49,9 @@ class AttendanceController extends Controller
         return view('hr.attendance.index', [
             'attendanceRows' => $this->attendanceRepository->paginateSummary($filters, $scopedEmployeeIds),
             'employees' => $this->attendanceRepository->listEmployeesForScope($scopedEmployeeIds),
-                'filters' => $filters,
-                'canManageAttendance' => $user->hasPermission('attendance.manage'),
+            'filters' => $filters,
+            'canManageAttendance' => $user->hasPermission('attendance.manage'),
+            'canAttendanceApiIntegration' => $user->hasAnyPermission(['attendance.api-integration', 'attendance.manage']),
             'currentEmployeeId' => $user->employee?->id,
             'hasAllAccess' => $hasAllAccess,
         ]);
@@ -180,6 +186,207 @@ class AttendanceController extends Controller
         return response()->streamDownload($callback, $fileName, $headers);
     }
 
+    public function downloadTemplate(): StreamedResponse
+    {
+        $fileName = 'attendance_import_template.csv';
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ];
+
+        $callback = static function (): void {
+            $output = fopen('php://output', 'w');
+            if ($output === false) {
+                return;
+            }
+
+            fwrite($output, "\xEF\xBB\xBF");
+            fputcsv($output, ['employee_code', 'attendance_date', 'entry_type', 'entry_time', 'remarks']);
+            fputcsv($output, ['EMP0001', '2026-04-22', 'checkin', '09:01 AM', 'Morning entry']);
+            fputcsv($output, ['EMP0001', '2026-04-22', 'checkout', '06:15 PM', 'Evening exit']);
+            fclose($output);
+        };
+
+        return response()->streamDownload($callback, $fileName, $headers);
+    }
+
+    public function importCsv(ImportAttendanceRequest $request): RedirectResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $hasAllAccess = $this->hasAllAccess($user);
+        $scopedEmployeeIds = $hasAllAccess ? null : $this->scopedEmployeeIds($user);
+        $currentEmployeeId = (int) ($user->employee?->id ?? 0);
+
+        $file = $request->file('attendance_file');
+        if (! $file || ! $file->isValid()) {
+            return back()->withErrors(['attendance_file' => 'Uploaded file is invalid.'])->withInput();
+        }
+
+        $handle = fopen((string) $file->getRealPath(), 'r');
+        if ($handle === false) {
+            return back()->withErrors(['attendance_file' => 'Unable to read uploaded file.'])->withInput();
+        }
+
+        $header = fgetcsv($handle);
+        if (! is_array($header)) {
+            fclose($handle);
+            return back()->withErrors(['attendance_file' => 'CSV header is missing.'])->withInput();
+        }
+
+        $columns = array_map(fn ($value) => strtolower(trim((string) $value)), $header);
+        $map = array_flip($columns);
+        $requiredColumns = ['attendance_date', 'entry_type', 'entry_time'];
+        foreach ($requiredColumns as $column) {
+            if (! array_key_exists($column, $map)) {
+                fclose($handle);
+                return back()->withErrors(['attendance_file' => "Missing required column: {$column}."])->withInput();
+            }
+        }
+
+        $employeeCodeMap = Employee::query()
+            ->select(['id', 'employee_code'])
+            ->get()
+            ->filter(fn (Employee $employee): bool => ! empty($employee->employee_code))
+            ->mapWithKeys(fn (Employee $employee) => [strtolower((string) $employee->employee_code) => (int) $employee->id])
+            ->all();
+
+        $imported = 0;
+        $skipped = 0;
+        $line = 1;
+        $errors = [];
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $line++;
+            if (! is_array($row)) {
+                $skipped++;
+                continue;
+            }
+
+            $attendanceDate = trim((string) ($row[$map['attendance_date']] ?? ''));
+            $entryTypeRaw = trim((string) ($row[$map['entry_type']] ?? ''));
+            $entryTime = trim((string) ($row[$map['entry_time']] ?? ''));
+            $remarks = trim((string) ($map['remarks'] ?? null) !== null ? ($row[$map['remarks']] ?? '') : '');
+            $employeeCode = trim((string) (($map['employee_code'] ?? null) !== null ? ($row[$map['employee_code']] ?? '') : ''));
+            $employeeIdRaw = trim((string) (($map['employee_id'] ?? null) !== null ? ($row[$map['employee_id']] ?? '') : ''));
+            $entryType = $this->normalizeEntryType($entryTypeRaw);
+
+            $employeeId = 0;
+            if ($hasAllAccess) {
+                if ($employeeIdRaw !== '' && ctype_digit($employeeIdRaw)) {
+                    $employeeId = (int) $employeeIdRaw;
+                } elseif ($employeeCode !== '') {
+                    $employeeId = (int) ($employeeCodeMap[strtolower($employeeCode)] ?? 0);
+                }
+            } else {
+                $employeeId = $currentEmployeeId;
+            }
+
+            $validator = Validator::make([
+                'employee_id' => $employeeId,
+                'attendance_date' => $attendanceDate,
+                'entry_type' => $entryType,
+                'entry_time' => $entryTime,
+                'remarks' => $remarks,
+            ], [
+                'employee_id' => ['required', 'integer', 'exists:employees,id'],
+                'attendance_date' => ['required', 'date_format:Y-m-d', 'before_or_equal:today'],
+                'entry_type' => ['required', 'in:checkin,checkout'],
+                'entry_time' => ['required', 'string', 'max:20'],
+                'remarks' => ['nullable', 'string', 'max:1000'],
+            ], [
+                'attendance_date.before_or_equal' => 'Only today or previous dates are allowed for attendance.',
+            ]);
+
+            if ($validator->fails()) {
+                $skipped++;
+                $errors[] = "Line {$line}: " . $validator->errors()->first();
+                continue;
+            }
+
+            if (! $this->isEntryTimeValid($attendanceDate, $entryTime)) {
+                $skipped++;
+                $errors[] = "Line {$line}: Invalid entry_time format ({$entryTime}).";
+                continue;
+            }
+
+            if ($scopedEmployeeIds !== null && ! in_array($employeeId, $scopedEmployeeIds, true)) {
+                $skipped++;
+                $errors[] = "Line {$line}: You are not allowed to import data for employee_id {$employeeId}.";
+                continue;
+            }
+
+            $this->attendanceService->addManualLog($employeeId, [
+                'attendance_date' => $attendanceDate,
+                'entry_type' => $entryType,
+                'entry_time' => $entryTime,
+                'remarks' => $remarks,
+            ], $user->id);
+            $imported++;
+        }
+
+        fclose($handle);
+
+        if ($skipped > 0 && $imported === 0) {
+            return back()
+                ->withErrors(['attendance_file' => 'No rows imported. ' . implode(' | ', array_slice($errors, 0, 3))])
+                ->withInput();
+        }
+
+        $message = "Import completed. Imported {$imported} row(s).";
+        if ($skipped > 0) {
+            $message .= " Skipped {$skipped} row(s).";
+        }
+
+        if ($skipped > 0) {
+            return redirect()->route('attendance.index')->with('warning', $message);
+        }
+
+        return redirect()->route('attendance.index')->with('success', $message);
+    }
+
+    public function apiIntegrationDocs(Request $request): View
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        return view('hr.attendance.api_integration', [
+            'apiClients' => AttendanceApiClient::query()->orderByDesc('id')->get(),
+            'latestPlainToken' => session('attendance_api_plain_token'),
+            'canManageAttendance' => $user->hasPermission('attendance.manage'),
+        ]);
+    }
+
+    public function createApiClient(Request $request): RedirectResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'allowed_ips' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $plainToken = Str::random(64);
+        AttendanceApiClient::query()->create([
+            'name' => $validated['name'],
+            'token_hash' => hash('sha256', $plainToken),
+            'is_active' => true,
+            'allowed_ips' => $validated['allowed_ips'] ?: null,
+            'created_by' => $user->id,
+        ]);
+
+        return redirect()->route('attendance.api-docs')
+            ->with('success', 'API client created successfully. Copy the token now.')
+            ->with('attendance_api_plain_token', $plainToken);
+    }
+
+    public function toggleApiClient(Request $request, AttendanceApiClient $apiClient): RedirectResponse
+    {
+        $apiClient->update(['is_active' => ! $apiClient->is_active]);
+
+        return redirect()->route('attendance.api-docs')->with('success', 'API client status updated.');
+    }
+
     /**
      * @return array<int, int>|null
      */
@@ -202,5 +409,36 @@ class AttendanceController extends Controller
         $hasPermission = $user->hasAnyPermission(['attendance.view', 'attendance.manage', 'attendance.report']);
 
         return $hasPrivilegedRole && $hasPermission;
+    }
+
+    private function normalizeEntryType(string $value): string
+    {
+        $normalized = strtolower(trim($value));
+        if (in_array($normalized, ['checkin', 'check-in', 'in'], true)) {
+            return 'checkin';
+        }
+
+        if (in_array($normalized, ['checkout', 'check-out', 'out'], true)) {
+            return 'checkout';
+        }
+
+        return $normalized;
+    }
+
+    private function isEntryTimeValid(string $attendanceDate, string $entryTime): bool
+    {
+        $formats = ['Y-m-d H:i', 'Y-m-d h:i A', 'Y-m-d h:i a'];
+        $value = $attendanceDate . ' ' . trim($entryTime);
+
+        foreach ($formats as $format) {
+            try {
+                Carbon::createFromFormat($format, $value);
+                return true;
+            } catch (\Throwable) {
+                // try next format
+            }
+        }
+
+        return false;
     }
 }

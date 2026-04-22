@@ -56,6 +56,11 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/', [AttendanceController::class, 'index'])->middleware('permission:attendance.view,attendance.clock,attendance.manage')->name('index');
         Route::post('/', [AttendanceController::class, 'store'])->middleware('permission:attendance.clock,attendance.manage')->name('store');
         Route::get('/export', [AttendanceController::class, 'exportCsv'])->middleware('permission:attendance.report,attendance.view,attendance.manage')->name('export');
+        Route::get('/template-download', [AttendanceController::class, 'downloadTemplate'])->middleware('permission:attendance.manage,attendance.import')->name('template-download');
+        Route::post('/import', [AttendanceController::class, 'importCsv'])->middleware('permission:attendance.manage,attendance.import')->name('import');
+        Route::get('/api-integration', [AttendanceController::class, 'apiIntegrationDocs'])->middleware('permission:attendance.api-integration,attendance.manage')->name('api-docs');
+        Route::post('/api-integration/clients', [AttendanceController::class, 'createApiClient'])->middleware('permission:attendance.api-integration,attendance.manage')->name('api-clients.store');
+        Route::patch('/api-integration/clients/{apiClient}/toggle', [AttendanceController::class, 'toggleApiClient'])->middleware('permission:attendance.api-integration,attendance.manage')->name('api-clients.toggle');
     });
 
     Route::middleware('role.any:super-admin,hr-manager')->group(function (): void {
