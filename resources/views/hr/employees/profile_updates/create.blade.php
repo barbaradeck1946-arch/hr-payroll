@@ -40,7 +40,7 @@
                         @php($managerName = $employee->manager ? trim($employee->manager->first_name.' '.$employee->manager->last_name).' ('.$employee->manager->employee_code.')' : 'No Manager')
                         @php($profileImage = $employee->avatar_path ? asset($employee->avatar_path) : asset('assets/img/user/default.jpg'))
 
-                            <ul class="nav nav-tabs mb-3" id="profile-update-tabs" role="tablist">
+                            <ul class="nav nav-tabs profile-update-tab-nav mb-3" id="profile-update-tabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="tab-general" data-bs-toggle="tab" data-bs-target="#pane-general" type="button" role="tab" aria-controls="pane-general" aria-selected="true">
                                     General Information
@@ -60,7 +60,7 @@
 
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="pane-general" role="tabpanel" aria-labelledby="tab-general">
-                                <div class="card p-3 mb-4">
+                                <div class="profile-panel mb-4">
                                     <div class="mb-3">
                                         <label class="form-label">Current Profile Image</label>
                                         <div>
@@ -127,7 +127,7 @@
                             </div>
 
                             <div class="tab-pane fade" id="pane-organization" role="tabpanel" aria-labelledby="tab-organization">
-                                <div class="card p-3 mb-4">
+                                <div class="profile-panel mb-4">
                                     <div class="row g-2">
                                         <div class="col-md-4">
                                             <label class="form-label">Employee Code</label>
@@ -174,21 +174,21 @@
                             </div>
 
                             <div class="tab-pane fade" id="pane-other" role="tabpanel" aria-labelledby="tab-other">
-                                <h5 class="mb-2">Addresses</h5>
+                                <h5 class="table_banner_title mb-2">Addresses</h5>
                                 <div id="addresses-container" class="mb-3"></div>
-                                <button type="button" class="btn btn-custom-default btn-sm mb-4" data-add-row="addresses">+ Add Address</button>
+                                <button type="button" class="btn btn-custom-default btn-sm mb-4" data-add-row="addresses"><i class="icon-plus"></i> Add Address</button>
 
-                                <h5 class="mb-2">Bank Accounts</h5>
+                                <h5 class="table_banner_title mb-2">Bank Accounts</h5>
                                 <div id="banks-container" class="mb-3"></div>
-                                <button type="button" class="btn btn-custom-default btn-sm mb-4" data-add-row="banks">+ Add Bank Account</button>
+                                <button type="button" class="btn btn-custom-default btn-sm mb-4" data-add-row="banks"><i class="icon-plus"></i> Add Bank Account</button>
 
-                                <h5 class="mb-2">Emergency Contacts</h5>
+                                <h5 class="table_banner_title mb-2">Emergency Contacts</h5>
                                 <div id="contacts-container" class="mb-3"></div>
-                                <button type="button" class="btn btn-custom-default btn-sm mb-4" data-add-row="contacts">+ Add Contact</button>
+                                <button type="button" class="btn btn-custom-default btn-sm mb-4" data-add-row="contacts"><i class="icon-plus"></i> Add Contact</button>
 
-                                <h5 class="mb-2">Documents</h5>
+                                <h5 class="table_banner_title mb-2">Documents</h5>
                                 <div id="documents-container" class="mb-3"></div>
-                                <button type="button" class="btn btn-custom-default btn-sm mb-4" data-add-row="documents">+ Add Document</button>
+                                <button type="button" class="btn btn-custom-default btn-sm mb-4" data-add-row="documents"><i class="icon-plus"></i> Add Document</button>
                             </div>
                         </div>
 
@@ -204,6 +204,43 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .profile-update-tab-nav {
+        border-bottom: 1px solid #d9e1ea;
+    }
+    .profile-update-tab-nav .nav-link {
+        color: #607d8b;
+        font-weight: 500;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        padding: 10px 14px;
+        background: transparent;
+    }
+    .profile-update-tab-nav .nav-link.active {
+        color: #2C3E50;
+        border-color: #2C3E50;
+        background: transparent;
+    }
+    .profile-panel {
+        border: 1px solid #dfe7ef;
+        border-radius: 8px;
+        background: #fff;
+        padding: 16px;
+    }
+    .profile-row-card {
+        border: 1px solid #e2eaf2;
+        border-radius: 8px;
+        padding: 14px;
+        background: #fdfefe;
+        margin-bottom: 10px;
+    }
+    .profile-row-remove {
+        min-width: 38px;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>
@@ -232,57 +269,72 @@
         row = row || {};
 
         if (type === 'addresses') {
-            return `<div class="card p-3 mb-2" data-row>
+            return `<div class="profile-row-card" data-row>
                 <div class="row g-2">
                     <div class="col-md-2"><input name="addresses[${i}][address_type]" class="form-control" placeholder="Type" value="${escapeHtml(row.address_type)}"></div>
                     <div class="col-md-4"><input name="addresses[${i}][line_1]" class="form-control" placeholder="Address line 1" value="${escapeHtml(row.line_1)}"></div>
                     <div class="col-md-3"><input name="addresses[${i}][line_2]" class="form-control" placeholder="Address line 2" value="${escapeHtml(row.line_2)}"></div>
                     <div class="col-md-2"><input name="addresses[${i}][city]" class="form-control" placeholder="City" value="${escapeHtml(row.city)}"></div>
-                    <div class="col-md-1"><button type="button" class="btn btn-custom-default btn-sm" data-remove-row>×</button></div>
+                    <div class="col-md-1"><button type="button" class="btn btn-custom-default btn-sm profile-row-remove" data-remove-row><i class="icon-trash"></i></button></div>
                     <div class="col-md-2"><input name="addresses[${i}][state]" class="form-control" placeholder="State" value="${escapeHtml(row.state)}"></div>
                     <div class="col-md-2"><input name="addresses[${i}][postal_code]" class="form-control" placeholder="Postal" value="${escapeHtml(row.postal_code)}"></div>
                     <div class="col-md-3"><input name="addresses[${i}][country]" class="form-control" placeholder="Country" value="${escapeHtml(row.country)}"></div>
-                    <div class="col-md-3 d-flex align-items-center"><label><input type="checkbox" name="addresses[${i}][is_primary]" value="1" ${boolChecked(row.is_primary)}> Primary</label></div>
+                    <div class="col-md-3 d-flex align-items-center">
+                        <div class="checkbox checkbox-default mb-0">
+                            <input id="addresses_primary_${i}" type="checkbox" name="addresses[${i}][is_primary]" value="1" ${boolChecked(row.is_primary)}>
+                            <label for="addresses_primary_${i}">Primary</label>
+                        </div>
+                    </div>
                 </div>
             </div>`;
         }
 
         if (type === 'banks') {
-            return `<div class="card p-3 mb-2" data-row>
+            return `<div class="profile-row-card" data-row>
                 <div class="row g-2">
                     <div class="col-md-3"><input name="bank_accounts[${i}][bank_name]" class="form-control" placeholder="Bank name" value="${escapeHtml(row.bank_name)}"></div>
                     <div class="col-md-3"><input name="bank_accounts[${i}][branch_name]" class="form-control" placeholder="Branch name" value="${escapeHtml(row.branch_name)}"></div>
                     <div class="col-md-3"><input name="bank_accounts[${i}][account_holder_name]" class="form-control" placeholder="Account holder" value="${escapeHtml(row.account_holder_name)}"></div>
                     <div class="col-md-2"><input name="bank_accounts[${i}][account_number]" class="form-control" placeholder="Account no" value="${escapeHtml(row.account_number)}"></div>
-                    <div class="col-md-1"><button type="button" class="btn btn-custom-default btn-sm" data-remove-row>×</button></div>
+                    <div class="col-md-1"><button type="button" class="btn btn-custom-default btn-sm profile-row-remove" data-remove-row><i class="icon-trash"></i></button></div>
                     <div class="col-md-2"><input name="bank_accounts[${i}][routing_number]" class="form-control" placeholder="Routing" value="${escapeHtml(row.routing_number)}"></div>
                     <div class="col-md-2"><input name="bank_accounts[${i}][account_type]" class="form-control" placeholder="Type" value="${escapeHtml(row.account_type)}"></div>
-                    <div class="col-md-3 d-flex align-items-center"><label><input type="checkbox" name="bank_accounts[${i}][is_primary]" value="1" ${boolChecked(row.is_primary)}> Primary</label></div>
+                    <div class="col-md-3 d-flex align-items-center">
+                        <div class="checkbox checkbox-default mb-0">
+                            <input id="banks_primary_${i}" type="checkbox" name="bank_accounts[${i}][is_primary]" value="1" ${boolChecked(row.is_primary)}>
+                            <label for="banks_primary_${i}">Primary</label>
+                        </div>
+                    </div>
                 </div>
             </div>`;
         }
 
         if (type === 'contacts') {
-            return `<div class="card p-3 mb-2" data-row>
+            return `<div class="profile-row-card" data-row>
                 <div class="row g-2">
                     <div class="col-md-3"><input name="emergency_contacts[${i}][name]" class="form-control" placeholder="Name" value="${escapeHtml(row.name)}"></div>
                     <div class="col-md-2"><input name="emergency_contacts[${i}][relationship]" class="form-control" placeholder="Relationship" value="${escapeHtml(row.relationship)}"></div>
                     <div class="col-md-2"><input name="emergency_contacts[${i}][phone]" class="form-control" placeholder="Phone" value="${escapeHtml(row.phone)}"></div>
                     <div class="col-md-3"><input name="emergency_contacts[${i}][email]" class="form-control" placeholder="Email" value="${escapeHtml(row.email)}"></div>
-                    <div class="col-md-1"><button type="button" class="btn btn-custom-default btn-sm" data-remove-row>×</button></div>
+                    <div class="col-md-1"><button type="button" class="btn btn-custom-default btn-sm profile-row-remove" data-remove-row><i class="icon-trash"></i></button></div>
                     <div class="col-md-5"><input name="emergency_contacts[${i}][address]" class="form-control" placeholder="Address" value="${escapeHtml(row.address)}"></div>
-                    <div class="col-md-3 d-flex align-items-center"><label><input type="checkbox" name="emergency_contacts[${i}][is_primary]" value="1" ${boolChecked(row.is_primary)}> Primary</label></div>
+                    <div class="col-md-3 d-flex align-items-center">
+                        <div class="checkbox checkbox-default mb-0">
+                            <input id="contacts_primary_${i}" type="checkbox" name="emergency_contacts[${i}][is_primary]" value="1" ${boolChecked(row.is_primary)}>
+                            <label for="contacts_primary_${i}">Primary</label>
+                        </div>
+                    </div>
                 </div>
             </div>`;
         }
 
         if (type === 'documents') {
-            return `<div class="card p-3 mb-2" data-row>
+            return `<div class="profile-row-card" data-row>
                 <div class="row g-2">
                     <div class="col-md-2"><input name="documents[${i}][document_type]" class="form-control" placeholder="Type" value="${escapeHtml(row.document_type)}"></div>
                     <div class="col-md-3"><input name="documents[${i}][title]" class="form-control" placeholder="Title" value="${escapeHtml(row.title)}"></div>
                     <div class="col-md-4"><input name="documents[${i}][file_path]" class="form-control" placeholder="File path" value="${escapeHtml(row.file_path)}"></div>
-                    <div class="col-md-2"><button type="button" class="btn btn-custom-default btn-sm" data-remove-row>Remove</button></div>
+                    <div class="col-md-2"><button type="button" class="btn btn-custom-default btn-sm profile-row-remove" data-remove-row><i class="icon-trash"></i></button></div>
                     <div class="col-md-2"><input name="documents[${i}][issued_date]" class="form-control datetimepicker" placeholder="Issued" value="${escapeHtml(row.issued_date)}"></div>
                     <div class="col-md-2"><input name="documents[${i}][expiry_date]" class="form-control datetimepicker" placeholder="Expiry" value="${escapeHtml(row.expiry_date)}"></div>
                 </div>
