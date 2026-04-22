@@ -47,6 +47,20 @@ It is designed with a modular Laravel architecture so teams can run day-to-day H
 - Easy-to-use interface
 - Responsive design
 
+## Screenshots
+
+### 1. Settings Page
+
+![Settings Page](public/assets/img/settings.png)
+
+### 2. Update Profile
+
+![Update Profile](public/assets/img/update-profile.png)
+
+### 3. Holiday Calendar
+
+![Holiday Calendar](public/assets/img/holiday-calendar.png)
+
 ## Tech Stack
 
 - PHP 8.2+

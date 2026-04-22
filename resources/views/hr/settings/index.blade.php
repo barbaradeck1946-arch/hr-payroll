@@ -100,8 +100,9 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <hr>
+                            <h5 class="table_banner_title mb-3">Weekend Days</h5>
                             <div class="col-md-12 form-group">
-                                <label>Weekend Days (for Holiday Calendar)</label>
                                 <div class="d-flex flex-wrap">
                                     @foreach(['sun' => 'Sunday', 'mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday'] as $dayKey => $dayLabel)
                                         @php($checkboxId = 'weekend_day_'.$dayKey)
