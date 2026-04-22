@@ -92,7 +92,7 @@
                     </ul>
                 </li>
 
-                <li id="menu-payroll" data-id="menu-payroll" class="main">
+                <li id="menu-payroll" data-id="menu-payroll" class="main {{ request()->routeIs('salary-grades.*') ? 'active' : '' }}">
                     <a class="has-arrow" href="#">
                         <i class="icon-wallet"></i>
                         <span>Payroll</span>
@@ -100,6 +100,7 @@
                     <ul aria-expanded="true">
                         <li><a href="#">Payroll List</a></li>
                         <li><a href="#">Generate Payroll</a></li>
+                        <li class="{{ request()->routeIs('salary-grades.*') ? 'active' : '' }}"><a href="{{ route('salary-grades.index') }}">Salary Grade</a></li>
                         <li><a href="#">Salary Setup</a></li>
                         <li><a href="#">Allowances</a></li>
                         <li><a href="#">Deductions</a></li>

@@ -11,6 +11,7 @@ use App\Modules\Attendance\Http\Controllers\AttendanceController;
 use App\Modules\Employees\Http\Controllers\EmployeeController;
 use App\Modules\Employees\Http\Controllers\EmployeeProfileUpdateRequestController;
 use App\Modules\Holidays\Http\Controllers\HolidayController;
+use App\Modules\SalaryGrades\Http\Controllers\SalaryGradeController;
 use App\Modules\Users\Http\Controllers\PermissionController;
 use App\Modules\Users\Http\Controllers\RoleController;
 use App\Modules\Users\Http\Controllers\UserController;
@@ -107,6 +108,15 @@ Route::middleware('auth')->group(function (): void {
             Route::put('/{holiday}', [HolidayController::class, 'update'])->middleware('permission:holiday.update')->name('update');
             Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->middleware('permission:holiday.delete')->name('destroy');
             Route::get('/export/current-year', [HolidayController::class, 'exportCurrentYearCsv'])->middleware('permission:holiday.view')->name('export-current-year');
+        });
+
+        Route::prefix('salary-grades')->name('salary-grades.')->group(function (): void {
+            Route::get('/', [SalaryGradeController::class, 'index'])->middleware('permission:payroll.view,payroll.manage-salary-templates')->name('index');
+            Route::get('/create', [SalaryGradeController::class, 'create'])->middleware('permission:payroll.manage-salary-templates')->name('create');
+            Route::post('/', [SalaryGradeController::class, 'store'])->middleware('permission:payroll.manage-salary-templates')->name('store');
+            Route::get('/{salaryGrade}/edit', [SalaryGradeController::class, 'edit'])->middleware('permission:payroll.manage-salary-templates')->name('edit');
+            Route::put('/{salaryGrade}', [SalaryGradeController::class, 'update'])->middleware('permission:payroll.manage-salary-templates')->name('update');
+            Route::delete('/{salaryGrade}', [SalaryGradeController::class, 'destroy'])->middleware('permission:payroll.manage-salary-templates')->name('destroy');
         });
 
         Route::prefix('users')->name('users.')->group(function (): void {
