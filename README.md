@@ -61,9 +61,11 @@ It is designed with a modular Laravel architecture so teams can run day-to-day H
 
 ![Holiday Calendar](public/assets/img/holiday-calendar.png)
 
-### 4. Attendance & API Integration
+### 4. Attendance
 
 ![Attendance](public/assets/img/attendance.png)
+
+### 5. API Integration
 
 ![Attendance API Integration](public/assets/img/attendance-api.png)
 
