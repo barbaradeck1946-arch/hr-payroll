@@ -63,10 +63,9 @@ It is designed with a modular Laravel architecture so teams can run day-to-day H
 
 ### 4. Attendance & API Integration
 
-<p align="center">
-  <img src="public/assets/img/attendance.png" alt="Attendance" width="48%" />
-  <img src="public/assets/img/attendance-api.png" alt="Attendance API Integration" width="48%" />
-</p>
+![Attendance](public/assets/img/attendance.png)
+
+![Attendance API Integration](public/assets/img/attendance-api.png)
 
 ## Tech Stack
 
