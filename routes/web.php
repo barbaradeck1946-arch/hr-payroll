@@ -9,6 +9,7 @@ use App\Modules\Departments\Http\Controllers\DepartmentController;
 use App\Modules\Designations\Http\Controllers\DesignationController;
 use App\Modules\Employees\Http\Controllers\EmployeeController;
 use App\Modules\Employees\Http\Controllers\EmployeeProfileUpdateRequestController;
+use App\Modules\Holidays\Http\Controllers\HolidayController;
 use App\Modules\Users\Http\Controllers\PermissionController;
 use App\Modules\Users\Http\Controllers\RoleController;
 use App\Modules\Users\Http\Controllers\UserController;
@@ -84,6 +85,16 @@ Route::middleware('auth')->group(function (): void {
             Route::get('/{designation}/edit', [DesignationController::class, 'edit'])->middleware('permission:designation.update')->name('edit');
             Route::put('/{designation}', [DesignationController::class, 'update'])->middleware('permission:designation.update')->name('update');
             Route::delete('/{designation}', [DesignationController::class, 'destroy'])->middleware('permission:designation.delete')->name('destroy');
+        });
+
+        Route::prefix('holidays')->name('holidays.')->group(function (): void {
+            Route::get('/', [HolidayController::class, 'index'])->middleware('permission:holiday.view')->name('index');
+            Route::get('/create', [HolidayController::class, 'create'])->middleware('permission:holiday.create')->name('create');
+            Route::post('/', [HolidayController::class, 'store'])->middleware('permission:holiday.create')->name('store');
+            Route::get('/{holiday}/edit', [HolidayController::class, 'edit'])->middleware('permission:holiday.update')->name('edit');
+            Route::put('/{holiday}', [HolidayController::class, 'update'])->middleware('permission:holiday.update')->name('update');
+            Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->middleware('permission:holiday.delete')->name('destroy');
+            Route::get('/export/current-year', [HolidayController::class, 'exportCurrentYearCsv'])->middleware('permission:holiday.view')->name('export-current-year');
         });
 
         Route::prefix('users')->name('users.')->group(function (): void {

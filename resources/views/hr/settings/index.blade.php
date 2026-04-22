@@ -73,6 +73,7 @@
 
                         <hr>
                         <h5 class="table_banner_title mb-3">Localization</h5>
+                        @php($weekendDaysSelected = old('weekend_days', array_values(array_filter(explode(',', (string) ($settings['weekend_days'] ?? 'sat,sun'))))))
                         <div class="row">
                             <div class="col-md-4 form-group">
                                 <label>Currency Prefix</label>
@@ -98,6 +99,19 @@
                                         <option value="{{ $zone }}" {{ $tz === $zone ? 'selected' : '' }}>{{ $zone }}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <label>Weekend Days (for Holiday Calendar)</label>
+                                <div class="d-flex flex-wrap">
+                                    @foreach(['sun' => 'Sunday', 'mon' => 'Monday', 'tue' => 'Tuesday', 'wed' => 'Wednesday', 'thu' => 'Thursday', 'fri' => 'Friday', 'sat' => 'Saturday'] as $dayKey => $dayLabel)
+                                        @php($checkboxId = 'weekend_day_'.$dayKey)
+                                        <div class="me-3">
+                                            <input id="{{ $checkboxId }}" type="checkbox" name="weekend_days[]" value="{{ $dayKey }}" {{ in_array($dayKey, $weekendDaysSelected, true) ? 'checked' : '' }}>
+                                            <label for="{{ $checkboxId }}">{{ $dayLabel }}</label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <small class="text-muted">Selected days will be highlighted as weekend in Holidays calendar.</small>
                             </div>
                         </div>
 

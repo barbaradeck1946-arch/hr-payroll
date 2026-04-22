@@ -19,6 +19,11 @@ class SettingsService
      */
     public function updateSettings(array $validated, ?UploadedFile $companyLogo, ?UploadedFile $companyFavicon): void
     {
+        $validated['weekend_days'] = implode(',', array_values(array_unique(array_filter(
+            (array) ($validated['weekend_days'] ?? []),
+            fn ($day): bool => is_string($day) && $day !== ''
+        ))));
+
         $newLogoPath = $this->brandingAssetService->store($companyLogo, 'logo');
         $newFaviconPath = $this->brandingAssetService->store($companyFavicon, 'favicon');
 
@@ -76,6 +81,7 @@ class SettingsService
             'invoice_prefix' => ['group_name' => 'localization'],
             'date_format' => ['group_name' => 'localization'],
             'time_zone' => ['group_name' => 'localization'],
+            'weekend_days' => ['group_name' => 'localization'],
             'mail_mailer' => ['group_name' => 'smtp'],
             'mail_host' => ['group_name' => 'smtp'],
             'mail_port' => ['group_name' => 'smtp'],

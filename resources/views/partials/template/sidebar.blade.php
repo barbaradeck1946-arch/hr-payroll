@@ -113,16 +113,22 @@
                     </ul>
                 </li>
 
-                <li id="menu-holiday" data-id="menu-holiday" class="main">
-                    <a class="has-arrow" href="#">
-                        <i class="icon-plane"></i>
-                        <span>Holidays</span>
-                    </a>
-                    <ul aria-expanded="true">
-                        <li><a href="#">Holiday List</a></li>
-                        <li><a href="#">Add Holiday</a></li>
-                    </ul>
-                </li>
+                @if(($s['canHolidayView'] ?? false) || ($s['canHolidayCreate'] ?? false) || ($s['canHolidayUpdate'] ?? false))
+                    <li id="menu-holiday" data-id="menu-holiday" class="main {{ ($s['isHoliday'] ?? false) ? 'active' : '' }}">
+                        <a class="has-arrow" href="#" aria-expanded="{{ ($s['isHoliday'] ?? false) ? 'true' : 'false' }}">
+                            <i class="icon-plane"></i>
+                            <span>Holidays</span>
+                        </a>
+                        <ul aria-expanded="{{ ($s['isHoliday'] ?? false) ? 'true' : 'false' }}">
+                            @if($s['canHolidayView'] ?? false)
+                                <li class="{{ request()->routeIs('holidays.index') ? 'active' : '' }}"><a href="{{ route('holidays.index') }}">Holiday List</a></li>
+                            @endif
+                            @if($s['canHolidayCreate'] ?? false)
+                                <li class="{{ request()->routeIs('holidays.create') ? 'active' : '' }}"><a href="{{ route('holidays.create') }}">Add Holiday</a></li>
+                            @endif
+                        </ul>
+                    </li>
+                @endif
 
                 <li id="menu-reports" data-id="menu-reports" class="main">
                     <a class="has-arrow" href="#">

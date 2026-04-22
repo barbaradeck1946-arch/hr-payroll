@@ -7,6 +7,13 @@ use Illuminate\Validation\Rule;
 
 class UpdateSettingsRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('weekend_days')) {
+            $this->merge(['weekend_days' => []]);
+        }
+    }
+
     public function authorize(): bool
     {
         return true;
@@ -28,6 +35,8 @@ class UpdateSettingsRequest extends FormRequest
             'invoice_prefix' => ['nullable', 'string', 'max:30'],
             'date_format' => ['required', 'string', 'max:40'],
             'time_zone' => ['required', 'timezone'],
+            'weekend_days' => ['array'],
+            'weekend_days.*' => ['string', Rule::in(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'])],
 
             'mail_mailer' => ['required', 'string', Rule::in(['smtp'])],
             'mail_host' => ['nullable', 'string', 'max:255'],

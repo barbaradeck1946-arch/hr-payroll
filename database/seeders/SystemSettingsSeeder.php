@@ -20,6 +20,7 @@ class SystemSettingsSeeder extends Seeder
             'invoice_prefix' => ['value' => 'INV', 'group_name' => 'localization'],
             'date_format' => ['value' => 'Y-m-d', 'group_name' => 'localization'],
             'time_zone' => ['value' => config('app.timezone', 'Asia/Dhaka'), 'group_name' => 'localization'],
+            'weekend_days' => ['value' => 'sat,sun', 'group_name' => 'localization'],
             'mail_mailer' => ['value' => config('mail.default', 'smtp'), 'group_name' => 'smtp'],
             'mail_host' => ['value' => config('mail.mailers.smtp.host'), 'group_name' => 'smtp'],
             'mail_port' => ['value' => (string) config('mail.mailers.smtp.port'), 'group_name' => 'smtp'],
