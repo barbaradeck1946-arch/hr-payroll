@@ -4,6 +4,26 @@ Zerithonlabs - Modern HRM + Payroll platform rebuilt with Laravel for real compa
 
 > Legacy version note: this `main` branch is the Laravel rebuild. Older legacy implementation may exist in a separate branch.
 
+<p align="center">
+  <img src="public/assets/image/hr-payroll-banner.png" alt="HR Payroll Banner" />
+</p>
+
+<h3 align="center">💛 Support My Work</h3>
+
+<p align="center">
+  Your support helps me continue building better software, maintaining open-source projects, and creating useful tools through MADCODERZ.
+</p>
+
+<p align="center">
+  <a href="https://nawjesh.lemonsqueezy.com/checkout/buy/c5c03632-dcb2-472f-a8cd-4df279c391d8" target="_blank">
+    <img src="https://img.shields.io/badge/💛%20Donate-Support%20My%20Work-F5B800?style=for-the-badge&logo=buymeacoffee&logoColor=black" alt="Donate / Support" />
+  </a>
+  &nbsp;
+  <a href="https://www.hostinger.com?REFERRALCODE=HHPNAWJES5CA" target="_blank">
+    <img src="https://img.shields.io/badge/🚀%20Hostinger-Get%2020%25%20Off-673DE6?style=for-the-badge&logo=hostinger&logoColor=white" alt="Get 20% Off on Hostinger" />
+  </a>
+</p>
+
 ## Why This Project
 
 A complete HRM and Payroll platform for organizations that need one system to manage employee lifecycle, attendance, leave, payroll, approvals, and reporting.
@@ -165,6 +185,26 @@ Contributions are welcome.
 - notification system enhancements
 - API layer for external integrations
 - richer reporting and exports
+
+<p align="center">
+  <img src="public/assets/image/hr-payroll-banner.png" alt="HR Payroll Banner" />
+</p>
+
+<h3 align="center">💛 Support My Work</h3>
+
+<p align="center">
+  Your support helps me continue building better software, maintaining open-source projects, and creating useful tools through MADCODERZ.
+</p>
+
+<p align="center">
+  <a href="https://nawjesh.lemonsqueezy.com/checkout/buy/c5c03632-dcb2-472f-a8cd-4df279c391d8" target="_blank">
+    <img src="https://img.shields.io/badge/💛%20Donate-Support%20My%20Work-F5B800?style=for-the-badge&logo=buymeacoffee&logoColor=black" alt="Donate / Support" />
+  </a>
+  &nbsp;
+  <a href="https://www.hostinger.com?REFERRALCODE=HHPNAWJES5CA" target="_blank">
+    <img src="https://img.shields.io/badge/🚀%20Hostinger-Get%2020%25%20Off-673DE6?style=for-the-badge&logo=hostinger&logoColor=white" alt="Get 20% Off on Hostinger" />
+  </a>
+</p>
 
 ## License
 
