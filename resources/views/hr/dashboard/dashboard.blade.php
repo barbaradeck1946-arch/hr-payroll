@@ -157,7 +157,13 @@
                         <div class="bg-white">
                             <div class="slimScrollNote">
                                 <div class="todo-box-wrap">
-                                    <ul class="todo-list" id="quick-note-list">
+                                    <ul
+                                        class="todo-list"
+                                        id="quick-note-list"
+                                        data-csrf="{{ csrf_token() }}"
+                                        data-can-update="{{ ($canUpdatePrivateNotes ?? false) ? '1' : '0' }}"
+                                        data-can-delete="{{ ($canDeletePrivateNotes ?? false) ? '1' : '0' }}"
+                                    >
                                         @if(!($canViewPrivateNotes ?? false))
                                             <li class="todo-item quick-note-empty">
                                                 <div class="text-muted small p-2">You do not have permission to view private notes.</div>
@@ -183,6 +189,16 @@
                                                             <div class="fw-semibold quick-note-title {{ $note->is_completed ? 'text-decoration-line-through text-muted' : '' }}">{{ $note->title }}</div>
                                                             <div class="small quick-note-body {{ $note->is_completed ? 'text-decoration-line-through text-muted' : 'text-muted' }}">{{ $note->note_body }}</div>
                                                         </div>
+                                                        @if($canUpdatePrivateNotes ?? false)
+                                                            <button
+                                                                type="button"
+                                                                class="btn btn-sm btn-custom-default quick-note-edit-btn"
+                                                                title="Edit note"
+                                                                data-action="{{ route('dashboard.quick-notes.update', $note) }}"
+                                                            >
+                                                                <i class="icon-pencil"></i>
+                                                            </button>
+                                                        @endif
                                                         @if($canDeletePrivateNotes ?? false)
                                                             <form method="POST" action="{{ route('dashboard.quick-notes.delete', $note) }}" class="quick-note-delete-form" onsubmit="return confirm('Delete this note permanently?');">
                                                                 @csrf
@@ -225,7 +241,15 @@
 
 @push('scripts')
 <script>
+    // Quick Notes JavaScript
 (function () {
+    var list = document.getElementById('quick-note-list');
+    var addForm = document.querySelector('.quick-note-add-form');
+    var csrf = list ? (list.getAttribute('data-csrf') || '') : '';
+    var canUpdate = list ? list.getAttribute('data-can-update') === '1' : false;
+    var canDelete = list ? list.getAttribute('data-can-delete') === '1' : false;
+
+    // Helper function to send AJAX requests for forms
     function fetchForm(form) {
         return fetch(form.action, {
             method: 'POST',
@@ -234,6 +258,22 @@
                 'Accept': 'application/json'
             },
             body: new FormData(form)
+        }).then(function (res) { return res.json(); });
+    }
+
+    // Helper function to send AJAX requests for non-form actions
+    function fetchAction(url, payload) {
+        var formData = new FormData();
+        Object.keys(payload).forEach(function (key) {
+            formData.append(key, payload[key]);
+        });
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: formData
         }).then(function (res) { return res.json(); });
     }
 
@@ -246,8 +286,85 @@
             .replace(/'/g, '&#039;');
     }
 
-    var list = document.getElementById('quick-note-list');
-    var addForm = document.querySelector('.quick-note-add-form');
+    function removeDividers() {
+        if (!list) {
+            return;
+        }
+        list.querySelectorAll('li').forEach(function (li) {
+            if (li.querySelector('hr.light-grey-hr')) {
+                li.remove();
+            }
+        });
+    }
+
+    function rebuildDividers() {
+        if (!list) {
+            return;
+        }
+        removeDividers();
+        var items = Array.prototype.slice.call(list.querySelectorAll('.todo-item:not(.quick-note-empty)'));
+        items.forEach(function (item, index) {
+            if (index === items.length - 1) {
+                return;
+            }
+            var divider = document.createElement('li');
+            divider.className = 'quick-note-divider';
+            divider.innerHTML = '<hr class="light-grey-hr">';
+            item.insertAdjacentElement('afterend', divider);
+        });
+    }
+
+    function ensureEmptyState() {
+        if (!list) {
+            return;
+        }
+        var items = list.querySelectorAll('.todo-item:not(.quick-note-empty)');
+        var empty = list.querySelector('.quick-note-empty');
+        if (items.length === 0 && !empty) {
+            var emptyLi = document.createElement('li');
+            emptyLi.className = 'todo-item quick-note-empty';
+            emptyLi.innerHTML = '<div class="text-muted small p-2">No notes yet. Add your first private note below.</div>';
+            list.appendChild(emptyLi);
+            return;
+        }
+        if (items.length > 0 && empty) {
+            empty.remove();
+        }
+    }
+
+    function makeRowHtml(id, title, body) {
+        var html = '<div class="d-flex align-items-start gap-2">';
+        if (canUpdate) {
+            html +=
+                '<form method="POST" action="/dashboard/quick-notes/' + id + '/toggle" class="checkbox checkbox-default pt-1 quick-note-toggle-form">' +
+                '  <input type="hidden" name="_token" value="' + csrf + '">' +
+                '  <input type="hidden" name="_method" value="PATCH">' +
+                '  <input class="to-do quick-note-toggle" type="checkbox" id="quick_note_' + id + '">' +
+                '  <label for="quick_note_' + id + '"></label>' +
+                '</form>';
+        }
+        html +=
+            '<div class="flex-grow-1">' +
+            '  <div class="fw-semibold quick-note-title">' + title + '</div>' +
+            '  <div class="small quick-note-body text-muted">' + body + '</div>' +
+            '</div>';
+        if (canUpdate) {
+            html +=
+                '<button type="button" class="btn btn-sm btn-custom-default quick-note-edit-btn" title="Edit note" data-action="/dashboard/quick-notes/' + id + '">' +
+                '  <i class="icon-pencil"></i>' +
+                '</button>';
+        }
+        if (canDelete) {
+            html +=
+                '<form method="POST" action="/dashboard/quick-notes/' + id + '" class="quick-note-delete-form">' +
+                '  <input type="hidden" name="_token" value="' + csrf + '">' +
+                '  <input type="hidden" name="_method" value="DELETE">' +
+                '  <button type="submit" class="btn btn-sm btn-danger" title="Delete note"><i class="icon-trash"></i></button>' +
+                '</form>';
+        }
+        html += '</div>';
+        return html;
+    }
 
     if (addForm) {
         addForm.addEventListener('submit', function (event) {
@@ -260,33 +377,17 @@
                 list.querySelectorAll('.quick-note-empty').forEach(function (el) { el.remove(); });
 
                 var id = Number(json.note.id);
-                var csrf = addForm.querySelector('input[name=\"_token\"]').value;
                 var title = escapeHtml(json.note.title || '');
                 var body = escapeHtml(json.note.note_body || '');
 
                 var row = document.createElement('li');
                 row.className = 'todo-item';
                 row.setAttribute('data-note-id', String(id));
-                row.innerHTML = '' +
-                    '<div class="d-flex align-items-start gap-2">' +
-                    '  <form method="POST" action="/dashboard/quick-notes/' + id + '/toggle" class="checkbox checkbox-default pt-1 quick-note-toggle-form">' +
-                    '    <input type="hidden" name="_token" value="' + csrf + '">' +
-                    '    <input type="hidden" name="_method" value="PATCH">' +
-                    '    <input class="to-do quick-note-toggle" type="checkbox" id="quick_note_' + id + '">' +
-                    '    <label for="quick_note_' + id + '"></label>' +
-                    '  </form>' +
-                    '  <div class="flex-grow-1">' +
-                    '    <div class="fw-semibold quick-note-title">' + title + '</div>' +
-                    '    <div class="small quick-note-body text-muted">' + body + '</div>' +
-                    '  </div>' +
-                    '  <form method="POST" action="/dashboard/quick-notes/' + id + '" class="quick-note-delete-form">' +
-                    '    <input type="hidden" name="_token" value="' + csrf + '">' +
-                    '    <input type="hidden" name="_method" value="DELETE">' +
-                    '    <button type="submit" class="btn btn-sm btn-danger" title="Delete note"><i class="icon-trash"></i></button>' +
-                    '  </form>' +
-                    '</div>';
+                row.innerHTML = makeRowHtml(id, title, body);
 
                 list.prepend(row);
+                rebuildDividers();
+                ensureEmptyState();
                 addForm.reset();
             }).catch(function () {});
         });
@@ -324,6 +425,46 @@
         });
     });
 
+    document.addEventListener('click', function (event) {
+        var button = event.target.closest('.quick-note-edit-btn');
+        if (!button) {
+            return;
+        }
+        var item = button.closest('.todo-item');
+        if (!item) {
+            return;
+        }
+        var bodyNode = item.querySelector('.quick-note-body');
+        var titleNode = item.querySelector('.quick-note-title');
+        var currentBody = bodyNode ? (bodyNode.textContent || '').trim() : '';
+        var currentTitle = titleNode ? (titleNode.textContent || '').trim() : '';
+        var nextBody = window.prompt('Edit note', currentBody);
+        if (nextBody === null) {
+            return;
+        }
+        nextBody = nextBody.trim();
+        if (nextBody === '') {
+            return;
+        }
+
+        fetchAction(button.getAttribute('data-action') || '', {
+            _token: csrf,
+            _method: 'PATCH',
+            title: currentTitle,
+            note_body: nextBody
+        }).then(function (json) {
+            if (!json || !json.ok || !json.note) {
+                return;
+            }
+            if (titleNode) {
+                titleNode.textContent = json.note.title || '';
+            }
+            if (bodyNode) {
+                bodyNode.textContent = json.note.note_body || '';
+            }
+        }).catch(function () {});
+    });
+
     document.addEventListener('submit', function (event) {
         var form = event.target.closest('.quick-note-delete-form');
         if (!form) {
@@ -340,21 +481,16 @@
                 return;
             }
             var item = form.closest('.todo-item');
-            var hr = item && item.nextElementSibling && item.nextElementSibling.tagName === 'LI' ? item.nextElementSibling : null;
-            if (hr) {
-                hr.remove();
-            }
             if (item) {
                 item.remove();
             }
-            if (list && !list.querySelector('.todo-item')) {
-                var empty = document.createElement('li');
-                empty.className = 'todo-item quick-note-empty';
-                empty.innerHTML = '<div class="text-muted small p-2">No notes yet. Add your first private note below.</div>';
-                list.appendChild(empty);
-            }
+            rebuildDividers();
+            ensureEmptyState();
         }).catch(function () {});
     });
+
+    rebuildDividers();
+    ensureEmptyState();
 })();
 </script>
 @endpush

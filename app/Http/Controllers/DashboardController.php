@@ -123,4 +123,41 @@ class DashboardController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Note deleted permanently.');
     }
+
+    public function updateQuickNote(Request $request, PrivateNote $privateNote): RedirectResponse|JsonResponse
+    {
+        $user = $request->user();
+        abort_if(! $user || ! $user->hasPermission('note.update-private'), 403);
+        abort_if((int) $privateNote->user_id !== (int) $user->id, 403);
+
+        $validated = $request->validate([
+            'note_body' => ['required', 'string', 'max:2000'],
+            'title' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $noteBody = trim((string) $validated['note_body']);
+        $title = trim((string) ($validated['title'] ?? ''));
+        if ($title === '') {
+            $title = mb_substr($noteBody, 0, 80);
+        }
+
+        $privateNote->update([
+            'title' => $title,
+            'note_body' => $noteBody,
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'message' => 'Note updated.',
+                'note' => [
+                    'id' => (int) $privateNote->id,
+                    'title' => (string) $privateNote->title,
+                    'note_body' => (string) $privateNote->note_body,
+                ],
+            ]);
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Note updated.');
+    }
 }
