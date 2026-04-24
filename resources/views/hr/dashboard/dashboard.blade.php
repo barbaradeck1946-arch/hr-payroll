@@ -11,7 +11,7 @@
     @include('partials.flash')
     <div class="page-content">
         <div class="container-fluid">
-            <div class="row">
+            <div class="row mb-4">
                 <div class="col-md-3">
                     <div class="card border-0">
                         <div class="card-body bg-dutch widget">
@@ -95,7 +95,7 @@
                         <div class="content_wrapper">
                             <div class="table_banner clearfix">
                                 <h5 class="table_banner_title">
-                                    Sales Progress | Latest Notices & Announcements
+                                    Latest Notices & Announcements
                                 </h5>
                             <div class="float-end d-flex gap-2">
                                 <a href="{{ route('announcements.index') }}" class="btn btn-custom-default btn-sm">View All</a>
@@ -200,210 +200,8 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <!--Top 10 product-->
-                <div class="col-md-6">
-                    <div class="card no-border">
-                        <div class="content_wrapper">
-                            <div class="table_banner clearfix">
-                                <h5 class="table_banner_title">
-                                    Top 10 Product
-                                </h5>
-                                <h5 class="table_banner_title float-end"><i class="icon-handbag"></i></h5>
-                            </div>
-                            <style>
-                                .table tr td {
-                                    padding: 15px 10px !IMPORTANT;
-                                }
-                            </style>
-                            <div class="table_body no-padding dash-table-widget" style="padding: 20px; margin-bottom: 0;">
-                                <table class="table" style="margin-bottom: 0;">
-                                    <!-- start head -->
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                Image
-                                            </th>
-                                            <th>
-                                                Title
-                                            </th>
-                                            <th>
-                                                Sold
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <!-- end head -->
-                                    <!-- start body -->
-                                    <tbody>
-                                        <!-- start rows -->
-                                        
-                                        <tr>
-                                            <td><img alt="madpos" src="../../../public/assets/img/product/"> </td>
-                                            <td>
-                                                
-                                            </td>
-                                            <td>
-                                                
-                                            </td>
-                                        </tr>
-                                        
-                                        <!-- end rows -->
-                                    </tbody>
-                                    <!-- end body -->
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--Top 10 product end-->
-                <!--Top 10 Customer start-->
-                <div class="col-md-6">
-                    <div class="card no-border">
-                        <div class="content_wrapper">
-                            <div class="table_banner clearfix">
-                                <h5 class="table_banner_title">
-                                    Top 10 Customer
-                                </h5>
-                                <h5 class="table_banner_title float-end"><i class="icon-people"></i></h5>
-                            </div>
-                            <style>
-                                .table tr td {
-                                    padding: 15px 10px !IMPORTANT;
-                                }
-                            </style>
-                            <div class="table_body no-padding dash-table-widget" style="padding: 20px; margin-bottom: 0;">
-                                <table class="table" style="margin-bottom: 0;">
-                                    <!-- start head -->
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                Image
-                                            </th>
-                                            <th>
-                                                Full Name
-                                            </th>
-                                            <th>
-                                                Total
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <!-- end head -->
-                                    <!-- start body -->
-                                    <tbody>
-                                        <!-- start rows -->
-                                        
-                                        <tr>
-                                            <td>
-                                                
-                                                <img alt="madpos" src="../../../public/assets/img/customer/">
-                                                
-                                                <img alt="madpos" src="../../../public/assets/img/user/default.jpg">
-                                                
-                                            </td>
-                                            <td>
-                                                
-                                            </td>
-                                            <td>
-                                                
-                                            </td>
-                                        </tr>
-                                        
-                                        <!-- end rows -->
-                                    </tbody>
-                                    <!-- end body -->
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--Top 10 Customer end-->
-                <!--Todays expense start-->
-                <div class="col-md-6">
-                    <div class="card no-border">
-                        <div class="content_wrapper">
-                            <div class="table_banner clearfix">
-                                <h5 class="table_banner_title">
-                                    Today's Expense
-                                </h5>
-                                <h5 class="table_banner_title float-end"><i class="icon-calculator"></i></h5>
-                            </div>
-                            <style>
-                                .table tr td {
-                                    padding: 15px 10px !IMPORTANT;
-                                }
-                            </style>
-                            <div class="table_body dash-table-widget no-padding" style="padding: 20px; margin-bottom: 0;">
-                                <table class="table" style="margin-bottom: 0;">
-                                    <!-- start head -->
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                Expense Name
-                                            </th>
-                                            <th>
-                                                Expense By
-                                            </th>
-                                            <th>
-                                                Amount
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <!-- end head -->
-                                    <!-- start body -->
-                                    <tbody>
-                                        <!-- start rows -->
-                                        
-                                        <tr>
-                                            <td class="text-primary">
-                                                
-                                            </td>
-                                            <td>
-                                                
-                                            </td>
-                                            <td>
-                                                
-                                            </td>
-                                        </tr>
-                                        
-                                        <!-- end rows -->
-                                    </tbody>
-                                    <!-- end body -->
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--Todays expense end-->
-            </div>
         </div>
     </div>
     <!-- /.page-content  -->
 </div>
 @endsection
-
-@push('styles')
-<style>
-    .dashboard-notice-meta {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    .dashboard-notice-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: #4e5d6c;
-        border: 1px solid #e6e9ee;
-        border-radius: 6px;
-        padding: 4px 9px;
-    }
-    .dashboard-notice-table thead th {
-        white-space: nowrap;
-        border-bottom-width: 2px;
-    }
-    .dashboard-notice-table .badge i {
-        margin-right: 4px;
-    }
-</style>
-@endpush

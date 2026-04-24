@@ -3250,3 +3250,25 @@ body {
         color: #9f2828;
         background: #f5dcdc;
     }
+    .dashboard-notice-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .dashboard-notice-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #4e5d6c;
+        border: 1px solid #e6e9ee;
+        border-radius: 6px;
+        padding: 4px 9px;
+    }
+    .dashboard-notice-table thead th {
+        white-space: nowrap;
+        border-bottom-width: 2px;
+    }
+    .dashboard-notice-table .badge i {
+        margin-right: 4px;
+    }
