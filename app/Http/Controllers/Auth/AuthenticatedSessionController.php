@@ -34,13 +34,16 @@ class AuthenticatedSessionController extends Controller
         }
 
         $user = Auth::user();
-        if (! $user || ! $user->isActive()) {
+        if (! $user || ! $user->canAccessPortal()) {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
+            $blockedStatus = $user?->blockedEmploymentStatus();
             throw ValidationException::withMessages([
-                'email' => 'Your account is not approved yet. Please contact admin.',
+                'email' => $blockedStatus
+                    ? 'Your employment status is ' . str_replace('_', ' ', $blockedStatus) . '. Login is blocked. Please contact HR.'
+                    : 'Your account is not approved yet. Please contact admin.',
             ]);
         }
 

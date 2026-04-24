@@ -36,7 +36,7 @@
                     </a>
                 </li>
 
-                @if(($s['canEmployeeView'] ?? false) || ($s['canEmployeeCreate'] ?? false) || ($s['canEmployeeUpdate'] ?? false) || ($s['canDepartmentView'] ?? false) || ($s['canDepartmentCreate'] ?? false) || ($s['canDesignationView'] ?? false) || ($s['canDesignationCreate'] ?? false))
+                @if(($s['canEmployeeView'] ?? false) || ($s['canEmployeeCreate'] ?? false) || ($s['canEmployeeUpdate'] ?? false) || ($s['canResignationApply'] ?? false) || ($s['canResignationSupervisorApprove'] ?? false) || ($s['canResignationFinalApprove'] ?? false) || ($s['canEmployeeStatusView'] ?? false) || ($s['canDepartmentView'] ?? false) || ($s['canDepartmentCreate'] ?? false) || ($s['canDesignationView'] ?? false) || ($s['canDesignationCreate'] ?? false))
                     <li id="menu-employees" data-id="menu-employees" class="main {{ ($s['isEmployees'] ?? false) ? 'active' : '' }}">
                         <a class="has-arrow" href="#" aria-expanded="{{ ($s['isEmployees'] ?? false) ? 'true' : 'false' }}">
                             <i class="icon-user"></i>
@@ -51,6 +51,18 @@
                             @endif
                             @if($s['canEmployeeUpdate'] ?? false)
                                 <li class="{{ request()->routeIs('employees.profile-updates.index') || request()->routeIs('employees.profile-updates.show') ? 'active' : '' }}"><a href="{{ route('employees.profile-updates.index') }}">Update Approval Queue</a></li>
+                            @endif
+                            @if($s['canResignationApply'] ?? false)
+                                <li class="{{ request()->routeIs('employee-resignations.index') ? 'active' : '' }}"><a href="{{ route('employee-resignations.index') }}">Resignation Apply</a></li>
+                            @endif
+                            @if($s['canResignationSupervisorApprove'] ?? false)
+                                <li class="{{ request()->routeIs('employee-resignations.supervisor-approvals') ? 'active' : '' }}"><a href="{{ route('employee-resignations.supervisor-approvals') }}">Resignation Supervisor Approval</a></li>
+                            @endif
+                            @if($s['canResignationFinalApprove'] ?? false)
+                                <li class="{{ request()->routeIs('employee-resignations.final-approvals') ? 'active' : '' }}"><a href="{{ route('employee-resignations.final-approvals') }}">Resignation Final Approval</a></li>
+                            @endif
+                            @if($s['canEmployeeStatusView'] ?? false)
+                                <li class="{{ request()->routeIs('employee-statuses.*') ? 'active' : '' }}"><a href="{{ route('employee-statuses.index') }}">Employee Status</a></li>
                             @endif
                             @if($s['canDepartmentView'] ?? false)
                                 <li class="{{ request()->routeIs('departments.index') || request()->routeIs('departments.edit') ? 'active' : '' }}"><a href="{{ route('departments.index') }}">Departments</a></li>

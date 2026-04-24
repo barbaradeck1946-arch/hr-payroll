@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role.any' => \App\Http\Middleware\EnsureUserHasAnyRole::class,
             'permission' => \App\Http\Middleware\EnsureUserHasPermission::class,
+            'portal.access' => \App\Http\Middleware\EnsureUserCanAccessPortal::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

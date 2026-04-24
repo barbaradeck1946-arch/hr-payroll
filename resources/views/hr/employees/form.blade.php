@@ -107,7 +107,7 @@
                                     <label>Employment Status</label>
                                     @php($selectedStatus = old('employment_status', $employee->employment_status ?? 'active'))
                                     <select name="employment_status" class="form-control" required>
-                                        @foreach(['active','inactive','on_leave','terminated'] as $status)
+                                        @foreach(['active','inactive','on_leave','on_notice','resigned','terminated'] as $status)
                                             <option value="{{ $status }}" {{ $selectedStatus === $status ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ', $status)) }}</option>
                                         @endforeach
                                     </select>

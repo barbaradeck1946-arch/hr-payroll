@@ -39,7 +39,7 @@ class StoreEmployeeRequest extends FormRequest
              'probation_end_date' => ['nullable', 'date', 'after_or_equal:date_of_joining'],
             'termination_date' => ['nullable', 'date', 'after_or_equal:date_of_joining'],
             'employment_type' => ['required', Rule::in(['full_time', 'part_time', 'contract', 'intern'])],
-            'employment_status' => ['required', Rule::in(['active', 'inactive', 'on_leave', 'terminated'])],
+            'employment_status' => ['required', Rule::in(['active', 'inactive', 'on_leave', 'on_notice', 'resigned', 'terminated'])],
             'department_id' => ['nullable', 'integer', 'exists:departments,id'],
             'designation_id' => ['nullable', 'integer', 'exists:designations,id'],
             'salary_grade_id' => ['nullable', 'integer', 'exists:salary_grades,id'],

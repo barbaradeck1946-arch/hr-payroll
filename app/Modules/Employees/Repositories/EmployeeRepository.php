@@ -15,6 +15,7 @@ class EmployeeRepository
 {
     /**
      * @param array<string, mixed> $filters
+     * @return LengthAwarePaginator<Employee>
      */
     public function paginate(array $filters): LengthAwarePaginator
     {
@@ -37,9 +38,9 @@ class EmployeeRepository
                 $query->where(function ($inner) use ($q): void {
                     $inner
                         ->where('employee_code', 'like', "%{$q}%")
-                        ->orWhere('first_name', 'like', "%{$q}%")
+                            ->orWhere('first_name', 'like', "%{$q}%")
                         ->orWhere('last_name', 'like', "%{$q}%")
-                        ->orWhere('phone', 'like', "%{$q}%")
+                            ->orWhere('phone', 'like', "%{$q}%")
                         ->orWhere('work_email', 'like', "%{$q}%");
                 });
             })
@@ -53,17 +54,12 @@ class EmployeeRepository
             ->withQueryString();
     }
 
-    /**
-     * @param array<string, mixed> $attributes
-     */
+    // create, update, delete, withDetails
     public function create(array $attributes): Employee
     {
         return Employee::query()->create($attributes);
     }
 
-    /**
-     * @param array<string, mixed> $attributes
-     */
     public function update(Employee $employee, array $attributes): void
     {
         $employee->update($attributes);
@@ -88,9 +84,7 @@ class EmployeeRepository
         return $employee;
     }
 
-    /**
-     * @return Collection<int, Department>
-     */
+
     public function listDepartments(): Collection
     {
         return Department::query()->orderBy('name')->get(['id', 'name', 'code']);

@@ -75,6 +75,21 @@ class Employee extends Model
         return $this->hasMany(EmployeeProfileUpdateRequest::class);
     }
 
+    public function resignationRequests(): HasMany
+    {
+        return $this->hasMany(EmployeeResignationRequest::class);
+    }
+
+    public function exitRecords(): HasMany
+    {
+        return $this->hasMany(EmployeeExitRecord::class);
+    }
+
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(EmployeeStatusHistory::class);
+    }
+
     public function addresses(): HasMany
     {
         return $this->hasMany(EmployeeAddress::class);
