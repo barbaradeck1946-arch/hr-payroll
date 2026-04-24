@@ -5,7 +5,11 @@ Zerithonlabs - Modern HRM + Payroll platform rebuilt with Laravel for real compa
 > Legacy version note: this `main` branch is the Laravel rebuild. Older legacy implementation may exist in a separate branch.
 
 <p align="center">
+<<<<<<< HEAD
   <img src="public/assets/img/hr-payroll-banner.png" alt="HR Payroll Banner" />
+=======
+  <img src="public/assets/image/hrpayroll-2.png" alt="HR Payroll Banner" />
+>>>>>>> ad0c4da (add leave feature)
 </p>
 
 <h3 align="center">💛 Support My Work</h3>
@@ -187,7 +191,7 @@ Contributions are welcome.
 - richer reporting and exports
 
 <p align="center">
-  <img src="public/assets/img/hr-payroll-banner.png" alt="HR Payroll Banner" />
+  <img src="public/assets/img/hrpayroll-2.png" alt="HR Payroll Banner" />
 </p>
 
 <h3 align="center">💛 Support My Work</h3>

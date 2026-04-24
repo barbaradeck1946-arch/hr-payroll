@@ -79,18 +79,34 @@
                     </li>
                 @endif
 
-                <li id="menu-leave" data-id="menu-leave" class="main">
-                    <a class="has-arrow" href="#">
-                        <i class="icon-calendar"></i>
-                        <span>Leave Management</span>
-                    </a>
-                    <ul aria-expanded="true">
-                        <li><a href="#">Leave List</a></li>
-                        <li><a href="#">Apply Leave</a></li>
-                        <li><a href="#">Leave Types</a></li>
-                        <li><a href="#">Leave Approvals</a></li>
-                    </ul>
-                </li>
+                @if(($s['canLeaveView'] ?? false) || ($s['canLeaveManageCategories'] ?? false) || ($s['canLeaveManageQuotas'] ?? false))
+                    <li id="menu-leave" data-id="menu-leave" class="main {{ ($s['isLeave'] ?? false) ? 'active' : '' }}">
+                        <a class="has-arrow" href="#" aria-expanded="{{ ($s['isLeave'] ?? false) ? 'true' : 'false' }}">
+                            <i class="icon-calendar"></i>
+                            <span>Leave Management</span>
+                        </a>
+                        <ul aria-expanded="{{ ($s['isLeave'] ?? false) ? 'true' : 'false' }}">
+                            @if(($s['canLeaveView'] ?? false) || ($s['canLeaveManageQuotas'] ?? false))
+                                <li class="{{ request()->routeIs('leave-balances.*') ? 'active' : '' }}"><a href="{{ route('leave-balances.index') }}">Leave Balances</a></li>
+                            @endif
+                            @if($s['canLeaveApply'] ?? false)
+                                <li class="{{ request()->routeIs('leave-applications.*') ? 'active' : '' }}"><a href="{{ route('leave-applications.index') }}">Apply Leave</a></li>
+                            @endif
+                            @if($s['canLeaveApprove'] ?? false)
+                                <li class="{{ request()->routeIs('leave-approvals.*') ? 'active' : '' }}"><a href="{{ route('leave-approvals.index') }}">Leave Approvals</a></li>
+                            @endif
+                            @if(($s['canLeaveReport'] ?? false) || ($s['canLeaveApprove'] ?? false) || ($s['canLeaveView'] ?? false))
+                                <li class="{{ request()->routeIs('leave-reports.*') ? 'active' : '' }}"><a href="{{ route('leave-reports.index') }}">Leave Reports</a></li>
+                            @endif
+                            @if($s['canLeaveManageCategories'] ?? false)
+                                <li class="{{ request()->routeIs('leave-categories.*') ? 'active' : '' }}"><a href="{{ route('leave-categories.index') }}">Leave Categories</a></li>
+                            @endif
+                            @if($s['canLeaveManageQuotas'] ?? false)
+                                <li class="{{ request()->routeIs('leave-policies.*') ? 'active' : '' }}"><a href="{{ route('leave-policies.index') }}">Leave Policies</a></li>
+                            @endif
+                        </ul>
+                    </li>
+                @endif
 
                 <li id="menu-payroll" data-id="menu-payroll" class="main {{ request()->routeIs('salary-grades.*') ? 'active' : '' }}">
                     <a class="has-arrow" href="#">

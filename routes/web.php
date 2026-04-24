@@ -11,6 +11,10 @@ use App\Modules\Attendance\Http\Controllers\AttendanceController;
 use App\Modules\Employees\Http\Controllers\EmployeeController;
 use App\Modules\Employees\Http\Controllers\EmployeeProfileUpdateRequestController;
 use App\Modules\Holidays\Http\Controllers\HolidayController;
+use App\Modules\Leaves\Http\Controllers\LeaveApplicationController;
+use App\Modules\Leaves\Http\Controllers\LeaveBalanceController;
+use App\Modules\Leaves\Http\Controllers\LeaveCategoryController;
+use App\Modules\Leaves\Http\Controllers\LeavePolicyController;
 use App\Modules\SalaryGrades\Http\Controllers\SalaryGradeController;
 use App\Modules\Users\Http\Controllers\PermissionController;
 use App\Modules\Users\Http\Controllers\RoleController;
@@ -62,6 +66,26 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/api-integration', [AttendanceController::class, 'apiIntegrationDocs'])->middleware('permission:attendance.api-integration,attendance.manage')->name('api-docs');
         Route::post('/api-integration/clients', [AttendanceController::class, 'createApiClient'])->middleware('permission:attendance.api-integration,attendance.manage')->name('api-clients.store');
         Route::patch('/api-integration/clients/{apiClient}/toggle', [AttendanceController::class, 'toggleApiClient'])->middleware('permission:attendance.api-integration,attendance.manage')->name('api-clients.toggle');
+    });
+
+    Route::prefix('leave/balances')->name('leave-balances.')->group(function (): void {
+        Route::get('/', [LeaveBalanceController::class, 'index'])->middleware('permission:leave.view,leave.manage-balances,leave.manage-quotas')->name('index');
+    });
+
+    Route::prefix('leave/applications')->name('leave-applications.')->group(function (): void {
+        Route::get('/', [LeaveApplicationController::class, 'applyIndex'])->middleware('permission:leave.apply,leave.view')->name('index');
+        Route::post('/', [LeaveApplicationController::class, 'store'])->middleware('permission:leave.apply')->name('store');
+    });
+
+    Route::prefix('leave/approvals')->name('leave-approvals.')->group(function (): void {
+        Route::get('/', [LeaveApplicationController::class, 'approvalsIndex'])->middleware('permission:leave.approve')->name('index');
+        Route::get('/export', [LeaveApplicationController::class, 'exportApprovalsCsv'])->middleware('permission:leave.approve')->name('export');
+        Route::post('/{leaveApplication}/process', [LeaveApplicationController::class, 'process'])->middleware('permission:leave.approve')->name('process');
+    });
+
+    Route::prefix('leave/reports')->name('leave-reports.')->group(function (): void {
+        Route::get('/', [LeaveApplicationController::class, 'reportsIndex'])->middleware('permission:leave.report,leave.approve,leave.view')->name('index');
+        Route::get('/export', [LeaveApplicationController::class, 'exportCsv'])->middleware('permission:leave.report,leave.approve,leave.view')->name('export');
     });
 
     Route::middleware('role.any:super-admin,hr-manager')->group(function (): void {
@@ -117,6 +141,30 @@ Route::middleware('auth')->group(function (): void {
             Route::get('/{salaryGrade}/edit', [SalaryGradeController::class, 'edit'])->middleware('permission:payroll.manage-salary-templates')->name('edit');
             Route::put('/{salaryGrade}', [SalaryGradeController::class, 'update'])->middleware('permission:payroll.manage-salary-templates')->name('update');
             Route::delete('/{salaryGrade}', [SalaryGradeController::class, 'destroy'])->middleware('permission:payroll.manage-salary-templates')->name('destroy');
+        });
+
+        Route::prefix('leave/categories')->name('leave-categories.')->group(function (): void {
+            Route::get('/', [LeaveCategoryController::class, 'index'])->middleware('permission:leave.view,leave.manage-categories')->name('index');
+            Route::get('/create', [LeaveCategoryController::class, 'create'])->middleware('permission:leave.manage-categories')->name('create');
+            Route::post('/', [LeaveCategoryController::class, 'store'])->middleware('permission:leave.manage-categories')->name('store');
+            Route::get('/{leaveCategory}/edit', [LeaveCategoryController::class, 'edit'])->middleware('permission:leave.manage-categories')->name('edit');
+            Route::put('/{leaveCategory}', [LeaveCategoryController::class, 'update'])->middleware('permission:leave.manage-categories')->name('update');
+            Route::delete('/{leaveCategory}', [LeaveCategoryController::class, 'destroy'])->middleware('permission:leave.manage-categories')->name('destroy');
+        });
+
+        Route::prefix('leave/policies')->name('leave-policies.')->group(function (): void {
+            Route::get('/', [LeavePolicyController::class, 'index'])->middleware('permission:leave.view,leave.manage-quotas')->name('index');
+            Route::get('/create', [LeavePolicyController::class, 'create'])->middleware('permission:leave.manage-quotas')->name('create');
+            Route::post('/', [LeavePolicyController::class, 'store'])->middleware('permission:leave.manage-quotas')->name('store');
+            Route::get('/{leavePolicy}/edit', [LeavePolicyController::class, 'edit'])->middleware('permission:leave.manage-quotas')->name('edit');
+            Route::put('/{leavePolicy}', [LeavePolicyController::class, 'update'])->middleware('permission:leave.manage-quotas')->name('update');
+            Route::delete('/{leavePolicy}', [LeavePolicyController::class, 'destroy'])->middleware('permission:leave.manage-quotas')->name('destroy');
+        });
+
+        Route::prefix('leave/balances')->name('leave-balances.')->group(function (): void {
+            Route::post('/sync', [LeaveBalanceController::class, 'sync'])->middleware('permission:leave.manage-balances,leave.manage-quotas')->name('sync');
+            Route::get('/{leaveBalance}/edit', [LeaveBalanceController::class, 'edit'])->middleware('permission:leave.manage-balances,leave.manage-quotas')->name('edit');
+            Route::put('/{leaveBalance}', [LeaveBalanceController::class, 'update'])->middleware('permission:leave.manage-balances,leave.manage-quotas')->name('update');
         });
 
         Route::prefix('users')->name('users.')->group(function (): void {

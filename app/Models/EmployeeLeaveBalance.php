@@ -12,6 +12,22 @@ class EmployeeLeaveBalance extends Model
 
     protected $guarded = [];
 
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'opening_balance' => 'decimal:2',
+            'allocated' => 'decimal:2',
+            'carried_forward' => 'decimal:2',
+            'earned_credited' => 'decimal:2',
+            'availed' => 'decimal:2',
+            'adjustments' => 'decimal:2',
+            'closing_balance' => 'decimal:2',
+        ];
+    }
+
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);

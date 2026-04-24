@@ -29,7 +29,7 @@ class PermissionSeeder extends Seeder
                 'profile_update_request_reject',
             ],
             'attendance' => ['view', 'clock', 'manage', 'approve_time_change', 'report', 'export', 'import', 'api_integration'],
-            'leave' => ['view', 'apply', 'approve', 'manage_categories', 'manage_quotas', 'report'],
+            'leave' => ['view', 'apply', 'approve', 'manage_categories', 'manage_quotas', 'manage_balances', 'report'],
             'payroll' => ['view', 'generate', 'manage_salary_templates', 'manage_bonus', 'manage_loan', 'manage_deduction', 'manage_pf', 'report'],
             'bonus' => ['view', 'create', 'update', 'delete'],
             'loan' => ['view', 'create', 'update', 'approve', 'delete'],

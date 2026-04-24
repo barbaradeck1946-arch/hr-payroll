@@ -34,6 +34,12 @@ class AppServiceProvider extends ServiceProvider
                 'isOrganizationStructure' => request()->routeIs('organization.structure'),
                 'isEmployees' => request()->routeIs('employees.*') || request()->routeIs('departments.*') || request()->routeIs('designations.*'),
                 'isAttendance' => request()->routeIs('attendance.*'),
+                'isLeave' => request()->routeIs('leave-categories.*')
+                    || request()->routeIs('leave-policies.*')
+                    || request()->routeIs('leave-balances.*')
+                    || request()->routeIs('leave-applications.*')
+                    || request()->routeIs('leave-approvals.*')
+                    || request()->routeIs('leave-reports.*'),
                 'isHoliday' => request()->routeIs('holidays.*'),
                 'isUserManagement' => request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('permissions.*'),
                 'isSettings' => request()->routeIs('settings.*'),
@@ -54,6 +60,12 @@ class AppServiceProvider extends ServiceProvider
                 'canAttendanceManage' => $can('attendance.manage'),
                 'canAttendanceReport' => $canAny(['attendance.report', 'attendance.export']),
                 'canAttendanceApiIntegration' => $canAny(['attendance.api-integration', 'attendance.manage']),
+                'canLeaveView' => $can('leave.view'),
+                'canLeaveApply' => $can('leave.apply'),
+                'canLeaveApprove' => $can('leave.approve'),
+                'canLeaveManageCategories' => $can('leave.manage-categories'),
+                'canLeaveManageQuotas' => $canAny(['leave.manage-quotas', 'leave.manage-balances']),
+                'canLeaveReport' => $can('leave.report'),
 
                 'canRoleView' => $can('role.view'),
                 'canRoleCreate' => $can('role.create'),

@@ -28,6 +28,7 @@ INSERT INTO `permissions` (`group_name`, `name`, `slug`, `description`, `created
 ('leave','Approve Leave','leave.approve','Approve Leave',NOW(),NOW()),
 ('leave','Manage Categories Leave','leave.manage-categories','Manage Categories Leave',NOW(),NOW()),
 ('leave','Manage Quotas Leave','leave.manage-quotas','Manage Quotas Leave',NOW(),NOW()),
+('leave','Manage Balances Leave','leave.manage-balances','Manage Balances Leave',NOW(),NOW()),
 ('leave','Report Leave','leave.report','Report Leave',NOW(),NOW()),
 ('payroll','View Payroll','payroll.view','View Payroll',NOW(),NOW()),
 ('payroll','Generate Payroll','payroll.generate','Generate Payroll',NOW(),NOW()),

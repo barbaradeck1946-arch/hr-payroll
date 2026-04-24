@@ -23,4 +23,9 @@ class LeaveCategory extends Model
     {
         return $this->hasMany(LeavePolicy::class);
     }
+
+    public function balances(): HasMany
+    {
+        return $this->hasMany(EmployeeLeaveBalance::class);
+    }
 }
