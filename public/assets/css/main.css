@@ -3116,3 +3116,111 @@ body {
     .notice-table .badge i {
         margin-right: 4px;
     }
+
+    /* Flash message design */
+    .app-flash-stack {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .app-flash {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        border: 1px solid #e6e9ee;
+        border-left-width: 4px;
+        border-radius: 0;
+        padding: 12px 14px;
+        margin: 0;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+        background: #fff;
+    }
+
+    .app-flash .btn-close {
+        margin-left: auto;
+        padding: 0;
+        opacity: 0.55;
+        box-shadow: none !important;
+        width: 18px;
+        height: 18px;
+    }
+
+    .app-flash .btn-close:hover {
+        opacity: 0.9;
+    }
+
+    .app-flash-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+        font-size: 14px;
+        border-radius: 50%;
+    }
+
+    .app-flash-content {
+        min-width: 0;
+    }
+
+    .app-flash-title {
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 2px;
+    }
+
+    .app-flash-message {
+        font-size: 13px;
+        line-height: 1.45;
+        color: #3f4d5a;
+    }
+
+    .app-flash-list {
+        margin: 4px 0 0;
+        padding-left: 18px;
+        color: #3f4d5a;
+        font-size: 13px;
+    }
+
+    .app-flash-success {
+        border-left-color: #10b981;
+        background: #f0fdf7;
+    }
+
+    .app-flash-success .app-flash-icon {
+        color: #0a7f58;
+        background: #d9fbe8;
+    }
+
+    .app-flash-warning {
+        border-left-color: #f59e0b;
+        background: #fffbeb;
+    }
+
+    .app-flash-warning .app-flash-icon {
+        color: #a55b00;
+        background: #fef3c7;
+    }
+
+    .app-flash-info {
+        border-left-color: #3b82f6;
+        background: #eff6ff;
+    }
+
+    .app-flash-info .app-flash-icon {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .app-flash-error {
+        border-left-color: #ef4444;
+        background: #fef2f2;
+    }
+
+    .app-flash-error .app-flash-icon {
+        color: #b91c1c;
+        background: #fee2e2;
+    }
