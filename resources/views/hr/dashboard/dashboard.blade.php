@@ -150,52 +150,69 @@
                 </div>
                 <div class="col-md-4 form-group">
                     <div class="card no-border no-bgc clearfix">
-                        <div class="table_banner clearfix">
-                            <h5 class="table_banner_title">
-                                Quick Notes
-                            </h5>
-                            <h5 class="table_banner_title float-end"><i class="icon-notebook"></i></h5>
+                        <div class="table_banner d-flex align-items-center justify-content-between">
+                            <h5 class="table_banner_title">Quick Notes</h5>
+                            <span class="table_banner_title mb-0"><i class="icon-notebook"></i></span>
                         </div>
                         <div class="bg-white">
                             <div class="slimScrollNote">
                                 <div class="todo-box-wrap">
-                                    <ul class="todo-list">
-                                        
-                                        <li class="todo-item">
-                                            
-                                            <div class="checkbox checkbox-default">
-                                                <input class="to-do" data-id="" data-value="0" type="checkbox" id="">
-                                                <label for=""></label>
-                                            </div>
-                                            
-                                            <div class="checkbox checkbox-default">
-                                                <input class="to-do" data-id="" data-value="1" type="checkbox" id="" checked>
-                                                <label for=""></label>
-                                            </div>
-                                            
-                                        </li>
-                                        <li>
-                                            <hr class="light-grey-hr">
-                                        </li>
-                                        
+                                    <ul class="todo-list" id="quick-note-list">
+                                        @if(!($canViewPrivateNotes ?? false))
+                                            <li class="todo-item quick-note-empty">
+                                                <div class="text-muted small p-2">You do not have permission to view private notes.</div>
+                                            </li>
+                                        @elseif(($privateNotes ?? collect())->isEmpty())
+                                            <li class="todo-item quick-note-empty">
+                                                <div class="text-muted small p-2">No notes yet. Add your first private note below.</div>
+                                            </li>
+                                        @else
+                                            @foreach(($privateNotes ?? collect()) as $note)
+                                                @php($noteInputId = 'quick_note_' . $note->id)
+                                                <li class="todo-item" data-note-id="{{ $note->id }}">
+                                                    <div class="d-flex align-items-start gap-2">
+                                                        @if($canUpdatePrivateNotes ?? false)
+                                                            <form method="POST" action="{{ route('dashboard.quick-notes.toggle', $note) }}" class="checkbox checkbox-default pt-1 quick-note-toggle-form">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <input class="to-do quick-note-toggle" type="checkbox" id="{{ $noteInputId }}" {{ $note->is_completed ? 'checked' : '' }}>
+                                                                <label for="{{ $noteInputId }}"></label>
+                                                            </form>
+                                                        @endif
+                                                        <div class="flex-grow-1">
+                                                            <div class="fw-semibold quick-note-title {{ $note->is_completed ? 'text-decoration-line-through text-muted' : '' }}">{{ $note->title }}</div>
+                                                            <div class="small quick-note-body {{ $note->is_completed ? 'text-decoration-line-through text-muted' : 'text-muted' }}">{{ $note->note_body }}</div>
+                                                        </div>
+                                                        @if($canDeletePrivateNotes ?? false)
+                                                            <form method="POST" action="{{ route('dashboard.quick-notes.delete', $note) }}" class="quick-note-delete-form" onsubmit="return confirm('Delete this note permanently?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete note"><i class="icon-trash"></i></button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                </li>
+                                                @if(! $loop->last)
+                                                    <li><hr class="light-grey-hr"></li>
+                                                @endif
+                                            @endforeach
+                                        @endif
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="new-todo">
-                            <form method="post" enctype="multipart/form-data" id="add_todo">
+                            @if($canCreatePrivateNotes ?? false)
+                            <form method="POST" action="{{ route('dashboard.quick-notes.store') }}" id="add_todo" class="quick-note-add-form">
+                                @csrf
                                 <div class="input-group">
-
-                                    <input type="text" id="todo_data" name="todo_data" class="form-control" style="border: 1px solid #fff !IMPORTANT; width: 100% !IMPORTANT;" placeholder="Add New Tasks">
+                                    <input type="text" name="note_body" class="form-control" style="border: 1px solid #fff !IMPORTANT; width: 100% !IMPORTANT;" placeholder="Add new private note" required maxlength="2000">
                                     <span class="input-group-btn">
-
-                                        <input type="hidden" name="userid" id="userid" value="">
-
                                         <button type="submit" class="btn btn-success todo-submit"><i class="fa fa-plus"></i></button>
                                     </span>
-
                                 </div>
                             </form>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -205,3 +222,139 @@
     <!-- /.page-content  -->
 </div>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    function fetchForm(form) {
+        return fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: new FormData(form)
+        }).then(function (res) { return res.json(); });
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    var list = document.getElementById('quick-note-list');
+    var addForm = document.querySelector('.quick-note-add-form');
+
+    if (addForm) {
+        addForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            fetchForm(addForm).then(function (json) {
+                if (!json || !json.ok || !json.note || !list) {
+                    return;
+                }
+
+                list.querySelectorAll('.quick-note-empty').forEach(function (el) { el.remove(); });
+
+                var id = Number(json.note.id);
+                var csrf = addForm.querySelector('input[name=\"_token\"]').value;
+                var title = escapeHtml(json.note.title || '');
+                var body = escapeHtml(json.note.note_body || '');
+
+                var row = document.createElement('li');
+                row.className = 'todo-item';
+                row.setAttribute('data-note-id', String(id));
+                row.innerHTML = '' +
+                    '<div class="d-flex align-items-start gap-2">' +
+                    '  <form method="POST" action="/dashboard/quick-notes/' + id + '/toggle" class="checkbox checkbox-default pt-1 quick-note-toggle-form">' +
+                    '    <input type="hidden" name="_token" value="' + csrf + '">' +
+                    '    <input type="hidden" name="_method" value="PATCH">' +
+                    '    <input class="to-do quick-note-toggle" type="checkbox" id="quick_note_' + id + '">' +
+                    '    <label for="quick_note_' + id + '"></label>' +
+                    '  </form>' +
+                    '  <div class="flex-grow-1">' +
+                    '    <div class="fw-semibold quick-note-title">' + title + '</div>' +
+                    '    <div class="small quick-note-body text-muted">' + body + '</div>' +
+                    '  </div>' +
+                    '  <form method="POST" action="/dashboard/quick-notes/' + id + '" class="quick-note-delete-form">' +
+                    '    <input type="hidden" name="_token" value="' + csrf + '">' +
+                    '    <input type="hidden" name="_method" value="DELETE">' +
+                    '    <button type="submit" class="btn btn-sm btn-danger" title="Delete note"><i class="icon-trash"></i></button>' +
+                    '  </form>' +
+                    '</div>';
+
+                list.prepend(row);
+                addForm.reset();
+            }).catch(function () {});
+        });
+    }
+
+    document.addEventListener('change', function (event) {
+        var checkbox = event.target.closest('.quick-note-toggle');
+        if (!checkbox) {
+            return;
+        }
+
+        var form = checkbox.closest('.quick-note-toggle-form');
+        var item = checkbox.closest('.todo-item');
+        if (!form || !item) {
+            return;
+        }
+
+        fetchForm(form).then(function (json) {
+            if (!json || !json.ok || !json.note) {
+                return;
+            }
+            var done = Boolean(json.note.is_completed);
+            var title = item.querySelector('.quick-note-title');
+            var body = item.querySelector('.quick-note-body');
+            if (title) {
+                title.classList.toggle('text-decoration-line-through', done);
+                title.classList.toggle('text-muted', done);
+            }
+            if (body) {
+                body.classList.toggle('text-decoration-line-through', done);
+                body.classList.add('text-muted');
+            }
+        }).catch(function () {
+            checkbox.checked = !checkbox.checked;
+        });
+    });
+
+    document.addEventListener('submit', function (event) {
+        var form = event.target.closest('.quick-note-delete-form');
+        if (!form) {
+            return;
+        }
+
+        event.preventDefault();
+        if (!window.confirm('Delete this note permanently?')) {
+            return;
+        }
+
+        fetchForm(form).then(function (json) {
+            if (!json || !json.ok) {
+                return;
+            }
+            var item = form.closest('.todo-item');
+            var hr = item && item.nextElementSibling && item.nextElementSibling.tagName === 'LI' ? item.nextElementSibling : null;
+            if (hr) {
+                hr.remove();
+            }
+            if (item) {
+                item.remove();
+            }
+            if (list && !list.querySelector('.todo-item')) {
+                var empty = document.createElement('li');
+                empty.className = 'todo-item quick-note-empty';
+                empty.innerHTML = '<div class="text-muted small p-2">No notes yet. Add your first private note below.</div>';
+                list.appendChild(empty);
+            }
+        }).catch(function () {});
+    });
+})();
+</script>
+@endpush
