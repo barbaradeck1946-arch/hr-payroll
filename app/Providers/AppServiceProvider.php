@@ -32,7 +32,11 @@ class AppServiceProvider extends ServiceProvider
             $view->with('sidebarState', [
                 'isDashboard' => request()->routeIs('dashboard'),
                 'isOrganizationStructure' => request()->routeIs('organization.structure'),
-                'isEmployees' => request()->routeIs('employees.*') || request()->routeIs('departments.*') || request()->routeIs('designations.*'),
+                'isEmployees' => request()->routeIs('employees.*')
+                    || request()->routeIs('departments.*')
+                    || request()->routeIs('designations.*')
+                    || request()->routeIs('employee-resignations.*')
+                    || request()->routeIs('employee-statuses.*'),
                 'isAttendance' => request()->routeIs('attendance.*'),
                 'isAnnouncements' => request()->routeIs('announcements.*'),
                 'isLeave' => request()->routeIs('leave-categories.*')
@@ -49,6 +53,10 @@ class AppServiceProvider extends ServiceProvider
                 'canEmployeeCreate' => $isEmployeeAdmin && $can('employee.create'),
                 'canEmployeeUpdate' => $isEmployeeAdmin && $can('employee.update'),
                 'canEmployeeProfileUpdateSubmit' => ($user?->employee !== null) && $can('employee.profile-update-request-submit'),
+                'canResignationApply' => ($user?->employee !== null) && $canAny(['employee.resignation-apply', 'employee.resignation-view']),
+                'canResignationSupervisorApprove' => $can('employee.resignation-supervisor-approve'),
+                'canResignationFinalApprove' => $can('employee.resignation-final-approve'),
+                'canEmployeeStatusView' => $canAny(['employee.status-view', 'employee.status-update']),
                 'canDepartmentView' => $isEmployeeAdmin && $can('department.view'),
                 'canDepartmentCreate' => $isEmployeeAdmin && $can('department.create'),
                 'canDesignationView' => $isEmployeeAdmin && $can('designation.view'),

@@ -131,4 +131,24 @@ class User extends Authenticatable
     {
         return $this->account_status === 'active';
     }
+
+    public function blockedEmploymentStatus(): ?string
+    {
+        $employee = $this->employee;
+        if (! $employee) {
+            return null;
+        }
+
+        $status = (string) ($employee->employment_status ?? '');
+        return in_array($status, ['inactive', 'resigned', 'terminated'], true) ? $status : null;
+    }
+
+    public function canAccessPortal(): bool
+    {
+        if (! $this->isActive()) {
+            return false;
+        }
+
+        return $this->blockedEmploymentStatus() === null;
+    }
 }

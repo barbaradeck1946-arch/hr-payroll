@@ -12,6 +12,7 @@ use App\Modules\Designations\Http\Controllers\DesignationController;
 use App\Modules\Attendance\Http\Controllers\AttendanceController;
 use App\Modules\Employees\Http\Controllers\EmployeeController;
 use App\Modules\Employees\Http\Controllers\EmployeeProfileUpdateRequestController;
+use App\Modules\Employees\Http\Controllers\EmployeeResignationController;
 use App\Modules\Holidays\Http\Controllers\HolidayController;
 use App\Modules\Leaves\Http\Controllers\LeaveApplicationController;
 use App\Modules\Leaves\Http\Controllers\LeaveBalanceController;
@@ -44,7 +45,7 @@ Route::middleware('guest')->group(function (): void {
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->middleware('throttle:6,1')->name('password.email');
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware(['auth', 'portal.access'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/dashboard/change-password', [AuthenticatedSessionController::class, 'editPassword'])->name('dashboard.password.edit');
     Route::put('/dashboard/change-password', [AuthenticatedSessionController::class, 'updatePassword'])->name('dashboard.password.update');
@@ -55,6 +56,25 @@ Route::middleware('auth')->group(function (): void {
     Route::prefix('employee/profile-updates')->name('employees.profile-updates.')->group(function (): void {
         Route::get('/create', [EmployeeProfileUpdateRequestController::class, 'create'])->middleware('permission:employee.profile-update-request-submit')->name('create');
         Route::post('/', [EmployeeProfileUpdateRequestController::class, 'store'])->middleware('permission:employee.profile-update-request-submit')->name('store');
+    });
+
+    Route::prefix('employee/resignations')->name('employee-resignations.')->group(function (): void {
+        Route::get('/apply', [EmployeeResignationController::class, 'applyIndex'])->middleware('permission:employee.resignation-apply,employee.resignation-view')->name('index');
+        Route::post('/apply', [EmployeeResignationController::class, 'store'])->middleware('permission:employee.resignation-apply')->name('store');
+        Route::get('/supervisor-approvals', [EmployeeResignationController::class, 'supervisorApprovalsIndex'])->middleware('permission:employee.resignation-supervisor-approve')->name('supervisor-approvals');
+        Route::post('/{resignationRequest}/supervisor-process', [EmployeeResignationController::class, 'processSupervisor'])->middleware('permission:employee.resignation-supervisor-approve')->name('supervisor-process');
+        Route::get('/final-approvals', [EmployeeResignationController::class, 'finalApprovalsIndex'])->middleware('permission:employee.resignation-final-approve')->name('final-approvals');
+        Route::post('/{resignationRequest}/final-process', [EmployeeResignationController::class, 'processFinal'])->middleware('permission:employee.resignation-final-approve')->name('final-process');
+    });
+
+    Route::prefix('employee/statuses')->name('employee-statuses.')->group(function (): void {
+        Route::get('/', [EmployeeResignationController::class, 'statusIndex'])->middleware('permission:employee.status-view,employee.status-update')->name('index');
+        Route::get('/{employee}/status-action', [EmployeeResignationController::class, 'statusActionPage'])->middleware('permission:employee.status-update')->name('status-action-page');
+        Route::patch('/{employee}', [EmployeeResignationController::class, 'updateStatus'])->middleware('permission:employee.status-update')->name('update');
+        Route::get('/{employee}/promotion', [EmployeeResignationController::class, 'promotionPage'])->middleware('permission:employee.promotion-manage')->name('promotion-page');
+        Route::post('/{employee}/promote', [EmployeeResignationController::class, 'promote'])->middleware('permission:employee.promotion-manage')->name('promote');
+        Route::get('/{employee}/rejoin', [EmployeeResignationController::class, 'rejoinPage'])->middleware('permission:employee.rejoin-manage')->name('rejoin-page');
+        Route::post('/{employee}/rejoin', [EmployeeResignationController::class, 'rejoin'])->middleware('permission:employee.rejoin-manage')->name('rejoin');
     });
 
     Route::get('/organization-structure', [EmployeeController::class, 'organizationStructure'])->name('organization.structure');

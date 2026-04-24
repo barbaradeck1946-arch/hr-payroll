@@ -45,7 +45,7 @@
                         <div class="col-md-2">
                             <select name="employment_status" class="form-control">
                                 <option value="">All Status</option>
-                                @foreach(['active','inactive','on_leave','terminated'] as $status)
+                                @foreach(['active','inactive','on_leave','on_notice','resigned','terminated'] as $status)
                                     <option value="{{ $status }}" {{ $filters['employment_status'] === $status ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ', $status)) }}</option>
                                 @endforeach
                             </select>

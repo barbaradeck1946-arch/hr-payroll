@@ -118,7 +118,7 @@
             border-radius: 4px;
         }
     </style>
-    <script src="https://cdn.ckeditor.com/4.25.1-lts/standard/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
     <script>
         (function () {
             if (window.CKEDITOR) {
