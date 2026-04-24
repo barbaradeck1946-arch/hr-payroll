@@ -47,6 +47,9 @@ Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->
 
 Route::middleware(['auth', 'portal.access'])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:dashboard.view')->name('dashboard');
+    Route::post('/dashboard/quick-notes', [DashboardController::class, 'storeQuickNote'])->middleware('permission:note.create-private')->name('dashboard.quick-notes.store');
+    Route::patch('/dashboard/quick-notes/{privateNote}/toggle', [DashboardController::class, 'toggleQuickNote'])->middleware('permission:note.update-private')->name('dashboard.quick-notes.toggle');
+    Route::delete('/dashboard/quick-notes/{privateNote}', [DashboardController::class, 'deleteQuickNote'])->middleware('permission:note.delete-private')->name('dashboard.quick-notes.delete');
     Route::get('/dashboard/change-password', [AuthenticatedSessionController::class, 'editPassword'])->name('dashboard.password.edit');
     Route::put('/dashboard/change-password', [AuthenticatedSessionController::class, 'updatePassword'])->name('dashboard.password.update');
     Route::get('/settings', [SettingsController::class, 'edit'])->middleware('permission:settings.view')->name('settings.edit');
