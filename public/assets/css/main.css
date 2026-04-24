@@ -3094,3 +3094,25 @@ body {
 .topbar-dropdown-wrapper {
     border-radius: 0 !important;
 }
+
+    .notice-page-meta .notice-meta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #e6e9ee;
+        border-radius: 6px;
+        padding: 6px 10px;
+        color: #4e5d6c;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    .notice-table thead th {
+        white-space: nowrap;
+        border-bottom-width: 2px;
+    }
+    .notice-table tbody td {
+        vertical-align: top;
+    }
+    .notice-table .badge i {
+        margin-right: 4px;
+    }

@@ -95,11 +95,55 @@
                         <div class="content_wrapper">
                             <div class="table_banner clearfix">
                                 <h5 class="table_banner_title">
-                                    Sales Progress
+                                    Sales Progress | Latest Notices & Announcements
                                 </h5>
+                            <div class="float-end d-flex gap-2">
+                                <a href="{{ route('announcements.index') }}" class="btn btn-custom-default btn-sm">View All</a>
+                                @if($canCreateAnnouncement ?? false)
+                                    <a href="{{ route('announcements.create') }}" class="btn btn-custom btn-sm">Add New</a>
+                                @endif
                             </div>
-                            <div class="table_body text-center">
-                                <canvas id="myChart" width="50" height="25"></canvas>
+                            </div>
+                            <div class="dashboard-notice-meta px-3 pt-2 pb-0">
+                                <span class="dashboard-notice-chip"><i class="icon-bell"></i> Notices: {{ ($latestAnnouncements ?? collect())->count() }}</span>
+                                <span class="dashboard-notice-chip"><i class="icon-clock"></i> Non-expired only</span>
+                            </div>
+                            <div class="table_body dash-table-widget" style="padding: 20px;">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered dashboard-notice-table" style="margin-bottom: 0;">
+                                        <thead>
+                                            <tr>
+                                                <th><i class="icon-doc me-1"></i> Title</th>
+                                                <th><i class="icon-tag me-1"></i> Type</th>
+                                                <th><i class="icon-clock me-1"></i> Published At</th>
+                                                <th><i class="icon-eye me-1"></i> Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse(($latestAnnouncements ?? collect()) as $item)
+                                                <tr>
+                                                    <td>
+                                                    <strong>{{ $item->title }}</strong>
+                                                    </td>
+                                                    <td>
+                                                    <span class="badge {{ $item->announcement_type === 'notice' ? 'bg-info' : 'bg-primary' }}">
+                                                        <i class="{{ $item->announcement_type === 'notice' ? 'icon-bell' : 'icon-doc' }}"></i>
+                                                        {{ ucfirst($item->announcement_type) }}
+                                                    </span>
+                                                    </td>
+                                                    <td>{{ $item->publish_at?->format('Y-m-d H:i') ?? '-' }}</td>
+                                                    <td class="action-buttons">
+                                                        <a href="{{ route('announcements.show', $item) }}" title="Details"><i class="icon-eye"></i></a>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="4" class="text-center">No active notices/announcements available.</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -336,3 +380,30 @@
     <!-- /.page-content  -->
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .dashboard-notice-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .dashboard-notice-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #4e5d6c;
+        border: 1px solid #e6e9ee;
+        border-radius: 6px;
+        padding: 4px 9px;
+    }
+    .dashboard-notice-table thead th {
+        white-space: nowrap;
+        border-bottom-width: 2px;
+    }
+    .dashboard-notice-table .badge i {
+        margin-right: 4px;
+    }
+</style>
+@endpush

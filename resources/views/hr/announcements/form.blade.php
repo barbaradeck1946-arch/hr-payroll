@@ -1,0 +1,173 @@
+@extends('layouts.backend')
+
+@section('content')
+<div class="wrapper-page">
+    <div class="page-title">
+        <h1><i class="icon-bell"></i> Add Notice/Announcement</h1>
+    </div>
+
+    @include('partials.flash')
+
+    <div class="page-content">
+        <div class="container-fluid">
+            <div class="card no-border">
+                <div class="content_wrapper" style="padding:20px;">
+                    <form method="POST" action="{{ route('announcements.store') }}">
+                        @csrf
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                            <label>Type</label>
+                                <select name="announcement_type" class="form-control" required>
+                                    <option value="notice" {{ old('announcement_type', 'notice') === 'notice' ? 'selected' : '' }}>Notice</option>
+                                    <option value="announcement" {{ old('announcement_type') === 'announcement' ? 'selected' : '' }}>Announcement</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 form-group mb-3">
+                                <label>Priority</label>
+                            <select name="priority" class="form-control" required>
+                                <option value="normal" {{ old('priority', 'normal') === 'normal' ? 'selected' : '' }}>Normal</option>
+                                <option value="high" {{ old('priority') === 'high' ? 'selected' : '' }}>High</option>
+                            </select>
+                            </div>
+
+                            <div class="col-md-12 form-group mb-3">
+                                <label>Title</label>
+                                <input type="text" name="title" class="form-control" value="{{ old('title') }}" maxlength="180" required>
+                            </div>
+
+                            <div class="col-md-12 form-group mb-3">
+                                <label>Message</label>
+                                <textarea id="announcement-body" name="body" class="form-control" rows="8" maxlength="10000" required>{{ old('body') }}</textarea>
+                            </div>
+
+                            <div class="col-md-6 form-group mb-3">
+                            <label>Audience</label>
+                            <select name="audience_type" class="form-control" required>
+                                @php($audienceType = old('audience_type', 'all'))
+                                <option value="all" {{ $audienceType === 'all' ? 'selected' : '' }}>All Users</option>
+                                <option value="employees" {{ $audienceType === 'employees' ? 'selected' : '' }}>Selected Employees</option>
+                            </select>
+                            </div>
+
+                            <div class="col-md-12 form-group mb-3 audience-employees-block" style="{{ $audienceType === 'employees' ? '' : 'display:none;' }}">
+                            <label>Employees</label>
+                                @php($selectedEmployees = collect(old('audience_employee_ids', []))->map(fn ($id) => (int) $id)->all())
+                                <select name="audience_employee_ids[]" class="form-control js-example-basic-multiple audience-employees-select" multiple>
+                                    @foreach(($employees ?? collect()) as $employee)
+                                        @php($label = trim($employee->first_name . ' ' . ($employee->last_name ?? '')))
+                                        <option value="{{ $employee->id }}" {{ in_array((int) $employee->id, $selectedEmployees, true) ? 'selected' : '' }}>
+                                            {{ $label }} ({{ $employee->employee_code }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 form-group mb-3">
+                                <label>Expires At (Optional)</label>
+                                <input
+                                    type="text"
+                                    name="expires_at"
+                                    class="form-control announcement-date-picker"
+                                    placeholder="YYYY-MM-DD"
+                                    autocomplete="off"
+                                    value="{{ old('expires_at') }}"
+                                >
+                            </div>
+
+                            <div class="col-md-6 form-group mb-3">
+                                <label>Pinned</label>
+                                @php($isPinned = (int) old('is_pinned', 0))
+                                <select name="is_pinned" class="form-control" required>
+                                    <option value="0" {{ $isPinned === 0 ? 'selected' : '' }}>No</option>
+                                    <option value="1" {{ $isPinned === 1 ? 'selected' : '' }}>Yes</option>
+                                </select>
+                            </div>
+                            <!--<div class="col-md-4 form-group mb-3">
+                                <label>Pinned</label>
+                                @php($isPinned = (int) old('is_pinned', 1))
+                                <select name="is_pinned" class="form-control" required>
+                                    <option value="0" {{ $isPinned === 0 ? 'selected' : '' }}>No</option>
+                                    <option value="1" {{ $isPinned === 1 ? 'selected' : '' }}>Yes</option>
+                                </select>
+                            </div> -->
+                        </div>
+
+                        <button class="btn btn-custom" type="submit">
+                            <i class="icon-plus"></i>
+                            Create
+                        </button>
+                        <a href="{{ route('announcements.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+    <style>
+        .audience-employees-block .select2-container {
+            width: 100% !important;
+        }
+        .audience-employees-block .select2-selection--multiple {
+            min-height: 42px;
+            border: 1px solid #d7d7d7;
+            border-radius: 4px;
+        }
+    </style>
+    <script src="https://cdn.ckeditor.com/4.25.1-lts/standard/ckeditor.js"></script>
+    <script>
+        (function () {
+            if (window.CKEDITOR) {
+                CKEDITOR.replace('announcement-body', {
+                    height: 260,
+                });
+            }
+
+            if (window.jQuery && $.fn.datepicker) {
+                $('.announcement-date-picker').datepicker({
+                    format: 'yyyy-mm-dd',
+                    autoclose: true,
+                    todayHighlight: true,
+                    orientation: 'bottom auto'
+                });
+            }
+
+            const $audience = $('select[name=\"audience_type\"]');
+            const $employeeBlock = $('.audience-employees-block');
+            const $employeeSelect = $('.audience-employees-select');
+
+            function ensureEmployeeSelect2() {
+                if (!(window.jQuery && $.fn.select2) || !$employeeSelect.length) {
+                    return;
+                }
+
+                if ($employeeSelect.hasClass('select2-hidden-accessible')) {
+                    $employeeSelect.select2('destroy');
+                }
+
+                $employeeSelect.select2({
+                    width: '100%',
+                    placeholder: 'Select employees',
+                    allowClear: false
+                });
+            }
+
+            function toggleAudienceBlock() {
+                if ($audience.val() === 'employees') {
+                    $employeeBlock.show();
+                    ensureEmployeeSelect2();
+                } else {
+                    $employeeBlock.hide();
+                }
+            }
+
+            ensureEmployeeSelect2();
+            toggleAudienceBlock();
+            $audience.on('change', toggleAudienceBlock);
+        })();
+    </script>
+@endpush

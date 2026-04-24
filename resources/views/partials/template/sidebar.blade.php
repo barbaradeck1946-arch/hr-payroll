@@ -79,6 +79,15 @@
                     </li>
                 @endif
 
+                @if($s['canAnnouncementMenu'] ?? false)
+                    <li id="menu-announcements" data-id="menu-announcements" class="main {{ ($s['isAnnouncements'] ?? false) ? 'active' : '' }}">
+                        <a href="{{ route('announcements.index') }}">
+                            <i class="icon-bell"></i>
+                            <span>Notices & Announcements</span>
+                        </a>
+                    </li>
+                @endif
+
                 @if(($s['canLeaveView'] ?? false) || ($s['canLeaveManageCategories'] ?? false) || ($s['canLeaveManageQuotas'] ?? false))
                     <li id="menu-leave" data-id="menu-leave" class="main {{ ($s['isLeave'] ?? false) ? 'active' : '' }}">
                         <a class="has-arrow" href="#" aria-expanded="{{ ($s['isLeave'] ?? false) ? 'true' : 'false' }}">

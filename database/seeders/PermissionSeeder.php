@@ -41,7 +41,7 @@ class PermissionSeeder extends Seeder
             'role' => ['view', 'create', 'update', 'delete', 'assign'],
             'training' => ['view', 'create', 'update', 'delete'],
             'award' => ['view', 'create', 'update', 'delete'],
-            'announcement' => ['view', 'create', 'update', 'delete', 'publish'],
+            'announcement' => ['view', 'create', 'publish', 'approve'],
             'project' => ['view', 'create', 'update', 'delete', 'manage_members'],
             'team' => ['view', 'create', 'update', 'delete', 'manage_members'],
             'task' => ['view', 'create', 'update', 'delete', 'assign', 'comment'],

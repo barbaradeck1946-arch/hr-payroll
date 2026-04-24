@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\DashboardController;
+use App\Modules\Announcements\Http\Controllers\AnnouncementController;
 use App\Modules\Settings\Http\Controllers\SettingsController;
 use App\Modules\Departments\Http\Controllers\DepartmentController;
 use App\Modules\Designations\Http\Controllers\DesignationController;
@@ -43,7 +45,7 @@ Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->middleware('throttle:6,1')->name('password.email');
 
 Route::middleware('auth')->group(function (): void {
-    Route::view('/dashboard', 'hr.dashboard.dashboard')->middleware('permission:dashboard.view')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('permission:dashboard.view')->name('dashboard');
     Route::get('/dashboard/change-password', [AuthenticatedSessionController::class, 'editPassword'])->name('dashboard.password.edit');
     Route::put('/dashboard/change-password', [AuthenticatedSessionController::class, 'updatePassword'])->name('dashboard.password.update');
     Route::get('/settings', [SettingsController::class, 'edit'])->middleware('permission:settings.view')->name('settings.edit');
@@ -66,6 +68,15 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/api-integration', [AttendanceController::class, 'apiIntegrationDocs'])->middleware('permission:attendance.api-integration,attendance.manage')->name('api-docs');
         Route::post('/api-integration/clients', [AttendanceController::class, 'createApiClient'])->middleware('permission:attendance.api-integration,attendance.manage')->name('api-clients.store');
         Route::patch('/api-integration/clients/{apiClient}/toggle', [AttendanceController::class, 'toggleApiClient'])->middleware('permission:attendance.api-integration,attendance.manage')->name('api-clients.toggle');
+    });
+
+    Route::prefix('announcements')->name('announcements.')->group(function (): void {
+        Route::get('/', [AnnouncementController::class, 'index'])->middleware('permission:announcement.view,announcement.create,announcement.publish,announcement.approve')->name('index');
+        Route::get('/create', [AnnouncementController::class, 'create'])->middleware('permission:announcement.create')->name('create');
+        Route::post('/', [AnnouncementController::class, 'store'])->middleware('permission:announcement.create')->name('store');
+        Route::get('/{announcement}', [AnnouncementController::class, 'show'])->middleware('permission:announcement.view,announcement.create,announcement.publish,announcement.approve')->name('show');
+        Route::post('/{announcement}/approve', [AnnouncementController::class, 'approve'])->middleware('permission:announcement.approve')->name('approve');
+        Route::post('/{announcement}/publish', [AnnouncementController::class, 'publish'])->middleware('permission:announcement.publish')->name('publish');
     });
 
     Route::prefix('leave/balances')->name('leave-balances.')->group(function (): void {

@@ -34,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
                 'isOrganizationStructure' => request()->routeIs('organization.structure'),
                 'isEmployees' => request()->routeIs('employees.*') || request()->routeIs('departments.*') || request()->routeIs('designations.*'),
                 'isAttendance' => request()->routeIs('attendance.*'),
+                'isAnnouncements' => request()->routeIs('announcements.*'),
                 'isLeave' => request()->routeIs('leave-categories.*')
                     || request()->routeIs('leave-policies.*')
                     || request()->routeIs('leave-balances.*')
@@ -60,6 +61,11 @@ class AppServiceProvider extends ServiceProvider
                 'canAttendanceManage' => $can('attendance.manage'),
                 'canAttendanceReport' => $canAny(['attendance.report', 'attendance.export']),
                 'canAttendanceApiIntegration' => $canAny(['attendance.api-integration', 'attendance.manage']),
+                'canAnnouncementView' => $can('announcement.view'),
+                'canAnnouncementCreate' => $can('announcement.create'),
+                'canAnnouncementPublish' => $can('announcement.publish'),
+                'canAnnouncementApprove' => $can('announcement.approve'),
+                'canAnnouncementMenu' => $canAny(['announcement.view', 'announcement.create', 'announcement.publish', 'announcement.approve']),
                 'canLeaveView' => $can('leave.view'),
                 'canLeaveApply' => $can('leave.apply'),
                 'canLeaveApprove' => $can('leave.approve'),
