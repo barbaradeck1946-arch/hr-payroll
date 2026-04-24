@@ -3037,6 +3037,10 @@ body {
         padding: 0 12px;
     }
 
+    .wrapper-page > .app-flash-stack {
+        margin: 0 12px 12px;
+    }
+
     .table_body {
         padding: 18px;
     }
@@ -3115,4 +3119,134 @@ body {
     }
     .notice-table .badge i {
         margin-right: 4px;
+    }
+
+    /* Flash message design */
+    :root {
+        --app-brand: #2C3E50;
+        --app-flash-border: #d9e1ea;
+        --app-flash-text: #2b3642;
+        --app-flash-muted: #4d5d6c;
+    }
+
+    .app-flash-stack {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 16px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Keep flash width aligned with page-title width */
+    .wrapper-page > .app-flash-stack {
+        margin: 0 16px 16px;
+        width: auto;
+        max-width: none;
+    }
+
+    .app-flash {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        border: 1px solid var(--app-flash-border);
+        border-left-width: 4px;
+        border-radius: 0;
+        padding: 12px 14px;
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+        background: #fff;
+    }
+
+    .app-flash .btn-close {
+        margin-left: auto;
+        padding: 0;
+        opacity: 0.55;
+        box-shadow: none !important;
+        width: 18px;
+        height: 18px;
+    }
+
+    .app-flash .btn-close:hover {
+        opacity: 0.9;
+    }
+
+    .app-flash-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+        font-size: 14px;
+        border-radius: 50%;
+    }
+
+    .app-flash-content {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .app-flash-title {
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 2px;
+        color: var(--app-flash-text);
+    }
+
+    .app-flash-message {
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--app-flash-muted);
+        word-break: break-word;
+    }
+
+    .app-flash-list {
+        margin: 4px 0 0;
+        padding-left: 18px;
+        color: var(--app-flash-muted);
+        font-size: 13px;
+    }
+
+    .app-flash-success {
+        border-left-color: #1f9d72;
+        background: #f4fbf8;
+    }
+
+    .app-flash-success .app-flash-icon {
+        color: #127153;
+        background: #dff4eb;
+    }
+
+    .app-flash-warning {
+        border-left-color: #d08813;
+        background: #fffaf0;
+    }
+
+    .app-flash-warning .app-flash-icon {
+        color: #975f06;
+        background: #fde9c4;
+    }
+
+    .app-flash-info {
+        border-left-color: var(--app-brand);
+        background: #f5f7fa;
+    }
+
+    .app-flash-info .app-flash-icon {
+        color: var(--app-brand);
+        background: #dde5ee;
+    }
+
+    .app-flash-error {
+        border-left-color: #c24141;
+        background: #fcf3f3;
+    }
+
+    .app-flash-error .app-flash-icon {
+        color: #9f2828;
+        background: #f5dcdc;
     }
