@@ -15,7 +15,7 @@ Zerithonlabs - Modern HRM + Payroll platform rebuilt with Laravel for real compa
 </p>
 
 <p align="center">
-  <a href="https://nawjesh.lemonsqueezy.com/checkout/buy/c5c03632-dcb2-472f-a8cd-4df279c391d8" target="_blank">
+  <a href="https://nawjesh.lemonsqueezy.com/checkout/buy/8f9caf36-362e-4f35-b645-5efb6d5df60d" target="_blank">
     <img src="https://img.shields.io/badge/💛%20Donate-Support%20My%20Work-F5B800?style=for-the-badge&logo=buymeacoffee&logoColor=black" alt="Donate / Support" />
   </a>
   &nbsp;
@@ -197,7 +197,7 @@ Contributions are welcome.
 </p>
 
 <p align="center">
-  <a href="https://nawjesh.lemonsqueezy.com/checkout/buy/c5c03632-dcb2-472f-a8cd-4df279c391d8" target="_blank">
+  <a href="https://nawjesh.lemonsqueezy.com/checkout/buy/8f9caf36-362e-4f35-b645-5efb6d5df60d" target="_blank">
     <img src="https://img.shields.io/badge/💛%20Donate-Support%20My%20Work-F5B800?style=for-the-badge&logo=buymeacoffee&logoColor=black" alt="Donate / Support" />
   </a>
   &nbsp;
