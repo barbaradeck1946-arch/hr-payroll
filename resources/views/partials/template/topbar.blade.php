@@ -1,5 +1,4 @@
 <noscript>
-    <style>.wrapper-main { display: none; }</style>
     <div class="noscriptmsg">We're sorry, but This Software doesn't work properly without JavaScript enabled.</div>
 </noscript>
 
@@ -7,6 +6,9 @@
     @php
         $authUser = auth()->user();
         $avatarPath = $authUser?->employee?->avatar_path ?: 'assets/img/user/default.jpg';
+        $notificationPayload = $topbarNotifications ?? ['items' => [], 'count' => 0];
+        $notificationItems = collect($notificationPayload['items'] ?? []);
+        $notificationCount = (int) ($notificationPayload['count'] ?? $notificationItems->count());
     @endphp
     <nav class="navbar navbar-light app-topbar-nav">
         <div class="app-topbar-left">
@@ -32,42 +34,30 @@
                         <li class="dropdown d-none d-sm-block topbar-notification-menu">
                             <a href="#" class="dropdown-toggle topbar-hold-trigger" data-bs-toggle="dropdown" role="button" aria-expanded="false" title="Notifications">
                                 <i class="icon-bell"></i>
-                                <span class="hold-badge">3</span>
+                                @if($notificationCount > 0)
+                                    <span class="hold-badge">{{ $notificationCount > 99 ? '99+' : $notificationCount }}</span>
+                                @endif
                             </a>
                             <div class="dropdown-menu dropdown-menu-end hold-notification-dropdown" role="menu">
                                 <div class="hold-notification-header">
-                                    Notifications (3)
+                                    Notifications ({{ $notificationCount }})
                                 </div>
                                 <div class="hold-notification-list">
-                                    <a href="#" class="hold-notification-item">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <strong>Leave Request</strong>
-                                            <small class="text-muted">Now</small>
+                                    @forelse($notificationItems as $notification)
+                                        <a href="{{ $notification['url'] ?? '#' }}" class="hold-notification-item">
+                                            <div class="d-flex justify-content-between align-items-center gap-3">
+                                                <strong><i class="{{ $notification['icon'] ?? 'icon-info' }} me-1"></i>{{ $notification['title'] ?? 'Notification' }}</strong>
+                                                <small class="text-muted">{{ $notification['time'] ?? '' }}</small>
+                                            </div>
+                                            <div class="small text-muted">
+                                                {{ $notification['message'] ?? '' }}
+                                            </div>
+                                        </a>
+                                    @empty
+                                        <div class="hold-notification-item topbar-notification-empty">
+                                            <div class="small text-muted">No notifications available.</div>
                                         </div>
-                                        <div class="small text-muted">
-                                            New leave request submitted by employee.
-                                        </div>
-                                    </a>
-
-                                    <a href="#" class="hold-notification-item">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <strong>Attendance Alert</strong>
-                                            <small class="text-muted">10 min ago</small>
-                                        </div>
-                                        <div class="small text-muted">
-                                            5 employees are late today.
-                                        </div>
-                                    </a>
-
-                                    <a href="#" class="hold-notification-item">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <strong>Payroll Reminder</strong>
-                                            <small class="text-muted">1 hour ago</small>
-                                        </div>
-                                        <div class="small text-muted">
-                                            Payroll generation is pending for this month.
-                                        </div>
-                                    </a>
+                                    @endforelse
                                 </div>
                             </div>
                         </li>
@@ -125,32 +115,3 @@
         </div>
     </nav>
 </header>
-
-<style>
-    .topbar,
-    .topbar .app-topbar-nav,
-    .topbar .app-topbar-right,
-    .topbar .app-topbar-right .navbar-nav {
-        overflow: visible !important;
-    }
-
-    .topbar .topbar-user-menu,
-    .topbar .topbar-notification-menu {
-        position: relative;
-    }
-
-    .topbar .app-topbar-right .navbar-nav {
-        gap: 14px;
-    }
-
-    .topbar .app-topbar-right .dropdown-menu,
-    .topbar .app-topbar-right .topbar-dropdown-wrapper,
-    .topbar .app-topbar-right .hold-notification-dropdown {
-        position: absolute !important;
-        top: calc(100% + 8px) !important;
-        right: 0 !important;
-        left: auto !important;
-        z-index: 1100 !important;
-        margin-top: 0 !important;
-    }
-</style>

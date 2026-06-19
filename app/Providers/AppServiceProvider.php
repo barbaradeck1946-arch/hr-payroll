@@ -2,8 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\Announcement;
+use App\Models\AttendanceLog;
+use App\Models\Employee;
+use App\Models\Holiday;
+use App\Models\LeaveApplication;
 use App\Models\SystemSetting;
+use App\Models\Task;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
@@ -110,6 +118,11 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
+        View::composer('partials.template.topbar', function ($view): void {
+            $user = auth()->user();
+            $view->with('topbarNotifications', $this->topbarNotifications($user));
+        });
+
         try {
             if (! Schema::hasTable('system_settings')) {
                 return;
@@ -150,5 +163,273 @@ class AppServiceProvider extends ServiceProvider
         Config::set('mail.from.name', $settings['mail_from_name'] ?? Config::get('mail.from.name'));
 
         View::share('appSettings', $settings);
+    }
+
+    /**
+     * @return array{items: array<int, array{title: string, message: string, time: string, url: string, icon: string}>, count: int}
+     */
+    private function topbarNotifications($user): array
+    {
+        if (! $user || ! $this->notificationTablesReady()) {
+            return ['items' => [], 'count' => 0];
+        }
+
+        $employee = $user->employee;
+        $employeeIds = $this->notificationEmployeeScope($user, $employee);
+        $today = CarbonImmutable::today();
+        $items = collect();
+
+        if (Schema::hasTable('notifications') && $user->hasPermission('notification.view')) {
+            $user->unreadNotifications()
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->each(function ($notification) use ($items): void {
+                    $data = (array) ($notification->data ?? []);
+                    $items->push([
+                        'title' => (string) ($notification->title ?? $data['title'] ?? 'Notification'),
+                        'message' => (string) ($notification->message ?? $data['message'] ?? 'You have a new notification.'),
+                        'time' => $notification->created_at?->diffForHumans() ?? 'New',
+                        'url' => (string) ($data['url'] ?? '#'),
+                        'icon' => (string) ($data['icon'] ?? 'icon-bell'),
+                    ]);
+                });
+        }
+
+        if ($user->hasAnyPermission(['announcement.view', 'announcement.create', 'announcement.publish', 'announcement.approve'])) {
+            Announcement::query()
+                ->where('approval_status', 'approved')
+                ->whereNotNull('publish_at')
+                ->where('is_active', true)
+                ->where(function ($query): void {
+                    $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+                })
+                ->where(function ($query) use ($employee): void {
+                    $query->where('audience_type', 'all');
+
+                    if ($employee) {
+                        $query->orWhere(function ($employeeQuery) use ($employee): void {
+                            $employeeQuery
+                                ->where('audience_type', 'employees')
+                                ->whereJsonContains('audience_employee_ids', (int) $employee->id);
+                        });
+                    }
+                })
+                ->latest('publish_at')
+                ->limit(5)
+                ->get()
+                ->each(function (Announcement $announcement) use ($items, $user): void {
+                    $canOpen = $user->hasAnyPermission(['announcement.view', 'announcement.create', 'announcement.publish', 'announcement.approve']);
+                    $items->push([
+                        'title' => $announcement->announcement_type === 'notice' ? 'Notice' : 'Announcement',
+                        'message' => (string) $announcement->title,
+                        'time' => $announcement->publish_at?->diffForHumans() ?? 'Published',
+                        'url' => $canOpen ? route('announcements.show', $announcement) : '#',
+                        'icon' => $announcement->announcement_type === 'notice' ? 'icon-bell' : 'icon-doc',
+                    ]);
+                });
+        }
+
+        if ($user->hasAnyPermission(['leave.approve', 'leave.view', 'leave.apply'])) {
+            LeaveApplication::query()
+                ->with('employee')
+                ->where('status', 'pending')
+                ->when($employeeIds !== null, fn ($query) => $query->whereIn('employee_id', $employeeIds))
+                ->latest()
+                ->limit(4)
+                ->get()
+                ->each(function (LeaveApplication $leave) use ($items, $user): void {
+                    $employeeName = trim(($leave->employee?->first_name ?? '') . ' ' . ($leave->employee?->last_name ?? ''));
+                    $items->push([
+                        'title' => 'Leave Request',
+                        'message' => ($employeeName !== '' ? $employeeName : 'Employee') . ' has a pending leave request.',
+                        'time' => $leave->created_at?->diffForHumans() ?? 'Pending',
+                        'url' => $user->hasPermission('leave.approve') ? route('leave-approvals.index') : route('leave-applications.index'),
+                        'icon' => 'icon-calendar',
+                    ]);
+                });
+        }
+
+        if ($user->hasAnyPermission(['attendance.view', 'attendance.manage', 'attendance.report'])) {
+            $missingCheckout = AttendanceLog::query()
+                ->whereDate('attendance_date', $today)
+                ->whereNotNull('check_in_at')
+                ->whereNull('check_out_at')
+                ->when($employeeIds !== null, fn ($query) => $query->whereIn('employee_id', $employeeIds))
+                ->count();
+
+            if ($missingCheckout > 0) {
+                $items->push([
+                    'title' => 'Attendance Alert',
+                    'message' => $missingCheckout . ' employee' . ($missingCheckout === 1 ? ' has' : 's have') . ' missing checkout today.',
+                    'time' => 'Today',
+                    'url' => route('attendance.index'),
+                    'icon' => 'icon-clock',
+                ]);
+            }
+
+            $lateToday = AttendanceLog::query()
+                ->whereDate('attendance_date', $today)
+                ->where('status', 'late')
+                ->when($employeeIds !== null, fn ($query) => $query->whereIn('employee_id', $employeeIds))
+                ->distinct('employee_id')
+                ->count('employee_id');
+
+            if ($lateToday > 0) {
+                $items->push([
+                    'title' => 'Late Attendance',
+                    'message' => $lateToday . ' employee' . ($lateToday === 1 ? ' is' : 's are') . ' late today.',
+                    'time' => 'Today',
+                    'url' => route('attendance.index'),
+                    'icon' => 'icon-clock',
+                ]);
+            }
+        }
+
+        if ($user->hasPermission('holiday.view')) {
+            $holiday = Holiday::query()
+                ->whereDate('holiday_date', '>=', $today)
+                ->orderBy('holiday_date')
+                ->first();
+
+            if ($holiday) {
+                $items->push([
+                    'title' => 'Upcoming Holiday',
+                    'message' => $holiday->title . ' on ' . $holiday->holiday_date?->format('M d, Y') . '.',
+                    'time' => $holiday->holiday_date?->diffForHumans() ?? 'Upcoming',
+                    'url' => route('holidays.index'),
+                    'icon' => 'icon-plane',
+                ]);
+            }
+        }
+
+        if ($employee && $user->hasPermission('task.view') && Schema::hasTable('tasks')) {
+            Task::query()
+                ->where('assigned_to_employee_id', (int) $employee->id)
+                ->whereNotIn('status', ['done', 'cancelled'])
+                ->where(function ($query) use ($today): void {
+                    $query->whereNull('due_date')->orWhereDate('due_date', '<=', $today->addDays(7));
+                })
+                ->orderByRaw('due_date IS NULL')
+                ->orderBy('due_date')
+                ->limit(3)
+                ->get()
+                ->each(function (Task $task) use ($items): void {
+                    $items->push([
+                        'title' => 'Task Reminder',
+                        'message' => $task->title,
+                        'time' => $task->due_date ? CarbonImmutable::parse($task->due_date)->diffForHumans() : 'No due date',
+                        'url' => route('tasks.show', $task),
+                        'icon' => 'icon-briefcase',
+                    ]);
+                });
+        }
+
+        $items = $items
+            ->take(10)
+            ->values()
+            ->all();
+
+        return [
+            'items' => $items,
+            'count' => count($items),
+        ];
+    }
+
+    private function notificationTablesReady(): bool
+    {
+        try {
+            return Schema::hasTable('announcements')
+                && Schema::hasTable('attendance_logs')
+                && Schema::hasTable('leave_applications')
+                && Schema::hasTable('holidays')
+                && Schema::hasTable('employees');
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * @return array<int>|null
+     */
+    private function notificationEmployeeScope($user, ?Employee $employee): ?array
+    {
+        if (($user?->hasPermission('dashboard.view-all') ?? false) || ($user?->hasPermission('dashboard.view_all') ?? false)) {
+            return null;
+        }
+
+        if (! $employee) {
+            return [];
+        }
+
+        $ids = collect([(int) $employee->id]);
+
+        if (($user?->hasPermission('dashboard.view-department') ?? false) || ($user?->hasPermission('dashboard.view_department') ?? false)) {
+            if ($employee->department_id) {
+                $ids = $ids->merge(
+                    Employee::query()
+                        ->where('department_id', (int) $employee->department_id)
+                        ->pluck('id')
+                );
+            } else {
+                $ids = $ids->merge(
+                    Employee::query()
+                        ->where('reports_to_id', (int) $employee->id)
+                        ->pluck('id')
+                );
+            }
+        }
+
+        if ($user?->hasAnyPermission(['team.view', 'team.manage-members', 'project.view', 'task.assign'])) {
+            if (Schema::hasTable('teams') && Schema::hasTable('team_members')) {
+                $teamIds = DB::table('teams')
+                    ->leftJoin('team_members', 'team_members.team_id', '=', 'teams.id')
+                    ->where(function ($query) use ($employee): void {
+                        $query->where('teams.lead_employee_id', (int) $employee->id)
+                            ->orWhere(function ($memberQuery) use ($employee): void {
+                                $memberQuery
+                                    ->where('team_members.employee_id', (int) $employee->id)
+                                    ->where('team_members.is_active', true);
+                            });
+                    })
+                    ->pluck('teams.id')
+                    ->unique();
+
+                if ($teamIds->isNotEmpty()) {
+                    $ids = $ids->merge(
+                        DB::table('team_members')
+                            ->whereIn('team_id', $teamIds)
+                            ->where('is_active', true)
+                            ->pluck('employee_id')
+                    );
+                }
+            }
+
+            if (Schema::hasTable('projects') && Schema::hasTable('project_members')) {
+                $projectIds = DB::table('projects')
+                    ->leftJoin('project_members', 'project_members.project_id', '=', 'projects.id')
+                    ->where(function ($query) use ($employee): void {
+                        $query->where('projects.manager_employee_id', (int) $employee->id)
+                            ->orWhere('project_members.employee_id', (int) $employee->id);
+                    })
+                    ->pluck('projects.id')
+                    ->unique();
+
+                if ($projectIds->isNotEmpty()) {
+                    $ids = $ids->merge(
+                        DB::table('project_members')
+                            ->whereIn('project_id', $projectIds)
+                            ->pluck('employee_id')
+                    );
+                }
+            }
+        }
+
+        return $ids
+            ->map(fn ($id): int => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 }
