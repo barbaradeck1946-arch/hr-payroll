@@ -1,0 +1,68 @@
+@extends('layouts.backend')
+@section('title', $mode === 'create' ? 'Add Team' : 'Edit Team')
+
+@section('content')
+<div class="wrapper-page">
+    <div class="page-title d-flex justify-content-between align-items-center">
+        <h1><i class="icon-people"></i> {{ $mode === 'create' ? 'Add Team' : 'Edit Team' }}</h1>
+        <a href="{{ route('teams.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+    </div>
+
+    @include('partials.flash')
+
+    <div class="page-content">
+        <div class="container-fluid">
+            <div class="card no-border">
+                <div class="content_wrapper" style="padding:20px;">
+                    <form method="POST" action="{{ $mode === 'create' ? route('teams.store') : route('teams.update', $team) }}" class="row g-2">
+                        @csrf
+                        @if($mode === 'edit') @method('PUT') @endif
+
+                        <div class="col-md-4">
+                            <label>Name</label>
+                            <input type="text" name="name" value="{{ old('name', $team->name ?? '') }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Code</label>
+                            <input type="text" name="code" value="{{ old('code', $team->code ?? '') }}" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label>Department</label>
+                            <select name="department_id" class="form-control">
+                                <option value="">Select Department</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->id }}" {{ (int) old('department_id', $team->department_id ?? 0) === (int) $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Lead Employee</label>
+                            <select name="lead_employee_id" class="form-control js-example-basic-single">
+                                <option value="">Select Lead</option>
+                                @foreach($employees as $employee)
+                                    @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
+                                    <option value="{{ $employee->id }}" {{ (int) old('lead_employee_id', $team->lead_employee_id ?? 0) === (int) $employee->id ? 'selected' : '' }}>{{ $name }} ({{ $employee->employee_code }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label>Status</label>
+                            <select name="is_active" class="form-control">
+                                <option value="1" {{ (string) old('is_active', (isset($team) ? (int) $team->is_active : 1)) === '1' ? 'selected' : '' }}>Active</option>
+                                <option value="0" {{ (string) old('is_active', (isset($team) ? (int) $team->is_active : 1)) === '0' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label>Description</label>
+                            <textarea name="description" class="form-control" rows="3">{{ old('description', $team->description ?? '') }}</textarea>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <button type="submit" class="btn btn-custom"><i class="icon-check"></i> Save Team</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

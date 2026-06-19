@@ -14,7 +14,24 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $groups = [
-            'dashboard' => ['view', 'change_password'],
+            'dashboard' => [
+                'view',
+                'change_password',
+                'view_all',
+                'view_department',
+                'view_self',
+                'employee_summary',
+                'attendance_summary',
+                'leave_summary',
+                'notice_board',
+                'quick_notes',
+                'basic_alerts',
+                'attendance_chart',
+                'department_chart',
+                'today_attendance_table',
+                'pending_leave_table',
+                'upcoming_events_table',
+            ],
             'employee' => [
                 'view',
                 'create',

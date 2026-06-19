@@ -6,18 +6,18 @@
                 $authUser = auth()->user();
                 $avatarPath = $authUser?->employee?->avatar_path ?: 'assets/img/user/default.jpg';
             @endphp
-            <div class="sidebar-header text-center" style="padding: 25px 0; position: relative; top: 0;">
-                <figure class="side-user-bg" style="background-image: url('assets/img/sidebar.jpg'); margin: 0; position: absolute; top: 0; right: 0; bottom: 0; left: 0; opacity: 0.2; background-size: cover; background-position: center center;">
+            <div class="sidebar-header text-center">
+                <figure class="side-user-bg" style="background-image: url('{{ asset('assets/img/sidebar.jpg') }}');">
                     <img src="assets/img/sidebar.jpg" alt="" style="display: none;">
                 </figure>
 
                 <img
+                    class="sidebar-user-avatar"
                     src="{{ asset($avatarPath) }}"
                     alt="profile image"
-                    style="width: 50px; height: 50px; border-radius: 50%; margin: 0 auto; object-fit: cover;"
                 >
 
-                <h5 class="text-center font-weight-medium" style="color: #ffffff; padding-bottom: 10px;">
+                <h5 class="text-center font-weight-medium">
                     {{ $authUser?->name ?? 'HR Payroll User' }}
                 </h5>
             </div>
@@ -97,6 +97,26 @@
                             <i class="icon-bell"></i>
                             <span>Notices & Announcements</span>
                         </a>
+                    </li>
+                @endif
+
+                @if(($s['canTeamView'] ?? false) || ($s['canTeamCreate'] ?? false) || ($s['canTeamUpdate'] ?? false) || ($s['canTeamManageMembers'] ?? false) || ($s['canProjectView'] ?? false) || ($s['canProjectCreate'] ?? false) || ($s['canProjectUpdate'] ?? false) || ($s['canProjectManageMembers'] ?? false) || ($s['canTaskView'] ?? false) || ($s['canTaskCreate'] ?? false) || ($s['canTaskUpdate'] ?? false) || ($s['canTaskAssign'] ?? false) || ($s['canTaskComment'] ?? false))
+                    <li id="menu-work" data-id="menu-work" class="main {{ ($s['isWork'] ?? false) ? 'active' : '' }}">
+                        <a class="has-arrow" href="#" aria-expanded="{{ ($s['isWork'] ?? false) ? 'true' : 'false' }}">
+                            <i class="icon-briefcase"></i>
+                            <span>Teams & Projects</span>
+                        </a>
+                        <ul aria-expanded="{{ ($s['isWork'] ?? false) ? 'true' : 'false' }}">
+                            @if(($s['canTeamView'] ?? false) || ($s['canTeamCreate'] ?? false) || ($s['canTeamUpdate'] ?? false) || ($s['canTeamManageMembers'] ?? false))
+                                <li class="{{ request()->routeIs('teams.*') ? 'active' : '' }}"><a href="{{ route('teams.index') }}">Teams</a></li>
+                            @endif
+                            @if(($s['canProjectView'] ?? false) || ($s['canProjectCreate'] ?? false) || ($s['canProjectUpdate'] ?? false) || ($s['canProjectManageMembers'] ?? false))
+                                <li class="{{ request()->routeIs('projects.*') ? 'active' : '' }}"><a href="{{ route('projects.index') }}">Projects</a></li>
+                            @endif
+                            @if(($s['canTaskView'] ?? false) || ($s['canTaskCreate'] ?? false) || ($s['canTaskUpdate'] ?? false) || ($s['canTaskAssign'] ?? false) || ($s['canTaskComment'] ?? false))
+                                <li class="{{ request()->routeIs('tasks.*') ? 'active' : '' }}"><a href="{{ route('tasks.index') }}">Tasks</a></li>
+                            @endif
+                        </ul>
                     </li>
                 @endif
 
