@@ -18,7 +18,10 @@ use App\Modules\Leaves\Http\Controllers\LeaveApplicationController;
 use App\Modules\Leaves\Http\Controllers\LeaveBalanceController;
 use App\Modules\Leaves\Http\Controllers\LeaveCategoryController;
 use App\Modules\Leaves\Http\Controllers\LeavePolicyController;
+use App\Modules\Projects\Http\Controllers\ProjectController;
 use App\Modules\SalaryGrades\Http\Controllers\SalaryGradeController;
+use App\Modules\Tasks\Http\Controllers\TaskController;
+use App\Modules\Teams\Http\Controllers\TeamController;
 use App\Modules\Users\Http\Controllers\PermissionController;
 use App\Modules\Users\Http\Controllers\RoleController;
 use App\Modules\Users\Http\Controllers\UserController;
@@ -121,6 +124,41 @@ Route::middleware(['auth', 'portal.access'])->group(function (): void {
     Route::prefix('leave/reports')->name('leave-reports.')->group(function (): void {
         Route::get('/', [LeaveApplicationController::class, 'reportsIndex'])->middleware('permission:leave.report,leave.approve,leave.view')->name('index');
         Route::get('/export', [LeaveApplicationController::class, 'exportCsv'])->middleware('permission:leave.report,leave.approve,leave.view')->name('export');
+    });
+
+    Route::prefix('teams')->name('teams.')->group(function (): void {
+        Route::get('/', [TeamController::class, 'index'])->middleware('permission:team.view,team.create,team.update,team.manage-members')->name('index');
+        Route::get('/create', [TeamController::class, 'create'])->middleware('permission:team.create')->name('create');
+        Route::post('/', [TeamController::class, 'store'])->middleware('permission:team.create')->name('store');
+        Route::get('/{team}/edit', [TeamController::class, 'edit'])->middleware('permission:team.update')->name('edit');
+        Route::put('/{team}', [TeamController::class, 'update'])->middleware('permission:team.update')->name('update');
+        Route::delete('/{team}', [TeamController::class, 'destroy'])->middleware('permission:team.delete')->name('destroy');
+        Route::get('/{team}/members', [TeamController::class, 'members'])->middleware('permission:team.manage-members')->name('members');
+        Route::post('/{team}/members', [TeamController::class, 'syncMembers'])->middleware('permission:team.manage-members')->name('members.sync');
+    });
+
+    Route::prefix('projects')->name('projects.')->group(function (): void {
+        Route::get('/', [ProjectController::class, 'index'])->middleware('permission:project.view,project.create,project.update,project.manage-members')->name('index');
+        Route::get('/create', [ProjectController::class, 'create'])->middleware('permission:project.create')->name('create');
+        Route::post('/', [ProjectController::class, 'store'])->middleware('permission:project.create')->name('store');
+        Route::get('/{project}', [ProjectController::class, 'show'])->middleware('permission:project.view,project.create,project.update,project.manage-members')->name('show');
+        Route::get('/{project}/edit', [ProjectController::class, 'edit'])->middleware('permission:project.update')->name('edit');
+        Route::put('/{project}', [ProjectController::class, 'update'])->middleware('permission:project.update')->name('update');
+        Route::delete('/{project}', [ProjectController::class, 'destroy'])->middleware('permission:project.delete')->name('destroy');
+        Route::get('/{project}/members', [ProjectController::class, 'members'])->middleware('permission:project.manage-members')->name('members');
+        Route::post('/{project}/members', [ProjectController::class, 'syncMembers'])->middleware('permission:project.manage-members')->name('members.sync');
+    });
+
+    Route::prefix('tasks')->name('tasks.')->group(function (): void {
+        Route::get('/', [TaskController::class, 'index'])->middleware('permission:task.view,task.create,task.update,task.assign,task.comment')->name('index');
+        Route::get('/create', [TaskController::class, 'create'])->middleware('permission:task.create')->name('create');
+        Route::post('/', [TaskController::class, 'store'])->middleware('permission:task.create')->name('store');
+        Route::get('/{task}', [TaskController::class, 'show'])->middleware('permission:task.view,task.create,task.update,task.assign,task.comment')->name('show');
+        Route::get('/{task}/edit', [TaskController::class, 'edit'])->middleware('permission:task.update')->name('edit');
+        Route::put('/{task}', [TaskController::class, 'update'])->middleware('permission:task.update')->name('update');
+        Route::delete('/{task}', [TaskController::class, 'destroy'])->middleware('permission:task.delete')->name('destroy');
+        Route::patch('/{task}/status', [TaskController::class, 'updateStatus'])->middleware('permission:task.update,task.assign')->name('status.update');
+        Route::post('/{task}/comments', [TaskController::class, 'addComment'])->middleware('permission:task.comment')->name('comments.store');
     });
 
     Route::middleware('role.any:super-admin,hr-manager')->group(function (): void {

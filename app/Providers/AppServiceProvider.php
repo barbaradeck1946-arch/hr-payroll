@@ -45,6 +45,9 @@ class AppServiceProvider extends ServiceProvider
                     || request()->routeIs('leave-applications.*')
                     || request()->routeIs('leave-approvals.*')
                     || request()->routeIs('leave-reports.*'),
+                'isWork' => request()->routeIs('teams.*')
+                    || request()->routeIs('projects.*')
+                    || request()->routeIs('tasks.*'),
                 'isHoliday' => request()->routeIs('holidays.*'),
                 'isUserManagement' => request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('permissions.*'),
                 'isSettings' => request()->routeIs('settings.*'),
@@ -80,6 +83,19 @@ class AppServiceProvider extends ServiceProvider
                 'canLeaveManageCategories' => $can('leave.manage-categories'),
                 'canLeaveManageQuotas' => $canAny(['leave.manage-quotas', 'leave.manage-balances']),
                 'canLeaveReport' => $can('leave.report'),
+                'canTeamView' => $can('team.view'),
+                'canTeamCreate' => $can('team.create'),
+                'canTeamUpdate' => $can('team.update'),
+                'canTeamManageMembers' => $can('team.manage-members'),
+                'canProjectView' => $can('project.view'),
+                'canProjectCreate' => $can('project.create'),
+                'canProjectUpdate' => $can('project.update'),
+                'canProjectManageMembers' => $can('project.manage-members'),
+                'canTaskView' => $can('task.view'),
+                'canTaskCreate' => $can('task.create'),
+                'canTaskUpdate' => $can('task.update'),
+                'canTaskAssign' => $can('task.assign'),
+                'canTaskComment' => $can('task.comment'),
 
                 'canRoleView' => $can('role.view'),
                 'canRoleCreate' => $can('role.create'),

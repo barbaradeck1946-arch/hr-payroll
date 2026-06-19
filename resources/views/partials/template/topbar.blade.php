@@ -10,9 +10,9 @@
     @endphp
     <nav class="navbar navbar-light app-topbar-nav">
         <div class="app-topbar-left">
-            <div class="logo-container" style="min-width: 210px; height: 50px; background-color: rgba(255, 255, 255, 1); text-align:center">
-                <a class="navbar-brand text-start" href="#">
-                    <img src="{{ asset(config('madpos_ui.logo')) }}" alt="Zerithon">
+            <div class="logo-container app-logo-container">
+                <a class="navbar-brand text-start app-logo-link" href="{{ route('dashboard') }}">
+                    <img class="app-logo-img" src="{{ asset(config('madpos_ui.logo')) }}" alt="Zerithon">
                 </a>
             </div>
 
@@ -72,7 +72,7 @@
                             </div>
                         </li>
 
-                        <li style="margin-top: 8px;" class="d-none d-md-block">
+                        <li class="d-none d-md-block app-lang-item">
                             <select class="form-control">
                                 <option>English</option>
                                 <option>Bangla</option>
