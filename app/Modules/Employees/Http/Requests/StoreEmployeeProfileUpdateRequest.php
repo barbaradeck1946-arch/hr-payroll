@@ -32,6 +32,7 @@ class StoreEmployeeProfileUpdateRequest extends FormRequest
             'alternate_phone' => ['nullable', 'string', 'max:30'],
             'marital_status' => ['nullable', 'in:single,married,divorced,widowed'],
             'notes' => ['nullable', 'string', 'max:5000'],
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
 
             'addresses' => ['nullable', 'array'],
             'addresses.*.address_type' => ['nullable', 'string', 'max:30'],

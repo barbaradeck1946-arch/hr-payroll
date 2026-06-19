@@ -37,10 +37,26 @@
                         'passport_number' => $requestItem->employee?->passport_number,
                         'tax_id' => $requestItem->employee?->tax_id,
                         'notes' => $requestItem->employee?->notes,
+                        'avatar_path' => $requestItem->employee?->avatar_path,
                     ])
+                    @php($requestedAvatarPath = is_array($requestedGeneralInfo) ? ($requestedGeneralInfo['avatar_path'] ?? null) : null)
 
                     <hr>
                         <h5>General Information</h5>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="profile-review-avatar">
+                                <span>Current Image</span>
+                                <img src="{{ $requestItem->employee?->avatar_path ? asset($requestItem->employee->avatar_path) : asset('assets/img/user/default.jpg') }}" alt="Current profile image">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-review-avatar">
+                                <span>Requested Image</span>
+                                <img src="{{ $requestedAvatarPath ? asset($requestedAvatarPath) : ($requestItem->employee?->avatar_path ? asset($requestItem->employee->avatar_path) : asset('assets/img/user/default.jpg')) }}" alt="Requested profile image">
+                            </div>
+                        </div>
+                    </div>
                     <div class="table-responsive mb-3">
                         <table class="table table-bordered">
                             <thead><tr><th>Current</th><th>Requested</th></tr></thead>
@@ -143,3 +159,30 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .profile-review-avatar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid #dfe7ef;
+        border-radius: 8px;
+        background: #fff;
+    }
+    .profile-review-avatar span {
+        min-width: 120px;
+        color: #607d8b;
+        font-weight: 700;
+    }
+    .profile-review-avatar img {
+        width: 88px;
+        height: 88px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid #d9e1ea;
+        background: #f7fafc;
+    }
+</style>
+@endpush

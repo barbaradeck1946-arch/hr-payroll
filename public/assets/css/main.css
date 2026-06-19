@@ -4142,6 +4142,8 @@ textarea.form-control {
 
 input[type="file"].form-control,
 .import-card-form input[type="file"].form-control {
+    position: static;
+    top: auto;
     padding: 0;
     min-height: 42px;
     line-height: 42px;

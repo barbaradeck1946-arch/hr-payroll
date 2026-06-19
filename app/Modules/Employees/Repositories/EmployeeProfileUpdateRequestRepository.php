@@ -43,7 +43,7 @@ class EmployeeProfileUpdateRequestRepository
     {
         return EmployeeProfileUpdateRequest::query()
             ->with([
-                'employee:id,employee_code,first_name,last_name,user_id,gender,date_of_birth,nid_number,passport_number,tax_id,phone,alternate_phone,marital_status,notes,work_email,department_id,designation_id,salary_grade_id,reports_to_id',
+                'employee:id,employee_code,first_name,last_name,user_id,gender,date_of_birth,nid_number,passport_number,tax_id,phone,alternate_phone,marital_status,notes,avatar_path,work_email,department_id,designation_id,salary_grade_id,reports_to_id',
                 'employee.user:id,email',
                 'employee.department:id,name',
                 'employee.designation:id,name',

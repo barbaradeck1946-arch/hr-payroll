@@ -9,26 +9,35 @@ use App\Models\EmployeeDocument;
 use App\Models\EmployeeEmergencyContact;
 use App\Models\EmployeeProfileUpdateRequest;
 use App\Modules\Employees\Repositories\EmployeeProfileUpdateRequestRepository;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class EmployeeProfileUpdateRequestService
 {
     public function __construct(
-        private readonly EmployeeProfileUpdateRequestRepository $requestRepository
+        private readonly EmployeeProfileUpdateRequestRepository $requestRepository,
+        private readonly EmployeeAssetService $employeeAssetService
     ) {
     }
 
     /**
      * @param array<string, mixed> $payload
      */
-    public function submit(Employee $employee, int $submittedByUserId, array $payload): EmployeeProfileUpdateRequest
+    public function submit(
+        Employee $employee,
+        int $submittedByUserId,
+        array $payload,
+        ?UploadedFile $avatarFile = null
+    ): EmployeeProfileUpdateRequest
     {
         $existingPending = $this->requestRepository->latestPendingForEmployee($employee->id);
         if ($existingPending) {
             $latestReviewed = $this->requestRepository->latestReviewedForEmployee($employee->id);
 
             if ($latestReviewed?->reviewed_at && $existingPending->submitted_at && $latestReviewed->reviewed_at->gte($existingPending->submitted_at)) {
+                $this->deleteRequestedAvatar($existingPending->payload ?? []);
+
                 $this->requestRepository->update($existingPending, [
                     'approval_status' => 'rejected',
                     'review_comments' => 'Auto-closed stale pending request.',
@@ -42,16 +51,24 @@ class EmployeeProfileUpdateRequestService
 
         $rejectedRequest = $this->requestRepository->latestRejectedForEmployee($employee->id);
 
-        return DB::transaction(function () use ($employee, $submittedByUserId, $payload, $rejectedRequest): EmployeeProfileUpdateRequest {
-            return $this->requestRepository->create([
-                'employee_id' => $employee->id,
-                'submitted_by_user_id' => $submittedByUserId,
-                'approval_status' => 'pending',
-                'payload' => $this->extractPayload($payload),
-                'submitted_at' => now(),
-                'resubmission_of_id' => $rejectedRequest?->id,
-            ]);
-        });
+        $newAvatarPath = $this->employeeAssetService->storeAvatar($avatarFile);
+
+        try {
+            return DB::transaction(function () use ($employee, $submittedByUserId, $payload, $rejectedRequest, $newAvatarPath): EmployeeProfileUpdateRequest {
+                return $this->requestRepository->create([
+                    'employee_id' => $employee->id,
+                    'submitted_by_user_id' => $submittedByUserId,
+                    'approval_status' => 'pending',
+                    'payload' => $this->extractPayload($payload, $newAvatarPath),
+                    'submitted_at' => now(),
+                    'resubmission_of_id' => $rejectedRequest?->id,
+                ]);
+            });
+        } catch (\Throwable $exception) {
+            $this->employeeAssetService->deleteAvatar($newAvatarPath);
+
+            throw $exception;
+        }
     }
 
     /**
@@ -68,6 +85,8 @@ class EmployeeProfileUpdateRequestService
 
             if ($decision === 'approve') {
                 $this->applyApprovedPayload($request->employee, $request->payload ?? [], $reviewedByUserId);
+            } else {
+                $this->deleteRequestedAvatar($request->payload ?? []);
             }
 
             EmployeeProfileUpdateRequest::query()
@@ -95,7 +114,7 @@ class EmployeeProfileUpdateRequestService
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
-    private function extractPayload(array $payload): array
+    private function extractPayload(array $payload, ?string $newAvatarPath = null): array
     {
         return [
             'general_info' => [
@@ -110,6 +129,7 @@ class EmployeeProfileUpdateRequestService
                 'alternate_phone' => $payload['alternate_phone'] ?? null,
                 'marital_status' => $payload['marital_status'] ?? null,
                 'notes' => $payload['notes'] ?? null,
+                'avatar_path' => $newAvatarPath,
             ],
             'addresses' => $this->sanitizeRows($payload['addresses'] ?? []),
             'bank_accounts' => $this->sanitizeRows($payload['bank_accounts'] ?? []),
@@ -146,7 +166,11 @@ class EmployeeProfileUpdateRequestService
     {
         $generalInfo = $payload['general_info'] ?? [];
         if (is_array($generalInfo) && $generalInfo !== []) {
-            $employee->update([
+            $oldAvatarPath = $employee->avatar_path;
+            $newAvatarPath = $generalInfo['avatar_path'] ?? null;
+            $hasAvatarUpdate = is_string($newAvatarPath) && trim($newAvatarPath) !== '';
+
+            $employeeAttributes = [
                 'first_name' => $generalInfo['first_name'] ?? $employee->first_name,
                 'last_name' => $generalInfo['last_name'] ?? null,
                 'gender' => $generalInfo['gender'] ?? null,
@@ -158,7 +182,17 @@ class EmployeeProfileUpdateRequestService
                 'alternate_phone' => $generalInfo['alternate_phone'] ?? null,
                 'marital_status' => $generalInfo['marital_status'] ?? null,
                 'notes' => $generalInfo['notes'] ?? null,
-            ]);
+            ];
+
+            if ($hasAvatarUpdate) {
+                $employeeAttributes['avatar_path'] = $newAvatarPath;
+            }
+
+            $employee->update($employeeAttributes);
+
+            if ($hasAvatarUpdate && $newAvatarPath !== $oldAvatarPath) {
+                $this->employeeAssetService->deleteAvatar($oldAvatarPath);
+            }
         }
 
         $addresses = $this->sanitizeRows($payload['addresses'] ?? []);
@@ -220,5 +254,18 @@ class EmployeeProfileUpdateRequestService
                 'uploaded_by' => $reviewedByUserId,
             ]);
         }
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function deleteRequestedAvatar(array $payload): void
+    {
+        $generalInfo = $payload['general_info'] ?? [];
+        if (! is_array($generalInfo)) {
+            return;
+        }
+
+        $this->employeeAssetService->deleteAvatar($generalInfo['avatar_path'] ?? null);
     }
 }

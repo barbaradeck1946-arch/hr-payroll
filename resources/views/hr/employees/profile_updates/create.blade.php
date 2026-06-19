@@ -25,7 +25,7 @@
                                 </div>
                             @endif
 
-                    <form method="POST" action="{{ route('employees.profile-updates.store') }}">
+                    <form method="POST" action="{{ route('employees.profile-updates.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         @php($pendingPayload = is_array($lastPending?->payload) ? $lastPending->payload : [])
@@ -38,7 +38,8 @@
                         @php($selectedGender = old('gender', $pendingGeneral['gender'] ?? $employee->gender))
                         @php($selectedMaritalStatus = old('marital_status', $pendingGeneral['marital_status'] ?? $employee->marital_status))
                         @php($managerName = $employee->manager ? trim($employee->manager->first_name.' '.$employee->manager->last_name).' ('.$employee->manager->employee_code.')' : 'No Manager')
-                        @php($profileImage = $employee->avatar_path ? asset($employee->avatar_path) : asset('assets/img/user/default.jpg'))
+                        @php($pendingAvatarPath = $pendingGeneral['avatar_path'] ?? null)
+                        @php($profileImage = $pendingAvatarPath ? asset($pendingAvatarPath) : ($employee->avatar_path ? asset($employee->avatar_path) : asset('assets/img/user/default.jpg')))
 
                             <ul class="nav nav-tabs profile-update-tab-nav mb-3" id="profile-update-tabs" role="tablist">
                             <li class="nav-item" role="presentation">
@@ -62,9 +63,22 @@
                             <div class="tab-pane fade show active" id="pane-general" role="tabpanel" aria-labelledby="tab-general">
                                 <div class="profile-panel mb-4">
                                     <div class="mb-3">
-                                        <label class="form-label">Current Profile Image</label>
-                                        <div>
-                                            <img src="{{ $profileImage }}" alt="Employee Profile Image" style="width:88px;height:88px;border-radius:8px;object-fit:cover;border:1px solid #d9e1ea;">
+                                        <label class="form-label">Profile Image</label>
+                                        <div class="profile-avatar-update">
+                                            <img id="profile_avatar_preview" src="{{ $profileImage }}" alt="Employee Profile Image">
+                                            <div class="profile-avatar-actions">
+                                                <input type="file" name="avatar" id="profile_avatar_input" class="profile-avatar-input" accept=".jpg,.jpeg,.png,.webp" {{ $lastPending ? 'disabled' : '' }}>
+                                                <label for="profile_avatar_input" class="btn btn-custom btn-sm mb-2 {{ $lastPending ? 'disabled' : '' }}">
+                                                    <i class="icon-picture"></i> Upload Photo
+                                                </label>
+                                                <small id="profile_avatar_file_name" class="text-muted d-block">
+                                                    {{ $pendingAvatarPath ? 'Pending image selected' : 'No file chosen' }}
+                                                </small>
+                                                <small class="text-muted d-block mt-1">JPG, PNG, WEBP. Max 2MB.</small>
+                                                @error('avatar')
+                                                    <div class="text-danger small">{{ $message }}</div>
+                                                @enderror
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="row g-2">
@@ -239,12 +253,60 @@
     .profile-row-remove {
         min-width: 38px;
     }
+    .profile-avatar-update {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+    .profile-avatar-update img {
+        width: 88px;
+        height: 88px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid #d9e1ea;
+        background: #f7fafc;
+    }
+    .profile-avatar-actions {
+        flex: 1 1 260px;
+        max-width: 460px;
+    }
+    .profile-avatar-actions .btn {
+        min-width: 140px;
+    }
+    .profile-avatar-input {
+        position: fixed;
+        top: -1000px;
+    }
 </style>
 @endpush
 
 @push('scripts')
 <script>
 (function () {
+    var avatarInput = document.getElementById('profile_avatar_input');
+    var avatarPreview = document.getElementById('profile_avatar_preview');
+    var avatarFileName = document.getElementById('profile_avatar_file_name');
+
+    if (avatarInput && avatarPreview) {
+        avatarInput.addEventListener('change', function () {
+            var file = avatarInput.files && avatarInput.files[0] ? avatarInput.files[0] : null;
+            if (!file) {
+                return;
+            }
+
+            if (avatarFileName) {
+                avatarFileName.textContent = file.name;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                avatarPreview.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
     var data = {
         addresses: @json($addresses),
         banks: @json($banks),

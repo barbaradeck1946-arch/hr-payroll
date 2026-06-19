@@ -53,7 +53,12 @@ class EmployeeProfileUpdateRequestController extends Controller
         abort_if(! $employee, 403, 'Employee profile is not linked with this user.');
 
         try {
-            $this->requestService->submit($employee, (int) $request->user()->id, $request->validated());
+            $this->requestService->submit(
+                $employee,
+                (int) $request->user()->id,
+                $request->validated(),
+                $request->file('avatar')
+            );
         } catch (RuntimeException $exception) {
             return back()->withInput()->with('error', $exception->getMessage());
         }
