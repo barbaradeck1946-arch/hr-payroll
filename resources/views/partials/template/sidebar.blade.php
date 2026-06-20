@@ -149,32 +149,35 @@
                     </li>
                 @endif
 
-                <li id="menu-payroll" data-id="menu-payroll" class="main {{ request()->routeIs('salary-grades.*') ? 'active' : '' }}">
-                    <a class="has-arrow" href="#">
-                        <i class="icon-wallet"></i>
-                        <span>Payroll</span>
-                    </a>
-                    <ul aria-expanded="true">
-                        <li><a href="#">Payroll List</a></li>
-                        <li><a href="#">Generate Payroll</a></li>
-                        <li class="{{ request()->routeIs('salary-grades.*') ? 'active' : '' }}"><a href="{{ route('salary-grades.index') }}">Salary Grade</a></li>
-                        <li><a href="#">Salary Setup</a></li>
-                        <li><a href="#">Allowances</a></li>
-                        <li><a href="#">Deductions</a></li>
-                    </ul>
-                </li>
-
-                <li id="menu-loan" data-id="menu-loan" class="main">
-                    <a class="has-arrow" href="#">
-                        <i class="icon-credit-card"></i>
-                        <span>Loans</span>
-                    </a>
-                    <ul aria-expanded="true">
-                        <li><a href="#">Loan List</a></li>
-                        <li><a href="#">Add Loan</a></li>
-                        <li><a href="#">Loan Approvals</a></li>
-                    </ul>
-                </li>
+                @if($s['canPayrollMenu'] ?? false)
+                    <li id="menu-payroll" data-id="menu-payroll" class="main {{ ($s['isPayroll'] ?? false) ? 'active' : '' }}">
+                        <a class="has-arrow" href="#" aria-expanded="{{ ($s['isPayroll'] ?? false) ? 'true' : 'false' }}">
+                            <i class="icon-wallet"></i>
+                            <span>Payroll</span>
+                        </a>
+                        <ul aria-expanded="{{ ($s['isPayroll'] ?? false) ? 'true' : 'false' }}">
+                            @if(($s['canPayrollView'] ?? false) || ($s['canPayrollGenerate'] ?? false))
+                                <li class="{{ request()->routeIs('payroll.runs.*') || request()->routeIs('payroll.items.*') ? 'active' : '' }}"><a href="{{ route('payroll.runs.index') }}">Payroll Runs</a></li>
+                            @endif
+                            @if($s['canPayrollManageSalaryTemplates'] ?? false)
+                                <li class="{{ request()->routeIs('salary-grades.*') ? 'active' : '' }}"><a href="{{ route('salary-grades.index') }}">Salary Grades</a></li>
+                                <li class="{{ request()->routeIs('payroll.salary-templates.*') || request()->routeIs('payroll.salary-template-assignments.*') ? 'active' : '' }}"><a href="{{ route('payroll.salary-templates.index') }}">Salary Templates</a></li>
+                            @endif
+                            @if($s['canPayrollManageBonus'] ?? false)
+                                <li class="{{ request()->routeIs('payroll.bonuses.*') ? 'active' : '' }}"><a href="{{ route('payroll.bonuses.index') }}">Bonuses</a></li>
+                            @endif
+                            @if($s['canPayrollManageLoan'] ?? false)
+                                <li class="{{ request()->routeIs('payroll.loans.*') ? 'active' : '' }}"><a href="{{ route('payroll.loans.index') }}">Loans</a></li>
+                            @endif
+                            @if($s['canPayrollManageDeduction'] ?? false)
+                                <li class="{{ request()->routeIs('payroll.deductions.*') ? 'active' : '' }}"><a href="{{ route('payroll.deductions.index') }}">Deductions</a></li>
+                            @endif
+                            @if($s['canPayrollManagePf'] ?? false)
+                                <li class="{{ request()->routeIs('payroll.provident-funds.*') ? 'active' : '' }}"><a href="{{ route('payroll.provident-funds.index') }}">Provident Fund</a></li>
+                            @endif
+                        </ul>
+                    </li>
+                @endif
 
                 @if(($s['canHolidayView'] ?? false) || ($s['canHolidayCreate'] ?? false) || ($s['canHolidayUpdate'] ?? false))
                     <li id="menu-holiday" data-id="menu-holiday" class="main {{ ($s['isHoliday'] ?? false) ? 'active' : '' }}">

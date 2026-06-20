@@ -17,7 +17,21 @@ class SalaryTemplate extends Model
     public function employees(): BelongsToMany
     {
         return $this->belongsToMany(Employee::class, 'employee_salary_templates')
-            ->withPivot(['pay_frequency', 'effective_from', 'effective_to'])
+            ->withPivot([
+                'pay_frequency',
+                'basic_salary',
+                'house_rent',
+                'medical_allowance',
+                'conveyance_allowance',
+                'other_allowance',
+                'gross_salary',
+                'provident_fund_percent',
+                'tax_percent',
+                'ctc_amount',
+                'notes',
+                'effective_from',
+                'effective_to',
+            ])
             ->withTimestamps();
     }
 }

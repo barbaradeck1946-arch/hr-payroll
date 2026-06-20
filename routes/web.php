@@ -18,6 +18,7 @@ use App\Modules\Leaves\Http\Controllers\LeaveApplicationController;
 use App\Modules\Leaves\Http\Controllers\LeaveBalanceController;
 use App\Modules\Leaves\Http\Controllers\LeaveCategoryController;
 use App\Modules\Leaves\Http\Controllers\LeavePolicyController;
+use App\Modules\Payroll\Http\Controllers\PayrollController;
 use App\Modules\Projects\Http\Controllers\ProjectController;
 use App\Modules\SalaryGrades\Http\Controllers\SalaryGradeController;
 use App\Modules\Tasks\Http\Controllers\TaskController;
@@ -161,6 +162,46 @@ Route::middleware(['auth', 'portal.access'])->group(function (): void {
         Route::post('/{task}/comments', [TaskController::class, 'addComment'])->middleware('permission:task.comment')->name('comments.store');
     });
 
+    Route::prefix('salary-grades')->name('salary-grades.')->group(function (): void {
+        Route::get('/', [SalaryGradeController::class, 'index'])->middleware('permission:payroll.view,payroll.manage-salary-templates,salary_grade.view')->name('index');
+        Route::get('/create', [SalaryGradeController::class, 'create'])->middleware('permission:payroll.manage-salary-templates,salary_grade.create')->name('create');
+        Route::post('/', [SalaryGradeController::class, 'store'])->middleware('permission:payroll.manage-salary-templates,salary_grade.create')->name('store');
+        Route::get('/{salaryGrade}/edit', [SalaryGradeController::class, 'edit'])->middleware('permission:payroll.manage-salary-templates,salary_grade.update')->name('edit');
+        Route::put('/{salaryGrade}', [SalaryGradeController::class, 'update'])->middleware('permission:payroll.manage-salary-templates,salary_grade.update')->name('update');
+        Route::delete('/{salaryGrade}', [SalaryGradeController::class, 'destroy'])->middleware('permission:payroll.manage-salary-templates,salary_grade.delete')->name('destroy');
+    });
+
+    Route::prefix('payroll')->name('payroll.')->group(function (): void {
+        Route::get('/runs', [PayrollController::class, 'index'])->middleware('permission:payroll.view,payroll.generate,payroll_run.view,payroll_run.generate')->name('runs.index');
+        Route::post('/runs', [PayrollController::class, 'generate'])->middleware('permission:payroll.generate,payroll_run.generate')->name('runs.generate');
+        Route::get('/runs/{run}', [PayrollController::class, 'showRun'])->middleware('permission:payroll.view,payroll.generate,payroll_run.view')->name('runs.show');
+        Route::post('/runs/{run}/finalize', [PayrollController::class, 'finalizeRun'])->middleware('permission:payroll.generate,payroll_run.approve')->name('runs.finalize');
+        Route::get('/items/{item}', [PayrollController::class, 'showItem'])->middleware('permission:payroll.view,payroll.report,payslip.view')->name('items.show');
+        Route::patch('/items/{item}/paid', [PayrollController::class, 'markItemPaid'])->middleware('permission:payroll.generate,payroll_run.mark-paid')->name('items.paid');
+
+        Route::get('/salary-templates', [PayrollController::class, 'salaryTemplates'])->middleware('permission:payroll.view,payroll.manage-salary-templates,salary_template.view')->name('salary-templates.index');
+        Route::get('/salary-templates/create', [PayrollController::class, 'createSalaryTemplate'])->middleware('permission:payroll.manage-salary-templates,salary_template.create')->name('salary-templates.create');
+        Route::post('/salary-templates', [PayrollController::class, 'storeSalaryTemplate'])->middleware('permission:payroll.manage-salary-templates,salary_template.create')->name('salary-templates.store');
+        Route::get('/salary-templates/{template}/edit', [PayrollController::class, 'editSalaryTemplate'])->middleware('permission:payroll.manage-salary-templates,salary_template.update')->name('salary-templates.edit');
+        Route::put('/salary-templates/{template}', [PayrollController::class, 'updateSalaryTemplate'])->middleware('permission:payroll.manage-salary-templates,salary_template.update')->name('salary-templates.update');
+        Route::get('/salary-template-assignments/create', [PayrollController::class, 'assignSalaryTemplateForm'])->middleware('permission:payroll.manage-salary-templates,salary_template.assign,employee_salary.assign')->name('salary-template-assignments.create');
+        Route::post('/salary-template-assignments', [PayrollController::class, 'assignSalaryTemplate'])->middleware('permission:payroll.manage-salary-templates,salary_template.assign,employee_salary.assign')->name('salary-template-assignments.store');
+
+        Route::get('/bonuses', [PayrollController::class, 'bonuses'])->middleware('permission:payroll.manage-bonus,bonus.view')->name('bonuses.index');
+        Route::post('/bonuses', [PayrollController::class, 'storeBonus'])->middleware('permission:payroll.manage-bonus,bonus.create')->name('bonuses.store');
+        Route::delete('/bonuses/{bonus}', [PayrollController::class, 'destroyBonus'])->middleware('permission:payroll.manage-bonus,bonus.delete')->name('bonuses.destroy');
+
+        Route::get('/loans', [PayrollController::class, 'loans'])->middleware('permission:payroll.manage-loan,loan.view,employee_loan.view,loan_installment.view')->name('loans.index');
+        Route::post('/loans', [PayrollController::class, 'storeLoan'])->middleware('permission:payroll.manage-loan,loan.create,employee_loan.create')->name('loans.store');
+
+        Route::get('/deductions', [PayrollController::class, 'deductions'])->middleware('permission:payroll.manage-deduction,deduction.view,employee_deduction.view')->name('deductions.index');
+        Route::post('/deductions', [PayrollController::class, 'storeDeduction'])->middleware('permission:payroll.manage-deduction,deduction.create,employee_deduction.create')->name('deductions.store');
+        Route::delete('/deductions/{deduction}', [PayrollController::class, 'destroyDeduction'])->middleware('permission:payroll.manage-deduction,deduction.delete,employee_deduction.delete')->name('deductions.destroy');
+
+        Route::get('/provident-funds', [PayrollController::class, 'providentFunds'])->middleware('permission:payroll.manage-pf,provident_fund.view')->name('provident-funds.index');
+        Route::post('/provident-funds', [PayrollController::class, 'storeProvidentFund'])->middleware('permission:payroll.manage-pf,provident_fund.create,provident_fund.update')->name('provident-funds.store');
+    });
+
     Route::middleware('role.any:super-admin,hr-manager')->group(function (): void {
 
         Route::prefix('employees')->name('employees.')->group(function (): void {
@@ -205,15 +246,6 @@ Route::middleware(['auth', 'portal.access'])->group(function (): void {
             Route::put('/{holiday}', [HolidayController::class, 'update'])->middleware('permission:holiday.update')->name('update');
             Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->middleware('permission:holiday.delete')->name('destroy');
             Route::get('/export/current-year', [HolidayController::class, 'exportCurrentYearCsv'])->middleware('permission:holiday.view')->name('export-current-year');
-        });
-
-        Route::prefix('salary-grades')->name('salary-grades.')->group(function (): void {
-            Route::get('/', [SalaryGradeController::class, 'index'])->middleware('permission:payroll.view,payroll.manage-salary-templates')->name('index');
-            Route::get('/create', [SalaryGradeController::class, 'create'])->middleware('permission:payroll.manage-salary-templates')->name('create');
-            Route::post('/', [SalaryGradeController::class, 'store'])->middleware('permission:payroll.manage-salary-templates')->name('store');
-            Route::get('/{salaryGrade}/edit', [SalaryGradeController::class, 'edit'])->middleware('permission:payroll.manage-salary-templates')->name('edit');
-            Route::put('/{salaryGrade}', [SalaryGradeController::class, 'update'])->middleware('permission:payroll.manage-salary-templates')->name('update');
-            Route::delete('/{salaryGrade}', [SalaryGradeController::class, 'destroy'])->middleware('permission:payroll.manage-salary-templates')->name('destroy');
         });
 
         Route::prefix('leave/categories')->name('leave-categories.')->group(function (): void {
