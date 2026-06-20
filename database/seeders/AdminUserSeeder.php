@@ -10,25 +10,49 @@ use Illuminate\Support\Facades\Hash;
 class AdminUserSeeder extends Seeder
 {
     /**
-     * Seed default admin user.
+     * Seed default administrator role and user with all permissions.
      */
     public function run(): void
     {
-        $admin = User::query()->updateOrCreate(
-            ['email' => 'admin@hr-payroll.local'],
+        $adminRole = Role::query()->updateOrCreate(
+            ['slug' => 'super-admin'],
             [
-                'name' => 'System Admin',
-                'password' => Hash::make('P@ssw0rd'),
+                'name' => 'Super Admin',
+                'description' => 'Full system access',
+                'is_system' => true,
+            ]
+        );
+
+        $adminRole->permissions()->sync(
+            \App\Models\Permission::query()->pluck('id')->all()
+        );
+
+        $email = env('DEFAULT_ADMIN_EMAIL', 'admin@zerihr.local');
+        $password = env('DEFAULT_ADMIN_PASSWORD', 'password');
+
+        $admin = User::query()->updateOrCreate(
+            ['email' => $email],
+            [
+                'name' => env('DEFAULT_ADMIN_NAME', 'System Admin'),
+                'password' => Hash::make($password),
                 'account_status' => 'active',
                 'approved_at' => now(),
                 'rejected_reason' => null,
             ]
         );
 
-        $superAdminRole = Role::query()->where('slug', 'super-admin')->first();
+        $admin->roles()->syncWithoutDetaching([
+            $adminRole->id => [
+                'assigned_by' => null,
+                'assigned_at' => now(),
+            ],
+        ]);
 
-        if ($superAdminRole) {
-            $admin->roles()->syncWithoutDetaching([$superAdminRole->id]);
+        $this->command?->info('Default admin user is ready.');
+        $this->command?->line('Email: ' . $email);
+
+        if ($password === 'password') {
+            $this->command?->warn('Default password is "password". Change it after first login or set DEFAULT_ADMIN_PASSWORD in .env before seeding.');
         }
     }
 }

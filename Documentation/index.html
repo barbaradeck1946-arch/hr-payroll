@@ -325,6 +325,7 @@
             <a href="#introduction">Introduction</a>
             <a href="#requirements">Requirements</a>
             <a href="#installation">Installation</a>
+            <a href="#default-seed">Default Seed Data</a>
             <a href="#login">Login and Access</a>
             <a href="#employee-login-setup">Employee Login Setup</a>
             <a href="#navigation">Navigation</a>
@@ -431,6 +432,45 @@ php artisan db:seed</code></pre>
             <pre><code>php artisan storage:link
 php artisan optimize:clear</code></pre>
             <div class="note">After changing Blade files or configuration, clear cache if the browser does not show the latest updates.</div>
+        </section>
+
+        <section id="default-seed">
+            <h2>Default Seed Data</h2>
+            <p>Zeri HR includes default seeders so a fresh installation can be used immediately after running migrations and seeders.</p>
+            <h3>Seed Command</h3>
+            <pre><code>php artisan migrate --seed</code></pre>
+            <p>This command creates the default permissions, roles, settings and default administrator account.</p>
+
+            <h3>Default Admin Login</h3>
+            <table>
+                <tr><th>Field</th><th>Default Value</th></tr>
+                <tr><td>Email</td><td><code>admin@zerihr.local</code></td></tr>
+                <tr><td>Password</td><td><code>password</code></td></tr>
+                <tr><td>Role</td><td><code>Super Admin</code></td></tr>
+                <tr><td>Account Status</td><td><code>active</code></td></tr>
+            </table>
+
+            <h3>Default Admin Environment Variables</h3>
+            <p>The default admin user can be changed before seeding by editing the following values in <code>.env</code>:</p>
+            <pre><code>DEFAULT_ADMIN_NAME="System Admin"
+DEFAULT_ADMIN_EMAIL=admin@zerihr.local
+DEFAULT_ADMIN_PASSWORD=password</code></pre>
+
+            <h3>Permissions Seed</h3>
+            <p>All system permissions are created by the permission seeder. The default <strong>Super Admin</strong> role is automatically synced with all permissions, so the default admin can access every module and create other users.</p>
+            <ul>
+                <li>Dashboard permissions.</li>
+                <li>Employee and profile update permissions.</li>
+                <li>Attendance permissions.</li>
+                <li>Leave permissions.</li>
+                <li>Payroll, salary, loan, deduction, provident fund and payslip permissions.</li>
+                <li>Announcement permissions.</li>
+                <li>Team, project and task permissions.</li>
+                <li>User, role and permission management permissions.</li>
+                <li>Settings and report permissions.</li>
+            </ul>
+
+            <div class="warning">Change the default admin password after first login, or set a secure <code>DEFAULT_ADMIN_PASSWORD</code> before running the seed command.</div>
         </section>
 
         <section id="login">
