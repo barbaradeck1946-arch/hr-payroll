@@ -32,7 +32,7 @@
 
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">
-                            <thead><tr><th>Employee</th><th>Reference</th><th>Principal</th><th>Installment</th><th>Paid</th><th>Issued</th><th>Status</th></tr></thead>
+                            <thead><tr><th>Employee</th><th>Reference</th><th>Principal</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Issued</th><th>Status</th><th>Actions</th></tr></thead>
                             <tbody>
                                 @forelse($loans as $loan)
                                     <tr>
@@ -41,11 +41,13 @@
                                         <td>{{ number_format((float)$loan->principal_amount, 2) }}</td>
                                         <td>{{ $loan->installment_count }} x {{ number_format((float)$loan->installment_amount, 2) }}</td>
                                         <td>{{ number_format((float)($loan->paid_total ?? 0), 2) }}</td>
+                                        <td>{{ number_format(max(0, (float)$loan->principal_amount - (float)($loan->paid_total ?? 0)), 2) }}</td>
                                         <td>{{ $loan->issued_date }}</td>
                                         <td><span class="badge bg-secondary">{{ ucfirst($loan->status) }}</span></td>
+                                        <td class="action-buttons"><a href="{{ route('payroll.loans.show', $loan) }}" title="View Loan"><i class="icon-eye"></i></a></td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="7" class="text-center">No loans found.</td></tr>
+                                    <tr><td colspan="9" class="text-center">No loans found.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>

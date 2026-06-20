@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Bonus;
 use App\Models\EmployeeDeduction;
 use App\Models\EmployeeLoan;
+use App\Models\LoanInstallment;
 use App\Models\PayrollItem;
 use App\Models\PayrollRun;
 use App\Models\SalaryTemplate;
@@ -229,6 +230,52 @@ class PayrollController extends Controller
         return back()->with('success', 'Loan saved successfully.');
     }
 
+    public function showLoan(EmployeeLoan $loan): View
+    {
+        $loan->load([
+            'employee:id,employee_code,first_name,last_name,department_id,designation_id',
+            'employee.department:id,name',
+            'employee.designation:id,name',
+            'installments' => fn ($query) => $query->orderBy('installment_no'),
+        ]);
+
+        return view('hr.payroll.loans.show', ['loan' => $loan]);
+    }
+
+    public function rescheduleLoan(Request $request, EmployeeLoan $loan): RedirectResponse
+    {
+        try {
+            $this->payrollService->rescheduleLoan($loan, $this->validateLoan($request, $loan));
+        } catch (RuntimeException $exception) {
+            return back()->withInput()->with('error', $exception->getMessage());
+        }
+
+        return redirect()->route('payroll.loans.show', $loan)->with('success', 'Loan rescheduled successfully.');
+    }
+
+    public function updateLoanStatus(Request $request, EmployeeLoan $loan): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['active', 'paused', 'closed'])],
+            'remarks' => ['nullable', 'string'],
+        ]);
+
+        $this->payrollService->updateLoanStatus($loan, $validated);
+
+        return back()->with('success', 'Loan status updated successfully.');
+    }
+
+    public function markLoanInstallmentPaid(Request $request, LoanInstallment $installment): RedirectResponse
+    {
+        $validated = $request->validate([
+            'paid_date' => ['nullable', 'date'],
+        ]);
+
+        $this->payrollService->markLoanInstallmentPaid($installment, $validated['paid_date'] ?? null);
+
+        return back()->with('success', 'Loan installment marked as paid.');
+    }
+
     public function deductions(Request $request): View
     {
         $filters = $this->filters($request);
@@ -332,11 +379,11 @@ class PayrollController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function validateLoan(Request $request): array
+    private function validateLoan(Request $request, ?EmployeeLoan $loan = null): array
     {
         return $request->validate([
             'employee_id' => ['required', 'integer', 'exists:employees,id'],
-            'loan_reference' => ['required', 'string', 'max:255', Rule::unique(EmployeeLoan::class, 'loan_reference')],
+            'loan_reference' => ['required', 'string', 'max:255', Rule::unique(EmployeeLoan::class, 'loan_reference')->ignore($loan?->id)],
             'principal_amount' => ['required', 'numeric', 'min:0'],
             'interest_rate_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'installment_count' => ['required', 'integer', 'min:1', 'max:240'],

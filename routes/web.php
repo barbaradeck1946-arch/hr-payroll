@@ -193,6 +193,10 @@ Route::middleware(['auth', 'portal.access'])->group(function (): void {
 
         Route::get('/loans', [PayrollController::class, 'loans'])->middleware('permission:payroll.manage-loan,loan.view,employee_loan.view,loan_installment.view')->name('loans.index');
         Route::post('/loans', [PayrollController::class, 'storeLoan'])->middleware('permission:payroll.manage-loan,loan.create,employee_loan.create')->name('loans.store');
+        Route::get('/loans/{loan}', [PayrollController::class, 'showLoan'])->middleware('permission:payroll.manage-loan,loan.view,employee_loan.view,loan_installment.view')->name('loans.show');
+        Route::put('/loans/{loan}/reschedule', [PayrollController::class, 'rescheduleLoan'])->middleware('permission:payroll.manage-loan,loan.update,employee_loan.update')->name('loans.reschedule');
+        Route::patch('/loans/{loan}/status', [PayrollController::class, 'updateLoanStatus'])->middleware('permission:payroll.manage-loan,loan.update,employee_loan.update')->name('loans.status');
+        Route::patch('/loan-installments/{installment}/paid', [PayrollController::class, 'markLoanInstallmentPaid'])->middleware('permission:payroll.manage-loan,loan_installment.mark-paid')->name('loan-installments.paid');
 
         Route::get('/deductions', [PayrollController::class, 'deductions'])->middleware('permission:payroll.manage-deduction,deduction.view,employee_deduction.view')->name('deductions.index');
         Route::post('/deductions', [PayrollController::class, 'storeDeduction'])->middleware('permission:payroll.manage-deduction,deduction.create,employee_deduction.create')->name('deductions.store');

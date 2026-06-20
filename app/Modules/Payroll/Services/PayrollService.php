@@ -153,23 +153,71 @@ class PayrollService
             $payload['first_installment_date'] = $payload['first_installment_date'] ?? null;
 
             $loan ??= new EmployeeLoan();
+            $isNewLoan = ! $loan->exists;
             $loan->fill($payload);
             $loan->save();
 
-            if ($loan->installments()->count() === 0) {
-                $firstDueDate = CarbonImmutable::parse($payload['first_installment_date'] ?: $payload['issued_date']);
-                for ($i = 1; $i <= (int) $payload['installment_count']; $i++) {
-                    LoanInstallment::query()->create([
-                        'employee_loan_id' => $loan->id,
-                        'installment_no' => $i,
-                        'due_date' => $firstDueDate->addMonthsNoOverflow($i - 1)->toDateString(),
-                        'amount' => $payload['installment_amount'],
-                        'status' => 'pending',
-                    ]);
-                }
+            if ($isNewLoan || $loan->installments()->count() === 0) {
+                $this->createLoanInstallments($loan, $payload);
             }
 
             return $loan;
+        });
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function rescheduleLoan(EmployeeLoan $loan, array $payload): EmployeeLoan
+    {
+        return DB::transaction(function () use ($loan, $payload): EmployeeLoan {
+            if ($loan->installments()->where('status', 'paid')->exists()) {
+                throw new RuntimeException('Paid loan installments exist. This loan cannot be rescheduled.');
+            }
+
+            $payload['interest_rate_percent'] = $payload['interest_rate_percent'] ?? 0;
+            $payload['first_installment_date'] = $payload['first_installment_date'] ?? null;
+
+            $loan->fill($payload);
+            $loan->save();
+            $loan->installments()->delete();
+            $this->createLoanInstallments($loan, $payload);
+
+            return $loan->refresh();
+        });
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function updateLoanStatus(EmployeeLoan $loan, array $payload): EmployeeLoan
+    {
+        $loan->update([
+            'status' => $payload['status'],
+            'remarks' => $payload['remarks'] ?? $loan->remarks,
+        ]);
+
+        return $loan->refresh();
+    }
+
+    public function markLoanInstallmentPaid(LoanInstallment $installment, ?string $paidDate = null): LoanInstallment
+    {
+        return DB::transaction(function () use ($installment, $paidDate): LoanInstallment {
+            $installment = LoanInstallment::query()->lockForUpdate()->findOrFail($installment->id);
+
+            if ($installment->status === 'paid') {
+                return $installment;
+            }
+
+            $installment->update([
+                'paid_amount' => $installment->amount,
+                'paid_date' => $paidDate ?: now()->toDateString(),
+                'status' => 'paid',
+            ]);
+
+            $this->refreshLoanStatus($installment->loan()->first());
+
+            return $installment->refresh();
         });
     }
 
@@ -260,6 +308,8 @@ class PayrollService
             ProvidentFundTransaction::query()->where('payroll_run_id', $run->id)->delete();
 
             foreach ($run->items as $item) {
+                $this->payDueLoanInstallmentsForPayrollItem($run, $item);
+
                 if ((float) $item->provident_fund_deduction <= 0) {
                     continue;
                 }
@@ -328,6 +378,63 @@ class PayrollService
         ]);
 
         return $item->refresh();
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function createLoanInstallments(EmployeeLoan $loan, array $payload): void
+    {
+        $firstDueDate = CarbonImmutable::parse($payload['first_installment_date'] ?: $payload['issued_date']);
+
+        for ($i = 1; $i <= (int) $payload['installment_count']; $i++) {
+            LoanInstallment::query()->create([
+                'employee_loan_id' => $loan->id,
+                'installment_no' => $i,
+                'due_date' => $firstDueDate->addMonthsNoOverflow($i - 1)->toDateString(),
+                'amount' => $payload['installment_amount'],
+                'paid_amount' => 0,
+                'status' => 'pending',
+            ]);
+        }
+    }
+
+    private function payDueLoanInstallmentsForPayrollItem(PayrollRun $run, PayrollItem $item): void
+    {
+        if ((float) $item->loan_deduction <= 0) {
+            return;
+        }
+
+        $installments = LoanInstallment::query()
+            ->whereHas('loan', fn ($query) => $query
+                ->where('employee_id', $item->employee_id)
+                ->where('status', 'active'))
+            ->whereBetween('due_date', [$run->period_start, $run->period_end])
+            ->where('status', 'pending')
+            ->orderBy('due_date')
+            ->orderBy('installment_no')
+            ->get();
+
+        foreach ($installments as $installment) {
+            $installment->update([
+                'paid_amount' => $installment->amount,
+                'paid_date' => $run->pay_date ?: $run->period_end,
+                'status' => 'paid',
+            ]);
+
+            $this->refreshLoanStatus($installment->loan()->first());
+        }
+    }
+
+    private function refreshLoanStatus(?EmployeeLoan $loan): void
+    {
+        if (! $loan) {
+            return;
+        }
+
+        if ($loan->installments()->where('status', '!=', 'paid')->doesntExist()) {
+            $loan->update(['status' => 'closed']);
+        }
     }
 
     private function activeSalaryAssignment(int $employeeId, CarbonImmutable $periodEnd): ?object

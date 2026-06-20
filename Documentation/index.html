@@ -1,0 +1,1070 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zeri HR Documentation</title>
+    <style>
+        :root {
+            --primary: #12304a;
+            --primary-2: #1d4669;
+            --accent: #319795;
+            --accent-soft: #e6fffb;
+            --border: #d9e4ec;
+            --bg: #f4f7fa;
+            --text: #26384a;
+            --muted: #65788b;
+            --card: #ffffff;
+            --code: #eef4f8;
+            --danger: #d9534f;
+            --warning: #b7791f;
+            --success: #2f855a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.55;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 290px minmax(0, 1fr);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            background: var(--primary);
+            color: #fff;
+            padding: 24px 20px;
+        }
+
+        .brand {
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+            margin-bottom: 18px;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 0;
+        }
+
+        .brand p {
+            margin: 6px 0 0;
+            color: #c7d8e6;
+            font-size: 13px;
+        }
+
+        .nav-group {
+            margin: 18px 0;
+        }
+
+        .nav-title {
+            display: block;
+            color: #9db6ca;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin: 16px 0 7px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #e8f0f7;
+            padding: 7px 8px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            text-decoration: none;
+        }
+
+        .content {
+            min-width: 0;
+            padding: 34px;
+        }
+
+        .doc-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            color: #fff;
+            border-radius: 8px;
+            padding: 34px;
+            margin-bottom: 24px;
+        }
+
+        .doc-header h2 {
+            margin: 0 0 8px;
+            font-size: 34px;
+        }
+
+        .doc-header p {
+            margin: 0;
+            color: #d5e5f2;
+            max-width: 900px;
+        }
+
+        .meta-grid,
+        .quick-grid,
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin: 18px 0;
+        }
+
+        .card,
+        section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 22px rgba(18, 48, 74, 0.04);
+        }
+
+        section h2 {
+            margin: 0 0 14px;
+            color: var(--primary);
+            font-size: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: var(--primary-2);
+            margin: 20px 0 8px;
+            font-size: 18px;
+        }
+
+        h4 {
+            margin: 16px 0 6px;
+            color: var(--text);
+        }
+
+        p {
+            margin: 8px 0;
+        }
+
+        ul,
+        ol {
+            margin-top: 8px;
+            padding-left: 22px;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: #236a68;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .note,
+        .warning,
+        .success {
+            padding: 12px 14px;
+            border-radius: 7px;
+            margin: 14px 0;
+            border-left: 4px solid;
+        }
+
+        .note {
+            background: #eef7fb;
+            border-color: var(--accent);
+        }
+
+        .warning {
+            background: #fff8e6;
+            border-color: var(--warning);
+        }
+
+        .success {
+            background: #edf9f1;
+            border-color: var(--success);
+        }
+
+        code {
+            background: var(--code);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        pre {
+            background: #102437;
+            color: #eaf4ff;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border);
+            text-align: left;
+            padding: 9px 10px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f0f5f8;
+            color: var(--primary);
+        }
+
+        .screenshot {
+            border: 1px dashed #a7bbc9;
+            background: #f8fbfd;
+            border-radius: 8px;
+            padding: 18px;
+            margin: 14px 0;
+            color: var(--muted);
+        }
+
+        .screenshot strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .path {
+            font-family: Consolas, Monaco, monospace;
+            color: #3d5368;
+            background: #eef4f8;
+            padding: 3px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .footer {
+            color: var(--muted);
+            text-align: center;
+            padding: 24px 0 8px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                height: auto;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .meta-grid,
+            .quick-grid,
+            .feature-grid,
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <h1>Zeri HR</h1>
+            <p>HR, Payroll, Attendance, Leave and Workforce Management Documentation</p>
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-title">Getting Started</span>
+            <a href="#introduction">Introduction</a>
+            <a href="#requirements">Requirements</a>
+            <a href="#installation">Installation</a>
+            <a href="#login">Login and Access</a>
+            <a href="#employee-login-setup">Employee Login Setup</a>
+            <a href="#navigation">Navigation</a>
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-title">Core Modules</span>
+            <a href="#dashboard">Dashboard</a>
+            <a href="#employees">Employees</a>
+            <a href="#profile-updates">Profile Updates</a>
+            <a href="#organization">Organization Structure</a>
+            <a href="#attendance">Attendance</a>
+            <a href="#leave">Leave Management</a>
+            <a href="#announcements">Notices and Announcements</a>
+            <a href="#work">Teams, Projects and Tasks</a>
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-title">Payroll</span>
+            <a href="#payroll-overview">Payroll Overview</a>
+            <a href="#salary-grades">Salary Grades</a>
+            <a href="#salary-templates">Salary Templates</a>
+            <a href="#employee-salary">Employee Salary Assignment</a>
+            <a href="#bonuses">Bonuses</a>
+            <a href="#loans">Employee Loans</a>
+            <a href="#deductions">Deductions</a>
+            <a href="#provident-fund">Provident Fund</a>
+            <a href="#payroll-runs">Payroll Runs</a>
+            <a href="#payslips">Payslips</a>
+            <a href="#salary-revisions">Salary Revisions</a>
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-title">Administration</span>
+            <a href="#holidays">Holidays</a>
+            <a href="#user-management">Users, Roles and Permissions</a>
+            <a href="#settings">Settings</a>
+            <a href="#reports">Reports</a>
+            <a href="#notifications">Notifications</a>
+            <a href="#faq">FAQ</a>
+        </div>
+    </aside>
+
+    <main class="content">
+        <header class="doc-header">
+            <h2>Zeri HR Documentation</h2>
+            <p>A complete A to Z guide for administrators, HR teams, department heads and employees using Zeri HR.</p>
+        </header>
+
+        <div class="meta-grid">
+            <div class="card">
+                <strong>Product</strong>
+                <p>Zeri HR</p>
+            </div>
+            <div class="card">
+                <strong>Application Type</strong>
+                <p>HR, Payroll and Workforce Management System</p>
+            </div>
+            <div class="card">
+                <strong>Documentation Version</strong>
+                <p>1.0</p>
+            </div>
+        </div>
+
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <p>Zeri HR is a complete HR management system built for managing employee records, attendance, leave, payroll, notices, approvals, teams, projects and role-based access control.</p>
+            <p>The system is designed for companies that need a structured HR workflow with permission-based visibility. Each user sees only the modules and records allowed by their assigned role permissions.</p>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Application Dashboard</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/dashboard.png</span>
+            </div>
+        </section>
+
+        <section id="requirements">
+            <h2>System Requirements</h2>
+            <table>
+                <tr><th>Requirement</th><th>Recommended</th></tr>
+                <tr><td>PHP</td><td>PHP 8.2 or compatible with the installed Laravel version</td></tr>
+                <tr><td>Database</td><td>MySQL / MariaDB</td></tr>
+                <tr><td>Web Server</td><td>Apache, Nginx or XAMPP local server</td></tr>
+                <tr><td>Composer</td><td>Required for PHP dependencies</td></tr>
+                <tr><td>Node.js / npm</td><td>Required if frontend assets need rebuilding</td></tr>
+                <tr><td>Browser</td><td>Latest Chrome, Firefox, Safari or Edge</td></tr>
+            </table>
+        </section>
+
+        <section id="installation">
+            <h2>Installation</h2>
+            <h3>Local Setup</h3>
+            <ol>
+                <li>Place the project folder inside the web root, for example <code>htdocs/hr-payroll</code>.</li>
+                <li>Create a MySQL database.</li>
+                <li>Copy <code>.env.example</code> to <code>.env</code> and configure database credentials.</li>
+                <li>Install dependencies with Composer.</li>
+                <li>Run migrations and seeders.</li>
+                <li>Open the application in the browser.</li>
+            </ol>
+            <pre><code>composer install
+php artisan key:generate
+php artisan migrate
+php artisan db:seed</code></pre>
+            <h3>Important Storage Commands</h3>
+            <pre><code>php artisan storage:link
+php artisan optimize:clear</code></pre>
+            <div class="note">After changing Blade files or configuration, clear cache if the browser does not show the latest updates.</div>
+        </section>
+
+        <section id="login">
+            <h2>Login and Access</h2>
+            <p>Users access the system through the login page using their approved account email and password.</p>
+            <h3>Login Flow</h3>
+            <ol>
+                <li>Open the application URL.</li>
+                <li>Enter email and password.</li>
+                <li>After login, the system redirects the user to the dashboard.</li>
+            </ol>
+            <h3>Access Control</h3>
+            <p>Access is controlled by role permissions. A user can only view modules and perform actions allowed by their assigned role.</p>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Login Page</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/login.png</span>
+            </div>
+        </section>
+
+        <section id="employee-login-setup">
+            <h2>Employee Login Setup</h2>
+            <p>Creating an employee profile does not automatically create login access. Login access comes from the user account, and the employee profile must be linked to that user account.</p>
+            <h3>Required Workflow</h3>
+            <ol>
+                <li>Go to <strong>User Management &gt; Add User</strong>.</li>
+                <li>Create a user with name, email, password and role.</li>
+                <li>Use the <strong>Employee</strong> role for normal employee access, or assign another role based on your permission setup.</li>
+                <li>Approve or activate the user account if approval is enabled.</li>
+                <li>Go to <strong>Employees &gt; Employee List</strong>.</li>
+                <li>Edit the employee profile.</li>
+                <li>In the <strong>User Account</strong> field, select the user account created earlier.</li>
+                <li>Save the employee profile.</li>
+                <li>The employee can now log in using the linked user email and password.</li>
+            </ol>
+            <h3>How It Works Internally</h3>
+            <table>
+                <tr><th>Table / Field</th><th>Purpose</th></tr>
+                <tr><td><code>users</code></td><td>Stores login credentials, account status and role assignment.</td></tr>
+                <tr><td><code>employees</code></td><td>Stores HR profile and employment information.</td></tr>
+                <tr><td><code>employees.user_id</code></td><td>Links the employee profile to the login user account.</td></tr>
+            </table>
+            <div class="warning">If an employee has no linked user account, the employee cannot log in even if the employee profile exists.</div>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Add User for Employee Login</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/employee-login-user.png</span>
+            </div>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Link User Account in Employee Form</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/employee-link-user-account.png</span>
+            </div>
+        </section>
+
+        <section id="navigation">
+            <h2>Navigation</h2>
+            <p>The left sidebar contains all available modules. Menu visibility depends on the logged-in user's permissions.</p>
+            <ul>
+                <li><strong>Dashboard:</strong> Summary of employee, attendance, leave, notices and quick notes.</li>
+                <li><strong>Employees:</strong> Employee records, departments, designations and approvals.</li>
+                <li><strong>Attendance:</strong> Attendance logs and attendance integration tools.</li>
+                <li><strong>Leave Management:</strong> Leave applications, balances, approvals and policies.</li>
+                <li><strong>Payroll:</strong> Salary setup, bonuses, loans, deductions, provident fund and payroll runs.</li>
+                <li><strong>User Management:</strong> Users, roles and permissions.</li>
+                <li><strong>Settings:</strong> Company and branding configuration.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Sidebar Navigation</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/sidebar.png</span>
+            </div>
+        </section>
+
+        <section id="dashboard">
+            <h2>Dashboard</h2>
+            <p>The dashboard gives users a quick overview of HR activity based on their permissions.</p>
+            <h3>Main Features</h3>
+            <ul>
+                <li>Employee summary cards.</li>
+                <li>Attendance summary: present, absent, late and leave.</li>
+                <li>Pending leave request summary.</li>
+                <li>Upcoming holidays and birthdays.</li>
+                <li>Notice board.</li>
+                <li>Private quick notes.</li>
+                <li>Basic alerts.</li>
+            </ul>
+            <h3>Role-Based Visibility</h3>
+            <table>
+                <tr><th>User Type</th><th>Dashboard Scope</th></tr>
+                <tr><td>Admin / HR</td><td>Can view organization-level summary when permissions allow.</td></tr>
+                <tr><td>Department Head</td><td>Can view department/team related summary when permissions allow.</td></tr>
+                <tr><td>Employee</td><td>Can view own attendance, leave, notices and quick notes.</td></tr>
+            </table>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Dashboard Cards and Widgets</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/dashboard-widgets.png</span>
+            </div>
+        </section>
+
+        <section id="employees">
+            <h2>Employees</h2>
+            <p>The Employees module stores employee personal, official, contact and employment information.</p>
+            <h3>Employee List</h3>
+            <ul>
+                <li>Search employees by code, name, phone or email.</li>
+                <li>Filter employees by department, designation, status and employment type.</li>
+                <li>View employee profile details.</li>
+                <li>Edit employee information when permission is granted.</li>
+            </ul>
+            <h3>Add / Edit Employee</h3>
+            <ul>
+                <li>Upload employee profile picture.</li>
+                <li>Assign user account.</li>
+                <li>Set department, designation, salary grade and manager.</li>
+                <li>Record joining date, employment type and employment status.</li>
+                <li>Store addresses, bank accounts, emergency contacts and documents.</li>
+            </ul>
+            <h3>Employee Related Tables</h3>
+            <table>
+                <tr><th>Table</th><th>Purpose</th></tr>
+                <tr><td><code>employees</code></td><td>Main employee profile and employment record.</td></tr>
+                <tr><td><code>employee_addresses</code></td><td>Employee present/permanent address records.</td></tr>
+                <tr><td><code>employee_bank_accounts</code></td><td>Employee bank account details.</td></tr>
+                <tr><td><code>employee_emergency_contacts</code></td><td>Emergency contact information.</td></tr>
+                <tr><td><code>employee_documents</code></td><td>Employee documents and verification status.</td></tr>
+            </table>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Employee List</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/employees-list.png</span>
+            </div>
+        </section>
+
+        <section id="profile-updates">
+            <h2>Profile Update Requests</h2>
+            <p>Employees can submit profile update requests instead of directly changing official records. HR reviews the request and approves or rejects it.</p>
+            <h3>Employee Workflow</h3>
+            <ol>
+                <li>Employee opens the profile update page.</li>
+                <li>Employee changes personal information, contact details or profile image.</li>
+                <li>Employee submits the request for HR approval.</li>
+            </ol>
+            <h3>HR Workflow</h3>
+            <ol>
+                <li>HR opens the update approval queue.</li>
+                <li>HR compares current and requested information.</li>
+                <li>HR approves or rejects the request.</li>
+                <li>On approval, employee data is updated.</li>
+            </ol>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Profile Update Request</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/profile-update-request.png</span>
+            </div>
+        </section>
+
+        <section id="organization">
+            <h2>Organization Structure</h2>
+            <p>The organization structure page displays reporting relationships and hierarchy.</p>
+            <h3>Departments</h3>
+            <ul>
+                <li>Create departments with department code and description.</li>
+                <li>Assign department head.</li>
+                <li>Activate or deactivate departments.</li>
+            </ul>
+            <h3>Designations</h3>
+            <ul>
+                <li>Create job titles/designations.</li>
+                <li>Assign designations to employees.</li>
+                <li>Use designations for employee filtering and reports.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Organization Structure</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/organization-structure.png</span>
+            </div>
+        </section>
+
+        <section id="attendance">
+            <h2>Attendance</h2>
+            <p>The Attendance module tracks employee check-in, checkout, attendance status and attendance reports.</p>
+            <h3>Features</h3>
+            <ul>
+                <li>View attendance logs.</li>
+                <li>Clock attendance when permitted.</li>
+                <li>Manage attendance records.</li>
+                <li>Import attendance data.</li>
+                <li>Export attendance report.</li>
+                <li>API integration support for attendance devices or external systems.</li>
+            </ul>
+            <h3>Attendance Status</h3>
+            <table>
+                <tr><th>Status</th><th>Description</th></tr>
+                <tr><td>Present</td><td>Employee attended within expected time.</td></tr>
+                <tr><td>Late</td><td>Employee checked in after allowed time.</td></tr>
+                <tr><td>Absent</td><td>No attendance found for the employee.</td></tr>
+                <tr><td>Leave</td><td>Employee is on approved leave.</td></tr>
+            </table>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Attendance List</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/attendance-list.png</span>
+            </div>
+        </section>
+
+        <section id="leave">
+            <h2>Leave Management</h2>
+            <p>The Leave Management module handles leave categories, leave policies, leave balances, employee applications, approvals and reports.</p>
+            <h3>Leave Categories</h3>
+            <p>Create categories such as Casual Leave, Sick Leave, Annual Leave or Earned Leave.</p>
+            <h3>Leave Policies</h3>
+            <ul>
+                <li>Assign leave rules by salary grade.</li>
+                <li>Set yearly allocation.</li>
+                <li>Configure carry forward and earned leave rules.</li>
+                <li>Activate/deactivate policies.</li>
+            </ul>
+            <h3>Leave Balances</h3>
+            <ul>
+                <li>Sync leave balances by year.</li>
+                <li>Filter balances by employee, grade or leave category.</li>
+                <li>Adjust leave balances where permitted.</li>
+            </ul>
+            <h3>Leave Applications and Approvals</h3>
+            <ol>
+                <li>Employee submits leave application.</li>
+                <li>Approver reviews pending leave.</li>
+                <li>Approver approves or rejects the application.</li>
+                <li>Reports can be exported for HR review.</li>
+            </ol>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Leave Management</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/leave-management.png</span>
+            </div>
+        </section>
+
+        <section id="announcements">
+            <h2>Notices and Announcements</h2>
+            <p>Announcements let HR or Admin publish company notices to selected audiences.</p>
+            <h3>Features</h3>
+            <ul>
+                <li>Create notices with title and body.</li>
+                <li>Set announcement type and priority.</li>
+                <li>Select audience: all users, departments or selected employees.</li>
+                <li>Publish or approve announcements based on permissions.</li>
+                <li>Show notices on dashboard and topbar notifications.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Announcement List</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/announcements.png</span>
+            </div>
+        </section>
+
+        <section id="work">
+            <h2>Teams, Projects and Tasks</h2>
+            <p>Work management modules help organize teams, projects and task assignments.</p>
+            <h3>Teams</h3>
+            <ul>
+                <li>Create team records.</li>
+                <li>Assign team members.</li>
+                <li>Manage team visibility by permissions.</li>
+            </ul>
+            <h3>Projects</h3>
+            <ul>
+                <li>Create projects with project code and details.</li>
+                <li>Assign members to projects.</li>
+                <li>View project details and related tasks.</li>
+            </ul>
+            <h3>Tasks</h3>
+            <ul>
+                <li>Create task with title, priority and status.</li>
+                <li>Assign task to employee.</li>
+                <li>Track start date, due date, progress and hours.</li>
+                <li>Add task comments when permitted.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Tasks</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/tasks.png</span>
+            </div>
+        </section>
+
+        <section id="payroll-overview">
+            <h2>Payroll Overview</h2>
+            <p>The Payroll module manages salary structure, employee-specific salary assignment, bonuses, loans, deductions, provident fund and payslip generation.</p>
+            <div class="success">Professional payroll flow: create salary grade, create reusable salary template, assign employee-specific salary snapshot, generate payroll draft, HR reviews, final submit, then mark payments as paid.</div>
+            <h3>Payroll Flow</h3>
+            <ol>
+                <li>Create Salary Grades.</li>
+                <li>Create reusable Salary Templates.</li>
+                <li>Assign Salary Template to Employee and customize individual salary values.</li>
+                <li>Add bonuses, loans, deductions and provident fund settings.</li>
+                <li>Generate Payroll Draft for selected period.</li>
+                <li>Review all payroll items and payslips.</li>
+                <li>Final Submit payroll run.</li>
+                <li>Mark individual payslips as paid after payment processing.</li>
+            </ol>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Payroll Dashboard / Runs</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/payroll-runs.png</span>
+            </div>
+        </section>
+
+        <section id="salary-grades">
+            <h2>Salary Grades</h2>
+            <p>Salary Grade represents employee level and salary range. It is not the final salary amount for every employee.</p>
+            <h3>Example</h3>
+            <table>
+                <tr><th>Grade</th><th>Minimum Salary</th><th>Maximum Salary</th></tr>
+                <tr><td>Executive</td><td>35,000</td><td>80,000</td></tr>
+                <tr><td>Manager</td><td>80,000</td><td>150,000</td></tr>
+            </table>
+            <h3>Usage</h3>
+            <ul>
+                <li>Classifies employees by level.</li>
+                <li>Provides allowed salary range.</li>
+                <li>Used by leave policies and HR reports.</li>
+                <li>Used as fallback if no employee salary assignment exists.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Salary Grades</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/salary-grades.png</span>
+            </div>
+        </section>
+
+        <section id="salary-templates">
+            <h2>Salary Templates</h2>
+            <p>Salary Template is a reusable default salary structure. It helps HR quickly assign salary structure, but final employee salary is stored separately as an employee-specific snapshot.</p>
+            <h3>Template Fields</h3>
+            <ul>
+                <li>Basic salary.</li>
+                <li>House rent.</li>
+                <li>Medical allowance.</li>
+                <li>Conveyance allowance.</li>
+                <li>Other allowance.</li>
+                <li>Provident fund percentage.</li>
+                <li>Tax percentage.</li>
+            </ul>
+            <div class="note">Changing a salary template should not automatically change already assigned employee salary snapshots.</div>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Salary Templates</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/salary-templates.png</span>
+            </div>
+        </section>
+
+        <section id="employee-salary">
+            <h2>Employee Salary Assignment</h2>
+            <p>This is the final salary setup used during payroll calculation. Employees in the same salary grade can have different salary amounts.</p>
+            <h3>How It Works</h3>
+            <ol>
+                <li>Select employee.</li>
+                <li>Select salary template.</li>
+                <li>The system fills default template values.</li>
+                <li>HR customizes the salary values for that employee.</li>
+                <li>Save assignment with effective dates.</li>
+            </ol>
+            <h3>Stored Snapshot Values</h3>
+            <table>
+                <tr><th>Field</th><th>Purpose</th></tr>
+                <tr><td><code>basic_salary</code></td><td>Employee-specific basic salary.</td></tr>
+                <tr><td><code>house_rent</code></td><td>Employee-specific house rent allowance.</td></tr>
+                <tr><td><code>medical_allowance</code></td><td>Employee-specific medical allowance.</td></tr>
+                <tr><td><code>conveyance_allowance</code></td><td>Employee-specific conveyance allowance.</td></tr>
+                <tr><td><code>other_allowance</code></td><td>Other employee-specific allowance.</td></tr>
+                <tr><td><code>gross_salary</code></td><td>Total salary before deductions and bonus.</td></tr>
+                <tr><td><code>provident_fund_percent</code></td><td>Employee-specific PF rate.</td></tr>
+                <tr><td><code>tax_percent</code></td><td>Employee-specific tax rate.</td></tr>
+                <tr><td><code>ctc_amount</code></td><td>Optional cost-to-company amount.</td></tr>
+            </table>
+            <div class="warning">The assigned basic salary must be within the employee salary grade range when min/max values are configured.</div>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Assign Salary Template</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/employee-salary-assignment.png</span>
+            </div>
+        </section>
+
+        <section id="bonuses">
+            <h2>Bonuses</h2>
+            <p>Bonus records are added for employees and included in payroll when the bonus date falls within the payroll period.</p>
+            <h3>Fields</h3>
+            <ul>
+                <li>Employee.</li>
+                <li>Title.</li>
+                <li>Amount.</li>
+                <li>Bonus date.</li>
+                <li>Bonus type.</li>
+                <li>Remarks.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Bonuses</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/bonuses.png</span>
+            </div>
+        </section>
+
+        <section id="loans">
+            <h2>Employee Loans</h2>
+            <p>The Loan module tracks employee loan master records and installment schedules.</p>
+            <h3>Loan Master</h3>
+            <ul>
+                <li>Employee.</li>
+                <li>Loan reference.</li>
+                <li>Principal amount.</li>
+                <li>Interest percentage.</li>
+                <li>Installment count.</li>
+                <li>Installment amount.</li>
+                <li>Issued date and first installment date.</li>
+                <li>Status: active, paused or closed.</li>
+            </ul>
+            <h3>Loan Installments</h3>
+            <p>Installments are created for the loan schedule and loan deduction is calculated in payroll when the installment due date falls inside the payroll period.</p>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Employee Loans</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/employee-loans.png</span>
+            </div>
+        </section>
+
+        <section id="deductions">
+            <h2>Deductions</h2>
+            <p>Deductions are employee-specific amounts deducted during payroll calculation.</p>
+            <h3>Supported Deduction Setup</h3>
+            <ul>
+                <li>Deduction type.</li>
+                <li>Calculation type: fixed or percent.</li>
+                <li>Amount.</li>
+                <li>Effective from and effective to.</li>
+                <li>Frequency: monthly, weekly or one-time.</li>
+                <li>Reason and comments.</li>
+                <li>Active/inactive status.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Deductions</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/deductions.png</span>
+            </div>
+        </section>
+
+        <section id="provident-fund">
+            <h2>Provident Fund</h2>
+            <p>Provident Fund setup defines employee and employer contribution percentages and opening balance.</p>
+            <h3>How PF Works</h3>
+            <ul>
+                <li>PF percentage can come from employee PF setup or employee salary assignment.</li>
+                <li>During final payroll submission, PF contribution transactions are posted.</li>
+                <li>PF transactions can be used for reports and balance tracking.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Provident Fund</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/provident-fund.png</span>
+            </div>
+        </section>
+
+        <section id="payroll-runs">
+            <h2>Payroll Runs</h2>
+            <p>Payroll run is the monthly or weekly payroll batch for one period.</p>
+            <h3>Draft and Final Submission Flow</h3>
+            <ol>
+                <li>HR generates payroll draft for a period.</li>
+                <li>The system creates payroll items for employees.</li>
+                <li>HR reviews every payroll item and payslip.</li>
+                <li>If needed, HR adjusts employee salary assignment, bonus, loan, deduction or PF setup.</li>
+                <li>HR regenerates draft for the same period.</li>
+                <li>When everything is correct, HR clicks Final Submit.</li>
+                <li>The run becomes processed and PF transactions are posted.</li>
+            </ol>
+            <h3>Payroll Calculation</h3>
+            <pre><code>Gross = basic_salary + allowance_total + bonus_total
+Total Deduction = loan_deduction + other_deduction + provident_fund_deduction + tax_deduction
+Net Payable = Gross - Total Deduction</code></pre>
+            <div class="warning">Finalized payroll runs cannot be regenerated for the same period. Create a new period or review the finalized run.</div>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Payroll Run Detail</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/payroll-run-detail.png</span>
+            </div>
+        </section>
+
+        <section id="payslips">
+            <h2>Payslips</h2>
+            <p>Each payroll item works as an employee payslip inside the payroll run.</p>
+            <h3>Payslip Contains</h3>
+            <ul>
+                <li>Employee information.</li>
+                <li>Payroll period.</li>
+                <li>Basic salary.</li>
+                <li>Allowance total.</li>
+                <li>Bonus total.</li>
+                <li>Loan deduction.</li>
+                <li>Other deductions.</li>
+                <li>Provident fund deduction.</li>
+                <li>Tax deduction.</li>
+                <li>Net payable.</li>
+            </ul>
+            <h3>Payment Status</h3>
+            <p>Payment can be marked as paid only after the payroll run is finalized.</p>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Payslip Detail</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/payslip-detail.png</span>
+            </div>
+        </section>
+
+        <section id="salary-revisions">
+            <h2>Salary Revisions</h2>
+            <p>Salary revision history records salary changes, effective dates and approval information.</p>
+            <h3>Usage</h3>
+            <ul>
+                <li>Track promotion-related salary changes.</li>
+                <li>Record previous and revised salary.</li>
+                <li>Store approval information.</li>
+                <li>Maintain history for HR audit.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Salary Revision</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/salary-revisions.png</span>
+            </div>
+        </section>
+
+        <section id="holidays">
+            <h2>Holidays</h2>
+            <p>The Holidays module stores official holidays and helps dashboard/event widgets show upcoming holidays.</p>
+            <h3>Features</h3>
+            <ul>
+                <li>Create holidays with name and date.</li>
+                <li>Edit holiday information.</li>
+                <li>Delete holiday records.</li>
+                <li>Export current-year holiday list.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Holidays</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/holidays.png</span>
+            </div>
+        </section>
+
+        <section id="user-management">
+            <h2>Users, Roles and Permissions</h2>
+            <p>User Management controls who can access the system and what each user can do.</p>
+            <h3>Users</h3>
+            <ul>
+                <li>Create user accounts.</li>
+                <li>Approve or reject user access.</li>
+                <li>Assign users to roles.</li>
+                <li>Link users with employee records.</li>
+            </ul>
+            <h3>Roles</h3>
+            <ul>
+                <li>Create role groups such as Admin, HR Manager, Department Head and Employee.</li>
+                <li>Assign permissions to each role.</li>
+                <li>Users inherit access from assigned roles.</li>
+            </ul>
+            <h3>Permissions</h3>
+            <p>Permissions are grouped by module, for example <code>employee.view</code>, <code>payroll_run.generate</code>, <code>payslip.view</code> and <code>settings.update</code>.</p>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Role Permissions</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/role-permissions.png</span>
+            </div>
+        </section>
+
+        <section id="settings">
+            <h2>Settings</h2>
+            <p>The Settings module manages company profile, branding and application configuration.</p>
+            <h3>Typical Settings</h3>
+            <ul>
+                <li>Company name.</li>
+                <li>Logo and branding images.</li>
+                <li>Contact information.</li>
+                <li>System preferences.</li>
+            </ul>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Settings</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/settings.png</span>
+            </div>
+        </section>
+
+        <section id="reports">
+            <h2>Reports</h2>
+            <p>Reports help HR and management export or review operational records.</p>
+            <h3>Available Report Areas</h3>
+            <ul>
+                <li>Attendance reports.</li>
+                <li>Leave reports.</li>
+                <li>Payroll reports.</li>
+                <li>Employee reports.</li>
+                <li>Provident fund reports.</li>
+            </ul>
+            <div class="note">Report access should be controlled by report-related permissions and module-specific permissions.</div>
+        </section>
+
+        <section id="notifications">
+            <h2>Notifications</h2>
+            <p>Topbar notifications show relevant alerts to the logged-in user.</p>
+            <h3>Examples</h3>
+            <ul>
+                <li>Announcements and notices.</li>
+                <li>Pending leave requests.</li>
+                <li>Attendance alerts.</li>
+                <li>Upcoming holidays.</li>
+                <li>Task-related notifications.</li>
+            </ul>
+            <p>Notification visibility is permission and scope based. Admin-level users can see wider alerts; employees see their own relevant alerts.</p>
+            <div class="screenshot">
+                <strong>Screenshot Placeholder: Topbar Notifications</strong>
+                Add screenshot later at <span class="path">Documentation/assets/screenshots/topbar-notifications.png</span>
+            </div>
+        </section>
+
+        <section id="faq">
+            <h2>FAQ</h2>
+            <h3>Can employees in the same salary grade have different salaries?</h3>
+            <p>Yes. Salary Grade defines the allowed range. Employee Salary Assignment stores the actual employee-specific salary snapshot.</p>
+
+            <h3>Does payroll use the shared salary template directly?</h3>
+            <p>No. Payroll uses the employee-specific salary snapshot stored in <code>employee_salary_templates</code>.</p>
+
+            <h3>Can HR review payroll before final submission?</h3>
+            <p>Yes. Payroll generation creates a draft run. HR reviews the run and final submits only after checking.</p>
+
+            <h3>Can payment be marked before payroll final submission?</h3>
+            <p>No. Payslip payment can be marked only after the payroll run is finalized.</p>
+
+            <h3>Why can some users not see a module?</h3>
+            <p>The user role may not have the required permission. Assign the needed permission from Role Permissions.</p>
+        </section>
+
+        <section id="screenshot-guide">
+            <h2>Screenshot Guide</h2>
+            <p>All screenshot placeholders in this document point to the following folder:</p>
+            <p><span class="path">Documentation/assets/screenshots/</span></p>
+            <p>Recommended image naming:</p>
+            <ul>
+                <li><code>dashboard.png</code></li>
+                <li><code>employees-list.png</code></li>
+                <li><code>attendance-list.png</code></li>
+                <li><code>leave-management.png</code></li>
+                <li><code>salary-templates.png</code></li>
+                <li><code>employee-salary-assignment.png</code></li>
+                <li><code>payroll-runs.png</code></li>
+                <li><code>payroll-run-detail.png</code></li>
+                <li><code>payslip-detail.png</code></li>
+            </ul>
+        </section>
+
+        <div class="footer">
+            Zeri HR Documentation &copy; 2026. Prepared for HR and Payroll system users.
+        </div>
+    </main>
+</div>
+</body>
+</html>
