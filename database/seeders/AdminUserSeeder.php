@@ -10,14 +10,16 @@ use Illuminate\Support\Facades\Hash;
 class AdminUserSeeder extends Seeder
 {
     /**
-     * Seed default administrator role and user with all permissions.
+     * Seed all permissions, one administrator role and one administrator user.
      */
     public function run(): void
     {
+        $this->call(PermissionSeeder::class);
+
         $adminRole = Role::query()->updateOrCreate(
-            ['slug' => 'super-admin'],
+            ['slug' => 'admin'],
             [
-                'name' => 'Super Admin',
+                'name' => 'Admin',
                 'description' => 'Full system access',
                 'is_system' => true,
             ]
@@ -49,6 +51,7 @@ class AdminUserSeeder extends Seeder
         ]);
 
         $this->command?->info('Default admin user is ready.');
+        $this->command?->line('Role: Admin');
         $this->command?->line('Email: ' . $email);
 
         if ($password === 'password') {

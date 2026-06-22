@@ -15,7 +15,7 @@
             --text: #26384a;
             --muted: #65788b;
             --card: #ffffff;
-            --code: #eef4f8;
+            --code: #26384a;
             --danger: #d9534f;
             --warning: #b7791f;
             --success: #2f855a;
@@ -421,13 +421,13 @@
                 <li>Create a MySQL database.</li>
                 <li>Copy <code>.env.example</code> to <code>.env</code> and configure database credentials.</li>
                 <li>Install dependencies with Composer.</li>
-                <li>Run migrations and seeders.</li>
+                <li>Run migrations and the default admin seeder.</li>
                 <li>Open the application in the browser.</li>
             </ol>
             <pre><code>composer install
 php artisan key:generate
 php artisan migrate
-php artisan db:seed</code></pre>
+php artisan db:seed --class=AdminUserSeeder</code></pre>
             <h3>Important Storage Commands</h3>
             <pre><code>php artisan storage:link
 php artisan optimize:clear</code></pre>
@@ -436,17 +436,17 @@ php artisan optimize:clear</code></pre>
 
         <section id="default-seed">
             <h2>Default Seed Data</h2>
-            <p>Zeri HR includes default seeders so a fresh installation can be used immediately after running migrations and seeders.</p>
+            <p>Zeri HR includes a single default admin seeder for fresh installations. It creates all permissions, one Admin role with full permissions and one active admin user.</p>
             <h3>Seed Command</h3>
-            <pre><code>php artisan migrate --seed</code></pre>
-            <p>This command creates the default permissions, roles, settings and default administrator account.</p>
+            <pre><code>php artisan db:seed --class=AdminUserSeeder</code></pre>
+            <p>Run this command after migrations. Additional roles such as HR Manager, Department Head, Supervisor or Employee should be created from the Roles screen and assigned only the permissions needed for that role.</p>
 
             <h3>Default Admin Login</h3>
             <table>
                 <tr><th>Field</th><th>Default Value</th></tr>
                 <tr><td>Email</td><td><code>admin@zerihr.local</code></td></tr>
                 <tr><td>Password</td><td><code>password</code></td></tr>
-                <tr><td>Role</td><td><code>Super Admin</code></td></tr>
+                <tr><td>Role</td><td><code>Admin</code></td></tr>
                 <tr><td>Account Status</td><td><code>active</code></td></tr>
             </table>
 
@@ -457,7 +457,16 @@ DEFAULT_ADMIN_EMAIL=admin@zerihr.local
 DEFAULT_ADMIN_PASSWORD=password</code></pre>
 
             <h3>Permissions Seed</h3>
-            <p>All system permissions are created by the permission seeder. The default <strong>Super Admin</strong> role is automatically synced with all permissions, so the default admin can access every module and create other users.</p>
+            <p>The default admin seeder creates all system permissions, creates one <strong>Admin</strong> role, syncs that role with all permissions and creates the default admin user.</p>
+            <h4>Single Default Seed Command</h4>
+            <pre><code>php artisan db:seed --class=AdminUserSeeder</code></pre>
+            <p>Use this command when you only need the default permissions, one Admin role and one admin user with full access.</p>
+            <h4>Payroll Permission Update Commands</h4>
+            <p>After adding or updating payroll, loan, bonus and permission-scope features, run these commands to update the database, refresh the default Admin role and clear cached files.</p>
+            <pre><code>php artisan migrate
+php artisan db:seed --class=AdminUserSeeder
+php artisan view:cache
+php artisan optimize:clear</code></pre>
             <ul>
                 <li>Dashboard permissions.</li>
                 <li>Employee and profile update permissions.</li>
@@ -469,6 +478,13 @@ DEFAULT_ADMIN_PASSWORD=password</code></pre>
                 <li>User, role and permission management permissions.</li>
                 <li>Settings and report permissions.</li>
             </ul>
+            <h4>Verified Permission Scope Examples</h4>
+            <table>
+                <tr><th>Permission</th><th>Access Scope</th><th>Usage</th></tr>
+                <tr><td>loan.apply</td><td>Own / Self</td><td>Employee loan application access.</td></tr>
+                <tr><td>loan.approve-supervisor</td><td>Department / Team</td><td>Supervisor or department approval access.</td></tr>
+                <tr><td>loan.approve-final</td><td>Admin / Global</td><td>Final loan approval access.</td></tr>
+            </table>
 
             <div class="warning">Change the default admin password after first login, or set a secure <code>DEFAULT_ADMIN_PASSWORD</code> before running the seed command.</div>
         </section>
@@ -508,9 +524,9 @@ DEFAULT_ADMIN_PASSWORD=password</code></pre>
             <h3>How It Works Internally</h3>
             <table>
                 <tr><th>Table / Field</th><th>Purpose</th></tr>
-                <tr><td><code>users</code></td><td>Stores login credentials, account status and role assignment.</td></tr>
-                <tr><td><code>employees</code></td><td>Stores HR profile and employment information.</td></tr>
-                <tr><td><code>employees.user_id</code></td><td>Links the employee profile to the login user account.</td></tr>
+                <tr><td>users</code></td><td>Stores login credentials, account status and role assignment.</td></tr>
+                <tr><td>employees</td><td>Stores HR profile and employment information.</td></tr>
+                <tr><td>employees.user_id</td><td>Links the employee profile to the login user account.</td></tr>
             </table>
             <div class="warning">If an employee has no linked user account, the employee cannot log in even if the employee profile exists.</div>
             <div class="screenshot">
@@ -554,7 +570,7 @@ DEFAULT_ADMIN_PASSWORD=password</code></pre>
                 <li>Private quick notes.</li>
                 <li>Basic alerts.</li>
             </ul>
-            <h3>Role-Based Visibility</h3>
+            <h3>Permission-Based Visibility</h3>
             <table>
                 <tr><th>User Type</th><th>Dashboard Scope</th></tr>
                 <tr><td>Admin / HR</td><td>Can view organization-level summary when permissions allow.</td></tr>
@@ -588,11 +604,11 @@ DEFAULT_ADMIN_PASSWORD=password</code></pre>
             <h3>Employee Related Tables</h3>
             <table>
                 <tr><th>Table</th><th>Purpose</th></tr>
-                <tr><td><code>employees</code></td><td>Main employee profile and employment record.</td></tr>
-                <tr><td><code>employee_addresses</code></td><td>Employee present/permanent address records.</td></tr>
-                <tr><td><code>employee_bank_accounts</code></td><td>Employee bank account details.</td></tr>
-                <tr><td><code>employee_emergency_contacts</code></td><td>Emergency contact information.</td></tr>
-                <tr><td><code>employee_documents</code></td><td>Employee documents and verification status.</td></tr>
+                <tr><td>employees</td><td>Main employee profile and employment record.</td></tr>
+                <tr><td>employee_addresses</td><td>Employee present/permanent address records.</td></tr>
+                <tr><td>employee_bank_accounts</td><td>Employee bank account details.</td></tr>
+                <tr><td>employee_emergency_contacts</td><td>Emergency contact information.</td></tr>
+                <tr><td>employee_documents</td><td>Employee documents and verification status.</td></tr>
             </table>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Employee List</strong>
@@ -869,8 +885,16 @@ DEFAULT_ADMIN_PASSWORD=password</code></pre>
                 <li>Installment count.</li>
                 <li>Installment amount.</li>
                 <li>Issued date and first installment date.</li>
-                <li>Status: active, paused or closed.</li>
+                <li>Status: pending supervisor, pending final, active, paused, closed or rejected.</li>
             </ul>
+            <h3>Loan Approval Flow</h3>
+            <ol>
+                <li>Employee submits a loan request with <code>loan.apply</code> or <code>employee_loan.apply</code>.</li>
+                <li>Supervisor or department approver reviews team requests with <code>loan.approve-supervisor</code> or <code>employee_loan.approve-supervisor</code>.</li>
+                <li>Final approver completes approval with <code>loan.approve-final</code> or <code>employee_loan.approve-final</code>.</li>
+                <li>After final approval, the loan becomes active and installment schedules are generated.</li>
+                <li>Rejected loans are stored with rejection information and are not deducted from payroll.</li>
+            </ol>
             <h3>Loan Installments</h3>
             <p>Installments are created for the loan schedule and loan deduction is calculated in payroll when the installment due date falls inside the payroll period.</p>
             <div class="screenshot">
@@ -1005,12 +1029,21 @@ Net Payable = Gross - Total Deduction</code></pre>
             </ul>
             <h3>Roles</h3>
             <ul>
-                <li>Create role groups such as Admin, HR Manager, Department Head and Employee.</li>
+                <li>The default seed creates one <strong>Admin</strong> role with all permissions.</li>
+                <li>Create additional role groups such as HR Manager, Department Head, Supervisor or Employee from the Roles screen.</li>
                 <li>Assign permissions to each role.</li>
                 <li>Users inherit access from assigned roles.</li>
             </ul>
             <h3>Permissions</h3>
             <p>Permissions are grouped by module, for example <code>employee.view</code>, <code>payroll_run.generate</code>, <code>payslip.view</code> and <code>settings.update</code>.</p>
+            <p>Permission access labels are database driven. Each permission stores an access scope key, label, badge class and description, so the role permission screen can show whether a permission is for own access, department/team access, admin/global access or general access.</p>
+            <table>
+                <tr><th>Scope</th><th>Meaning</th></tr>
+                <tr><td>Own / Self</td><td>User can access their own records or personal actions.</td></tr>
+                <tr><td>Department / Team</td><td>User can access assigned team, department or approval-scope records.</td></tr>
+                <tr><td>Admin / Global</td><td>User can access company-wide records, setup, approval, payroll or reports.</td></tr>
+                <tr><td>General</td><td>Basic module visibility or shared access.</td></tr>
+            </table>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Role Permissions</strong>
                 Add screenshot later at <span class="path">Documentation/assets/screenshots/role-permissions.png</span>

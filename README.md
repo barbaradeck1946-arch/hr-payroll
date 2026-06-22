@@ -123,8 +123,10 @@ php artisan key:generate
 
 ```bash
 php artisan migrate
-php artisan db:seed
+php artisan db:seed --class=AdminUserSeeder
 ```
+
+The default admin seeder creates all permissions, creates one `Admin` role, syncs every permission to that role, and creates the default admin user.
 
 5. Run app
 
@@ -135,17 +137,23 @@ npm run dev
 
 ## Default Seeded Admin
 
-- Email: `admin@hr-payroll.local`
-- Password: `P@ssw0rd`
+- Email: `admin@zerihr.local`
+- Password: `password`
+- Role: `Admin`
+
+You can change these values before seeding by setting:
+
+```env
+DEFAULT_ADMIN_NAME="System Admin"
+DEFAULT_ADMIN_EMAIL=admin@zerihr.local
+DEFAULT_ADMIN_PASSWORD=password
+```
 
 ## Access Model (Current)
 
-- `super-admin`: full access
-- `hr-manager`: HR operational access
-- `department-head`: limited operational access + self-service
-- `employee`: self-service access
+Access is permission-driven. The default seed creates only the `Admin` role with full permissions. Create additional roles such as HR Manager, Department Head, Supervisor or Employee from the Roles screen and assign only the permissions needed for each role.
 
-Employee management menus are restricted for non-HR roles.  
+Menus and module actions are shown or hidden based on assigned permissions.  
 Self-service profile update remains available via topbar dropdown when user is linked to an employee profile.
 
 ## SMTP and Outbound Email
@@ -154,7 +162,7 @@ SMTP values are configured from the **Settings** page and stored in DB-backed sy
 
 Current implemented email flow:
 
-- when HR/Super Admin creates a user, credentials can be emailed
+- when a permitted user creates a user, credentials can be emailed
 - sender config is loaded from system settings (mailer/host/port/username/password/from)
 
 ## Project Structure (High Level)
@@ -163,7 +171,7 @@ Current implemented email flow:
 - `app/Modules/Users` user, role, permission domain
 - `app/Modules/Settings` system and SMTP settings
 - `resources/views/hr` backend UI
-- `database/seeders` initial roles, permissions, settings, admin user
+- `database/seeders` permissions, settings and default admin user seeders
 
 ## Contributing
 
