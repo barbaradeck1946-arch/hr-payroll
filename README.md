@@ -8,6 +8,18 @@ Zerithonlabs - Modern HRM + Payroll platform rebuilt with Laravel for real compa
   <img src="public/assets/img/hrpayroll-2.png" alt="HR Payroll Banner" />
 </p>
 
+<h2 align="center">Live Demo</h2>
+
+<p align="center">
+  Explore the hosted Zeri HR demo environment.
+</p>
+
+<p align="center">
+  <a href="https://hr.zerithonlabs.com" target="_blank">
+    <img src="https://img.shields.io/badge/View%20Demo-hr.zerithonlabs.com-2F9B95?style=for-the-badge&logo=googlechrome&logoColor=white" alt="View Zeri HR Demo" />
+  </a>
+</p>
+
 <h3 align="center">💛 Support My Work</h3>
 
 <p align="center">
