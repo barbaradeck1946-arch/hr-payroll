@@ -189,13 +189,16 @@ Route::middleware(['auth', 'portal.access'])->group(function (): void {
 
         Route::get('/bonuses', [PayrollController::class, 'bonuses'])->middleware('permission:payroll.manage-bonus,bonus.view')->name('bonuses.index');
         Route::post('/bonuses', [PayrollController::class, 'storeBonus'])->middleware('permission:payroll.manage-bonus,bonus.create')->name('bonuses.store');
+        Route::post('/bonuses/generate', [PayrollController::class, 'generateBonuses'])->middleware('permission:payroll.manage-bonus,bonus.generate-batch')->name('bonuses.generate');
         Route::delete('/bonuses/{bonus}', [PayrollController::class, 'destroyBonus'])->middleware('permission:payroll.manage-bonus,bonus.delete')->name('bonuses.destroy');
 
-        Route::get('/loans', [PayrollController::class, 'loans'])->middleware('permission:payroll.manage-loan,loan.view,employee_loan.view,loan_installment.view')->name('loans.index');
-        Route::post('/loans', [PayrollController::class, 'storeLoan'])->middleware('permission:payroll.manage-loan,loan.create,employee_loan.create')->name('loans.store');
-        Route::get('/loans/{loan}', [PayrollController::class, 'showLoan'])->middleware('permission:payroll.manage-loan,loan.view,employee_loan.view,loan_installment.view')->name('loans.show');
+        Route::get('/loans', [PayrollController::class, 'loans'])->middleware('permission:payroll.manage-loan,loan.view,loan.apply,employee_loan.view,employee_loan.view-own,employee_loan.apply,loan_installment.view,employee_loan.approve-supervisor,employee_loan.approve-final')->name('loans.index');
+        Route::post('/loans', [PayrollController::class, 'storeLoan'])->middleware('permission:payroll.manage-loan,loan.create,loan.apply,employee_loan.create,employee_loan.apply')->name('loans.store');
+        Route::get('/loans/{loan}', [PayrollController::class, 'showLoan'])->middleware('permission:payroll.manage-loan,loan.view,loan.apply,employee_loan.view,employee_loan.view-own,employee_loan.apply,loan_installment.view,employee_loan.approve-supervisor,employee_loan.approve-final')->name('loans.show');
         Route::put('/loans/{loan}/reschedule', [PayrollController::class, 'rescheduleLoan'])->middleware('permission:payroll.manage-loan,loan.update,employee_loan.update')->name('loans.reschedule');
         Route::patch('/loans/{loan}/status', [PayrollController::class, 'updateLoanStatus'])->middleware('permission:payroll.manage-loan,loan.update,employee_loan.update')->name('loans.status');
+        Route::patch('/loans/{loan}/approve', [PayrollController::class, 'approveLoan'])->middleware('permission:payroll.manage-loan,loan.approve,loan.approve-supervisor,loan.approve-final,employee_loan.approve,employee_loan.approve-supervisor,employee_loan.approve-final')->name('loans.approve');
+        Route::patch('/loans/{loan}/reject', [PayrollController::class, 'rejectLoan'])->middleware('permission:payroll.manage-loan,loan.reject,employee_loan.reject')->name('loans.reject');
         Route::patch('/loan-installments/{installment}/paid', [PayrollController::class, 'markLoanInstallmentPaid'])->middleware('permission:payroll.manage-loan,loan_installment.mark-paid')->name('loan-installments.paid');
 
         Route::get('/deductions', [PayrollController::class, 'deductions'])->middleware('permission:payroll.manage-deduction,deduction.view,employee_deduction.view')->name('deductions.index');
@@ -206,7 +209,7 @@ Route::middleware(['auth', 'portal.access'])->group(function (): void {
         Route::post('/provident-funds', [PayrollController::class, 'storeProvidentFund'])->middleware('permission:payroll.manage-pf,provident_fund.create,provident_fund.update')->name('provident-funds.store');
     });
 
-    Route::middleware('role.any:super-admin,hr-manager')->group(function (): void {
+    Route::group([], function (): void {
 
         Route::prefix('employees')->name('employees.')->group(function (): void {
             Route::get('/', [EmployeeController::class, 'index'])->middleware('permission:employee.view')->name('index');

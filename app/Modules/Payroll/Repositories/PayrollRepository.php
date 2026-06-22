@@ -9,6 +9,7 @@ use App\Models\EmployeeLoan;
 use App\Models\EmployeeProvidentFund;
 use App\Models\PayrollRun;
 use App\Models\SalaryTemplate;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -49,11 +50,38 @@ class PayrollRepository
     /**
      * @param array<string, mixed> $filters
      */
-    public function loans(array $filters): LengthAwarePaginator
+    public function loans(array $filters, ?User $user = null): LengthAwarePaginator
     {
+        $canViewAll = $user?->hasAnyPermission(['payroll.manage-loan', 'loan.view', 'employee_loan.view']) ?? false;
+        $canSupervisorApprove = $user?->hasAnyPermission(['loan.approve-supervisor', 'employee_loan.approve-supervisor']) ?? false;
+        $canFinalApprove = $user?->hasAnyPermission(['loan.approve', 'loan.approve-final', 'employee_loan.approve', 'employee_loan.approve-final']) ?? false;
+        $canViewOwn = $user?->hasAnyPermission(['loan.apply', 'employee_loan.apply', 'employee_loan.view-own']) ?? false;
+        $employeeId = $user?->employee?->id;
+
         return EmployeeLoan::query()
             ->with(['employee:id,employee_code,first_name,last_name'])
             ->withSum('installments as paid_total', 'paid_amount')
+            ->when(! $canViewAll, function ($query) use ($canSupervisorApprove, $canFinalApprove, $canViewOwn, $employeeId): void {
+                $query->where(function ($inner) use ($canSupervisorApprove, $canFinalApprove, $canViewOwn, $employeeId): void {
+                    if ($canViewOwn && $employeeId) {
+                        $inner->where('employee_id', $employeeId);
+                    }
+
+                    if ($canSupervisorApprove && $employeeId) {
+                        $inner->orWhere(function ($teamQuery) use ($employeeId): void {
+                            $teamQuery
+                                ->where('status', 'pending_supervisor')
+                                ->whereHas('employee', fn ($employeeQuery) => $employeeQuery
+                                    ->where('reports_to_id', $employeeId)
+                                    ->orWhereHas('department', fn ($departmentQuery) => $departmentQuery->where('head_employee_id', $employeeId)));
+                        });
+                    }
+
+                    if ($canFinalApprove) {
+                        $inner->orWhere('status', 'pending_final');
+                    }
+                });
+            })
             ->when((string) ($filters['status'] ?? '') !== '', fn ($query) => $query->where('status', $filters['status']))
             ->when((int) ($filters['employee_id'] ?? 0) > 0, fn ($query) => $query->where('employee_id', (int) $filters['employee_id']))
             ->orderByDesc('issued_date')
@@ -107,6 +135,18 @@ class PayrollRepository
     {
         return Employee::query()
             ->select(['id', 'employee_code', 'first_name', 'last_name', 'salary_grade_id'])
+            ->with('salaryGrade:id,grade_name,min_salary,max_salary')
+            ->whereNotIn('employment_status', ['resigned', 'terminated'])
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
+    }
+
+    public function activeEmployeesForSelect(): Collection
+    {
+        return Employee::query()
+            ->select(['id', 'employee_code', 'first_name', 'last_name', 'salary_grade_id'])
+            ->with('salaryGrade:id,grade_name,min_salary,max_salary')
             ->where('employment_status', 'active')
             ->orderBy('first_name')
             ->orderBy('last_name')

@@ -64,6 +64,23 @@ class PermissionRepository
     }
 
     /**
+     * @return Collection<int, object>
+     */
+    public function scopeLegend(): Collection
+    {
+        return Permission::query()
+            ->select([
+                'access_scope',
+                'access_scope_label',
+                'access_scope_badge_class',
+                'access_scope_description',
+            ])
+            ->distinct()
+            ->orderBy('access_scope_label')
+            ->get();
+    }
+
+    /**
      * @param array<string, mixed> $attributes
      */
     public function create(array $attributes): Permission

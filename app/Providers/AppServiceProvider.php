@@ -35,7 +35,14 @@ class AppServiceProvider extends ServiceProvider
             $user = auth()->user();
             $can = fn (string $permission): bool => $user?->hasPermission($permission) ?? false;
             $canAny = fn (array $permissions): bool => $user?->hasAnyPermission($permissions) ?? false;
-            $isEmployeeAdmin = $user?->roles()->whereIn('slug', ['super-admin', 'hr-manager'])->exists() ?? false;
+            $isEmployeeAdmin = $canAny([
+                'employee.view',
+                'employee.create',
+                'employee.update',
+                'employee.delete',
+                'department.view',
+                'designation.view',
+            ]);
 
             $view->with('sidebarState', [
                 'isDashboard' => request()->routeIs('dashboard'),
@@ -105,13 +112,15 @@ class AppServiceProvider extends ServiceProvider
                 'canTaskUpdate' => $can('task.update'),
                 'canTaskAssign' => $can('task.assign'),
                 'canTaskComment' => $can('task.comment'),
-                'canPayrollView' => $canAny(['payroll.view', 'payroll_run.view']),
-                'canPayrollGenerate' => $canAny(['payroll.generate', 'payroll_run.generate']),
-                'canPayrollManageSalaryTemplates' => $canAny(['payroll.manage-salary-templates', 'salary_grade.view', 'salary_template.view', 'employee_salary.view']),
-                'canPayrollManageBonus' => $canAny(['payroll.manage-bonus', 'bonus.view', 'bonus.create']),
-                'canPayrollManageLoan' => $canAny(['payroll.manage-loan', 'loan.view', 'loan.create', 'employee_loan.view', 'employee_loan.create', 'loan_installment.view']),
-                'canPayrollManageDeduction' => $canAny(['payroll.manage-deduction', 'deduction.view', 'deduction.create', 'employee_deduction.view', 'employee_deduction.create']),
-                'canPayrollManagePf' => $canAny(['payroll.manage-pf', 'provident_fund.view', 'provident_fund.create', 'provident_fund.update']),
+                'canPayrollView' => $canAny(['payroll_run.view', 'payroll_run.generate']),
+                'canPayrollGenerate' => $can('payroll_run.generate'),
+                'canPayrollSalaryGrades' => $canAny(['salary_grade.view', 'salary_grade.create', 'salary_grade.update']),
+                'canPayrollSalaryTemplates' => $canAny(['salary_template.view', 'salary_template.create', 'salary_template.update', 'salary_template.assign', 'employee_salary.view', 'employee_salary.assign']),
+                'canPayrollManageSalaryTemplates' => $canAny(['salary_grade.view', 'salary_template.view', 'employee_salary.view', 'salary_template.assign', 'employee_salary.assign']),
+                'canPayrollManageBonus' => $canAny(['bonus.view', 'bonus.create', 'bonus.generate-batch']),
+                'canPayrollManageLoan' => $canAny(['loan.view', 'loan.apply', 'employee_loan.view', 'employee_loan.view-own', 'employee_loan.apply', 'employee_loan.approve-supervisor', 'employee_loan.approve-final', 'loan_installment.view']),
+                'canPayrollManageDeduction' => $canAny(['deduction.view', 'deduction.create', 'employee_deduction.view', 'employee_deduction.create']),
+                'canPayrollManagePf' => $canAny(['provident_fund.view', 'provident_fund.create', 'provident_fund.update']),
                 'canPayrollReport' => $canAny(['payroll.report', 'payslip.view', 'payslip.export', 'salary_revision.view']),
                 'canPayrollMenu' => $canAny([
                     'payroll.view',
@@ -131,6 +140,10 @@ class AppServiceProvider extends ServiceProvider
                     'payroll_run.view',
                     'payslip.view',
                     'employee_loan.view',
+                    'employee_loan.view-own',
+                    'employee_loan.apply',
+                    'employee_loan.approve-supervisor',
+                    'employee_loan.approve-final',
                     'loan_installment.view',
                     'employee_deduction.view',
                     'provident_fund.view',

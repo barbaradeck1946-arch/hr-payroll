@@ -38,6 +38,25 @@
                             <input type="text" name="description" class="form-control" value="{{ old('description', $permission->description ?? '') }}">
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-3 form-group mb-3">
+                                <label>Access Scope Key</label>
+                                <input type="text" name="access_scope" class="form-control" value="{{ old('access_scope', $permission->access_scope ?? 'general') }}" required>
+                            </div>
+                            <div class="col-md-3 form-group mb-3">
+                                <label>Access Scope Label</label>
+                                <input type="text" name="access_scope_label" class="form-control" value="{{ old('access_scope_label', $permission->access_scope_label ?? 'General') }}" required>
+                            </div>
+                            <div class="col-md-3 form-group mb-3">
+                                <label>Badge Class</label>
+                                <input type="text" name="access_scope_badge_class" class="form-control" value="{{ old('access_scope_badge_class', $permission->access_scope_badge_class ?? 'bg-secondary') }}" required>
+                            </div>
+                            <div class="col-md-3 form-group mb-3">
+                                <label>Scope Description</label>
+                                <input type="text" name="access_scope_description" class="form-control" value="{{ old('access_scope_description', $permission->access_scope_description ?? '') }}">
+                            </div>
+                        </div>
+
                         <button class="btn btn-custom" type="submit">
                             <i class="{{ $mode === 'edit' ? 'icon-check' : 'icon-plus' }}"></i>
                             {{ $mode === 'edit' ? 'Update Permission' : 'Create Permission' }}

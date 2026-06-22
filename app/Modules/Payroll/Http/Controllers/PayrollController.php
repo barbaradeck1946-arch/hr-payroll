@@ -12,6 +12,7 @@ use App\Models\PayrollRun;
 use App\Models\SalaryTemplate;
 use App\Modules\Payroll\Repositories\PayrollRepository;
 use App\Modules\Payroll\Services\PayrollService;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -33,13 +34,14 @@ class PayrollController extends Controller
         return view('hr.payroll.runs.index', [
             'runs' => $this->payrollRepository->runs($filters),
             'filters' => $filters,
-            'employees' => $this->payrollRepository->employeesForSelect(),
+            'employees' => $this->payrollRepository->activeEmployeesForSelect(),
         ]);
     }
 
     public function generate(Request $request): RedirectResponse
     {
-        if ((int) $request->input('employee_id', 0) === 0) {
+        $employeeId = $request->input('employee_id');
+        if ($employeeId === null || $employeeId === '' || ! ctype_digit((string) $employeeId) || (int) $employeeId <= 0) {
             $request->merge(['employee_id' => null]);
         }
 
@@ -56,10 +58,23 @@ class PayrollController extends Controller
         try {
             $run = $this->payrollService->generatePayrollRun($validated, (int) $request->user()->id);
         } catch (RuntimeException $exception) {
+            $existingRun = $this->findExistingRun($validated);
+            $isSingleEmployeeRun = (int) ($validated['employee_id'] ?? 0) > 0;
+
+            if (! $isSingleEmployeeRun && $existingRun && $existingRun->status !== 'draft') {
+                return redirect()
+                    ->route('payroll.runs.show', $existingRun)
+                    ->with('error', 'This payroll period is already finalized. Review the existing payroll run or create a new period.');
+            }
+
             return back()->withInput()->with('error', $exception->getMessage());
         }
 
-        return redirect()->route('payroll.runs.show', $run)->with('success', 'Payroll draft generated successfully. Review before final submission.');
+        $message = $run->status === 'draft'
+            ? 'Payroll draft generated successfully. Review before final submission.'
+            : 'Selected employee payslip added to the processed payroll run.';
+
+        return redirect()->route('payroll.runs.show', $run)->with('success', $message);
     }
 
     public function showRun(PayrollRun $run): View
@@ -115,6 +130,18 @@ class PayrollController extends Controller
         ]);
 
         return back()->with('success', 'Payment status updated.');
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function findExistingRun(array $payload): ?PayrollRun
+    {
+        return PayrollRun::query()
+            ->where('pay_frequency', $payload['pay_frequency'])
+            ->where('period_start', CarbonImmutable::parse($payload['period_start'])->toDateString())
+            ->where('period_end', CarbonImmutable::parse($payload['period_end'])->toDateString())
+            ->first();
     }
 
     public function salaryTemplates(Request $request): View
@@ -205,6 +232,28 @@ class PayrollController extends Controller
         return back()->with('success', 'Bonus saved successfully.');
     }
 
+    public function generateBonuses(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'employee_id' => ['nullable', 'integer', 'exists:employees,id'],
+            'title' => ['required', 'string', 'max:255'],
+            'calculation_type' => ['required', Rule::in(['fixed', 'basic_percent', 'gross_percent'])],
+            'amount' => ['nullable', 'numeric', 'min:0', 'required_if:calculation_type,fixed'],
+            'percentage' => ['nullable', 'numeric', 'min:0', 'max:100', 'required_unless:calculation_type,fixed'],
+            'bonus_date' => ['required', 'date'],
+            'bonus_type' => ['required', 'string', 'max:40'],
+            'remarks' => ['nullable', 'string'],
+        ]);
+
+        try {
+            $created = $this->payrollService->generateBonusBatch($validated, (int) $request->user()->id);
+        } catch (RuntimeException $exception) {
+            return back()->withInput()->with('error', $exception->getMessage());
+        }
+
+        return back()->with('success', "{$created} bonus records generated successfully.");
+    }
+
     public function destroyBonus(Bonus $bonus): RedirectResponse
     {
         $bonus->delete();
@@ -217,7 +266,7 @@ class PayrollController extends Controller
         $filters = $this->filters($request);
 
         return view('hr.payroll.loans.index', [
-            'loans' => $this->payrollRepository->loans($filters),
+            'loans' => $this->payrollRepository->loans($filters, $request->user()),
             'filters' => $filters,
             'employees' => $this->payrollRepository->employeesForSelect(),
         ]);
@@ -225,13 +274,43 @@ class PayrollController extends Controller
 
     public function storeLoan(Request $request): RedirectResponse
     {
-        $this->payrollService->saveLoan($this->validateLoan($request));
+        $user = $request->user();
+        if ($user->hasPermission('employee_loan.apply') && ! $user->hasAnyPermission(['employee_loan.create', 'loan.create', 'payroll.manage-loan'])) {
+            $employeeId = $user->employee?->id;
+            abort_if(! $employeeId, 403);
+            $request->merge([
+                'employee_id' => $employeeId,
+                'status' => 'pending_supervisor',
+            ]);
+        }
+
+        $validated = $this->validateLoan($request);
+
+        if ($user->hasPermission('employee_loan.apply') && ! $user->hasAnyPermission(['employee_loan.create', 'loan.create', 'payroll.manage-loan'])) {
+            $this->payrollService->applyLoan($validated, (int) $user->id);
+
+            return back()->with('success', 'Loan request submitted for approval.');
+        }
+
+        $this->payrollService->saveLoan($validated);
 
         return back()->with('success', 'Loan saved successfully.');
     }
 
     public function showLoan(EmployeeLoan $loan): View
     {
+        $user = request()->user();
+        $canViewAll = $user?->hasAnyPermission(['payroll.manage-loan', 'loan.view', 'employee_loan.view']) ?? false;
+        $canSupervisorApprovePending = ($user?->hasAnyPermission(['employee_loan.approve-supervisor', 'loan.approve-supervisor']) ?? false)
+            && $this->isTeamLoan($loan, $user?->employee?->id)
+            && $loan->status === 'pending_supervisor';
+        $canFinalApprovePending = ($user?->hasAnyPermission(['employee_loan.approve', 'employee_loan.approve-final', 'loan.approve', 'loan.approve-final']) ?? false)
+            && $loan->status === 'pending_final';
+        $canViewOwn = ($user?->hasAnyPermission(['employee_loan.view-own', 'employee_loan.apply', 'loan.apply']) ?? false)
+            && $user?->employee?->id === $loan->employee_id;
+
+        abort_if(! $canViewAll && ! $canSupervisorApprovePending && ! $canFinalApprovePending && ! $canViewOwn, 403);
+
         $loan->load([
             'employee:id,employee_code,first_name,last_name,department_id,designation_id',
             'employee.department:id,name',
@@ -240,6 +319,18 @@ class PayrollController extends Controller
         ]);
 
         return view('hr.payroll.loans.show', ['loan' => $loan]);
+    }
+
+    private function isTeamLoan(EmployeeLoan $loan, ?int $employeeId): bool
+    {
+        if (! $employeeId) {
+            return false;
+        }
+
+        $loan->loadMissing('employee.department');
+
+        return (int) $loan->employee?->reports_to_id === $employeeId
+            || (int) $loan->employee?->department?->head_employee_id === $employeeId;
     }
 
     public function rescheduleLoan(Request $request, EmployeeLoan $loan): RedirectResponse
@@ -263,6 +354,62 @@ class PayrollController extends Controller
         $this->payrollService->updateLoanStatus($loan, $validated);
 
         return back()->with('success', 'Loan status updated successfully.');
+    }
+
+    public function approveLoan(Request $request, EmployeeLoan $loan): RedirectResponse
+    {
+        $validated = $request->validate([
+            'step' => ['required', Rule::in(['supervisor', 'final'])],
+            'remarks' => ['nullable', 'string'],
+        ]);
+
+        $user = $request->user();
+        $permission = $validated['step'] === 'supervisor' ? 'employee_loan.approve-supervisor' : 'employee_loan.approve-final';
+        abort_if(! $user->hasAnyPermission([$permission, 'loan.' . str_replace('_', '-', 'approve_' . $validated['step']), 'payroll.manage-loan']), 403);
+        abort_if(
+            $validated['step'] === 'supervisor'
+            && ! $user->hasPermission('payroll.manage-loan')
+            && ! $this->isTeamLoan($loan, $user->employee?->id),
+            403
+        );
+
+        try {
+            $this->payrollService->approveLoan($loan, $validated['step'], (int) $user->id, $validated['remarks'] ?? null);
+        } catch (RuntimeException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        return back()->with('success', 'Loan approved successfully.');
+    }
+
+    public function rejectLoan(Request $request, EmployeeLoan $loan): RedirectResponse
+    {
+        $validated = $request->validate([
+            'remarks' => ['nullable', 'string'],
+        ]);
+
+        $user = $request->user();
+        abort_if(! $user->hasAnyPermission(['employee_loan.reject', 'loan.reject', 'payroll.manage-loan']), 403);
+        abort_if(
+            ! $user->hasPermission('payroll.manage-loan')
+            && $loan->status === 'pending_supervisor'
+            && ! $this->isTeamLoan($loan, $user->employee?->id),
+            403
+        );
+        abort_if(
+            ! $user->hasPermission('payroll.manage-loan')
+            && $loan->status === 'pending_final'
+            && ! $user->hasAnyPermission(['employee_loan.approve-final', 'loan.approve-final']),
+            403
+        );
+
+        try {
+            $this->payrollService->rejectLoan($loan, (int) $user->id, $validated['remarks'] ?? null);
+        } catch (RuntimeException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        return back()->with('success', 'Loan rejected successfully.');
     }
 
     public function markLoanInstallmentPaid(Request $request, LoanInstallment $installment): RedirectResponse
@@ -390,7 +537,7 @@ class PayrollController extends Controller
             'installment_amount' => ['required', 'numeric', 'min:0'],
             'issued_date' => ['required', 'date'],
             'first_installment_date' => ['nullable', 'date'],
-            'status' => ['required', Rule::in(['active', 'closed', 'paused'])],
+            'status' => ['required', Rule::in(['pending_supervisor', 'pending_final', 'active', 'closed', 'paused', 'rejected'])],
             'remarks' => ['nullable', 'string'],
         ]);
     }

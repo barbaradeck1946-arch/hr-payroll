@@ -1,6 +1,11 @@
 @extends('layouts.backend')
 
 @section('content')
+@php
+    $authUser = auth()->user();
+    $canGenerateBonus = $authUser?->hasAnyPermission(['payroll.manage-bonus', 'bonus.generate-batch']) ?? false;
+    $canDeleteBonus = $authUser?->hasAnyPermission(['payroll.manage-bonus', 'bonus.delete']) ?? false;
+@endphp
 <div class="wrapper-page">
     <div class="page-title"><h1><i class="icon-present"></i> Bonuses</h1></div>
     @include('partials.flash')
@@ -8,16 +13,26 @@
         <div class="container-fluid">
             <div class="card no-border">
                 <div class="content_wrapper" style="padding:20px;">
-                    <form method="POST" action="{{ route('payroll.bonuses.store') }}" class="row g-2 mb-4">
-                        @csrf
-                        <div class="col-md-3"><select name="employee_id" class="form-control js-example-basic-single" required><option value="">Employee</option>@foreach($employees as $employee)<option value="{{ $employee->id }}">{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
-                        <div class="col-md-2"><input type="text" name="title" class="form-control" placeholder="Title" required></div>
-                        <div class="col-md-2"><input type="number" step="0.01" min="0" name="amount" class="form-control" placeholder="Amount" required></div>
-                        <div class="col-md-2"><input type="text" name="bonus_date" class="form-control datetimepicker" value="{{ now()->toDateString() }}" placeholder="Bonus date" required></div>
-                        <div class="col-md-2"><input type="text" name="bonus_type" class="form-control" value="performance" placeholder="Type" required></div>
-                        <div class="col-md-1"><button class="btn btn-custom w-100" type="submit"><i class="icon-plus"></i></button></div>
-                        <div class="col-md-12"><textarea name="remarks" class="form-control" rows="2" placeholder="Remarks"></textarea></div>
-                    </form>
+                    @if($canGenerateBonus)
+                        <form method="POST" action="{{ route('payroll.bonuses.generate') }}" class="row g-2 mb-4">
+                            @csrf
+                            <div class="col-md-3"><select name="employee_id" class="form-control js-example-basic-single"><option value="0">All Active Employees</option>@foreach($employees as $employee)<option value="{{ $employee->id }}">{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
+                            <div class="col-md-2"><input type="text" name="title" class="form-control" value="{{ old('title', 'Festival Bonus') }}" placeholder="Title" required></div>
+                            <div class="col-md-2">
+                                <select name="calculation_type" class="form-control" required>
+                                    <option value="basic_percent">Basic Salary %</option>
+                                    <option value="gross_percent">Basic + Allowance %</option>
+                                    <option value="fixed">Custom Fixed Amount</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1"><input type="number" step="0.01" min="0" max="100" name="percentage" class="form-control" placeholder="%"></div>
+                            <div class="col-md-1"><input type="number" step="0.01" min="0" name="amount" class="form-control" placeholder="Amount"></div>
+                            <div class="col-md-2"><input type="text" name="bonus_date" class="form-control datetimepicker" value="{{ now()->toDateString() }}" placeholder="Bonus date" required></div>
+                            <div class="col-md-1"><input type="text" name="bonus_type" class="form-control" value="policy" placeholder="Type" required></div>
+                            <div class="col-md-12"><button class="btn btn-custom" type="submit"><i class="icon-plus"></i> Generate Bonus</button></div>
+                            <div class="col-md-12"><textarea name="remarks" class="form-control" rows="2" placeholder="Remarks"></textarea></div>
+                        </form>
+                    @endif
 
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-4"><select name="employee_id" class="form-control"><option value="0">All Employees</option>@foreach($employees as $employee)<option value="{{ $employee->id }}" {{ (int)$filters['employee_id']===$employee->id?'selected':'' }}>{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
@@ -37,7 +52,13 @@
                                         <td>{{ $bonus->bonus_date }}</td>
                                         <td>{{ number_format((float)$bonus->amount, 2) }}</td>
                                         <td>{{ $bonus->creator?->name ?: '-' }}</td>
-                                        <td class="action-buttons"><form method="POST" action="{{ route('payroll.bonuses.destroy', $bonus) }}" onsubmit="return confirm('Delete this bonus?');">@csrf @method('DELETE')<button type="submit"><i class="icon-trash"></i></button></form></td>
+                                        <td class="action-buttons">
+                                            @if($canDeleteBonus)
+                                                <form method="POST" action="{{ route('payroll.bonuses.destroy', $bonus) }}" onsubmit="return confirm('Delete this bonus?');">@csrf @method('DELETE')<button type="submit"><i class="icon-trash"></i></button></form>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="7" class="text-center">No bonuses found.</td></tr>

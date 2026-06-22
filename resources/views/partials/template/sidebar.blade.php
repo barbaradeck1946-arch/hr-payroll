@@ -159,8 +159,10 @@
                             @if(($s['canPayrollView'] ?? false) || ($s['canPayrollGenerate'] ?? false))
                                 <li class="{{ request()->routeIs('payroll.runs.*') || request()->routeIs('payroll.items.*') ? 'active' : '' }}"><a href="{{ route('payroll.runs.index') }}">Payroll Runs</a></li>
                             @endif
-                            @if($s['canPayrollManageSalaryTemplates'] ?? false)
+                            @if($s['canPayrollSalaryGrades'] ?? false)
                                 <li class="{{ request()->routeIs('salary-grades.*') ? 'active' : '' }}"><a href="{{ route('salary-grades.index') }}">Salary Grades</a></li>
+                            @endif
+                            @if($s['canPayrollSalaryTemplates'] ?? false)
                                 <li class="{{ request()->routeIs('payroll.salary-templates.*') || request()->routeIs('payroll.salary-template-assignments.*') ? 'active' : '' }}"><a href="{{ route('payroll.salary-templates.index') }}">Salary Templates</a></li>
                             @endif
                             @if($s['canPayrollManageBonus'] ?? false)

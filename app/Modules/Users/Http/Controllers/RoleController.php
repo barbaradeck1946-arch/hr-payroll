@@ -78,6 +78,7 @@ class RoleController extends Controller
         return view('hr.roles.permissions', [
             'role' => $role,
             'permissionsByGroup' => $permissionsByGroup,
+            'permissionScopeLegend' => $this->permissionRepository->scopeLegend(),
             'selectedPermissionIds' => $role->permissions->pluck('id')->all(),
         ]);
     }

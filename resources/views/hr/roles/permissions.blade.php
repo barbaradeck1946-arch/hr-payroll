@@ -12,6 +12,17 @@
         <div class="container-fluid">
             <div class="card no-border">
                 <div class="content_wrapper" style="padding:20px;">
+                    <div class="row g-2 mb-3">
+                        @foreach($permissionScopeLegend as $scope)
+                            <div class="col-md-3">
+                                <div class="p-2 h-100" style="border:1px solid #e5e7eb; border-radius:8px;">
+                                    <span class="badge {{ $scope->access_scope_badge_class }}">{{ $scope->access_scope_label }}</span>
+                                    <div class="text-muted mt-2" style="font-size:12px; line-height:1.4;">{{ $scope->access_scope_description }}</div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
                     <form method="POST" action="{{ route('roles.permissions.sync', $role) }}">
                         @csrf
 
@@ -22,10 +33,15 @@
                                     @foreach($permissions as $permission)
                                         <div class="col-md-3 mb-2">
                                             @php($checkboxId = 'permission_'.$role->id.'_'.$permission->id)
+                                            @php($accessScope = $permission->accessScopeMeta())
                                             <div class="checkbox checkbox-default">
                                                 <input id="{{ $checkboxId }}" type="checkbox" name="permission_ids[]" value="{{ $permission->id }}" {{ in_array($permission->id, $selectedPermissionIds, true) ? 'checked' : '' }}>
-                                                <label for="{{ $checkboxId }}">{{ $permission->name }}</label>
+                                                <label for="{{ $checkboxId }}">
+                                                    {{ $permission->name }}
+                                                    <span class="badge {{ $accessScope['badge_class'] }} ms-1" title="{{ $accessScope['description'] }}">{{ $accessScope['label'] }}</span>
+                                                </label>
                                             </div>
+                                            <div class="text-muted" style="font-size:11px; margin-left:24px;">{{ $permission->slug }}</div>
                                         </div>
                                     @endforeach
                                 </div>

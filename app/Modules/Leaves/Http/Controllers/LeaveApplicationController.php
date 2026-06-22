@@ -425,10 +425,9 @@ class LeaveApplicationController extends Controller
         return array_values(array_unique(array_merge([(int) $employee->id], $this->subordinateEmployeeIds($user))));
     }
 
-    // The hasAllAccess method checks if the user has any of the specified roles that grant them all-access permissions. It queries the user's roles to see if they have a role with a slug of 'super-admin', 'hr-manager', or 'admin'. If the user has any of these roles, the method returns true, indicating that they have all-access permissions. Otherwise, it returns false. This method is used throughout the controller to determine how to scope queries and what data the user should be able to access based on their role.
     private function hasAllAccess(User $user): bool
     {
-        return $user->roles()->whereIn('slug', ['super-admin', 'hr-manager', 'admin'])->exists();
+        return $user->hasAnyPermission(['leave.view', 'leave.report', 'leave.manage-balances', 'leave.manage-quotas']);
     }
 
     /**

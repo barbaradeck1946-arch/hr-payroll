@@ -44,15 +44,20 @@
                                 <tr>
                                     <th>Group</th>
                                     <th>Name</th>
+                                    <th>Access Scope</th>
                                     <th>Slug</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($permissions as $permission)
+                                    @php($accessScope = $permission->accessScopeMeta())
                                     <tr>
                                         <td>{{ str_replace('_', ' ', $permission->group_name) }}</td>
                                         <td>{{ $permission->name }}</td>
+                                        <td>
+                                            <span class="badge {{ $accessScope['badge_class'] }}" title="{{ $accessScope['description'] }}">{{ $accessScope['label'] }}</span>
+                                        </td>
                                         <td>{{ $permission->slug }}</td>
                                         <td class="action-buttons">
                                             <a href="{{ route('permissions.edit', $permission) }}" title="Edit Permission">
@@ -62,7 +67,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center">No permissions found.</td>
+                                        <td colspan="5" class="text-center">No permissions found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

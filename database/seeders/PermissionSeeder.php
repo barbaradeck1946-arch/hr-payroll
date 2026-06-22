@@ -61,9 +61,9 @@ class PermissionSeeder extends Seeder
             'employee_salary' => ['view', 'assign', 'update', 'history'],
             'payroll_run' => ['view', 'generate', 'approve', 'delete', 'mark_paid'],
             'payslip' => ['view', 'print', 'export', 'send'],
-            'bonus' => ['view', 'create', 'update', 'delete'],
-            'loan' => ['view', 'create', 'update', 'approve', 'delete'],
-            'employee_loan' => ['view', 'create', 'update', 'approve', 'delete'],
+            'bonus' => ['view', 'create', 'generate_batch', 'update', 'delete'],
+            'loan' => ['view', 'apply', 'create', 'update', 'approve', 'approve_supervisor', 'approve_final', 'reject', 'delete'],
+            'employee_loan' => ['view', 'view_own', 'apply', 'create', 'update', 'approve', 'approve_supervisor', 'approve_final', 'reject', 'delete'],
             'loan_installment' => ['view', 'create', 'update', 'mark_paid', 'delete'],
             'deduction' => ['view', 'create', 'update', 'approve', 'delete'],
             'employee_deduction' => ['view', 'create', 'update', 'approve', 'delete'],
@@ -99,13 +99,90 @@ class PermissionSeeder extends Seeder
 
                 Permission::updateOrCreate(
                     ['slug' => $slug],
-                    [
+                    array_merge([
                         'group_name' => $group,
                         'name' => $name,
                         'description' => $name,
-                    ]
+                    ], $this->scopeMeta($slug, $group, (string) $action))
                 );
             }
         }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function scopeMeta(string $slug, string $group, string $action): array
+    {
+        $scope = 'general';
+
+        if (in_array($action, ['apply', 'view_own', 'view_private', 'create_private', 'update_private', 'delete_private', 'clock'], true)
+            || str_contains($slug, 'view-self')
+            || str_contains($slug, 'quick-notes')
+            || str_contains($slug, 'profile-update-request-submit')
+            || str_contains($slug, 'resignation-apply')) {
+            $scope = 'self';
+        } elseif (str_contains($action, 'supervisor')
+            || str_contains($action, 'department')
+            || in_array($action, ['approve_time_change', 'manage_members', 'assign', 'comment'], true)) {
+            $scope = 'team';
+        } elseif (in_array($group, [
+            'role',
+            'settings',
+            'audit',
+            'salary_grade',
+            'salary_template',
+            'employee_salary',
+            'payroll',
+            'payroll_run',
+            'bonus',
+            'loan_installment',
+            'deduction',
+            'employee_deduction',
+            'provident_fund',
+            'salary_revision',
+            'department',
+            'designation',
+            'holiday',
+            'training',
+            'award',
+            'billing',
+            'client',
+            'estimate',
+            'invoice',
+            'expense',
+            'report',
+            'notification',
+        ], true)
+            || in_array($action, ['create', 'update', 'delete', 'approve', 'approve_final', 'reject', 'publish', 'manage', 'generate', 'generate_batch', 'mark_paid', 'post_transaction', 'adjust', 'record_payment', 'send', 'export', 'import', 'api_integration', 'final_approve', 'status_update', 'promotion_manage', 'rejoin_manage'], true)) {
+            $scope = 'admin';
+        }
+
+        return match ($scope) {
+            'self' => [
+                'access_scope' => 'self',
+                'access_scope_label' => 'Own / Self',
+                'access_scope_badge_class' => 'bg-success',
+                'access_scope_description' => 'User can access their own records or personal actions.',
+            ],
+            'team' => [
+                'access_scope' => 'team',
+                'access_scope_label' => 'Department / Team',
+                'access_scope_badge_class' => 'bg-info',
+                'access_scope_description' => 'User can access assigned team, department, or approval-scope records.',
+            ],
+            'admin' => [
+                'access_scope' => 'admin',
+                'access_scope_label' => 'Admin / Global',
+                'access_scope_badge_class' => 'bg-danger',
+                'access_scope_description' => 'User can access company-wide records, setup, approval, payroll, or reports.',
+            ],
+            default => [
+                'access_scope' => 'general',
+                'access_scope_label' => 'General',
+                'access_scope_badge_class' => 'bg-secondary',
+                'access_scope_description' => 'Basic module visibility or shared access.',
+            ],
+        };
     }
 }

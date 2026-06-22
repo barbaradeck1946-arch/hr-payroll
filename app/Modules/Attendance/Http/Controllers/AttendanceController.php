@@ -402,13 +402,9 @@ class AttendanceController extends Controller
 
         return array_values(array_unique(array_merge($ids, $subordinateIds)));
     }
-    // Check if the user has any of the privileged roles and the necessary permissions to access attendance management features.
     private function hasAllAccess(User $user): bool
     {
-        $hasPrivilegedRole = $user->roles()->whereIn('slug', ['super-admin', 'hr-manager', 'admin'])->exists();
-        $hasPermission = $user->hasAnyPermission(['attendance.view', 'attendance.manage', 'attendance.report']);
-
-        return $hasPrivilegedRole && $hasPermission;
+        return $user->hasAnyPermission(['attendance.view', 'attendance.manage', 'attendance.report']);
     }
 
     private function normalizeEntryType(string $value): string

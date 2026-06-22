@@ -12,6 +12,13 @@
     @php($paidTotal = (float) $loan->installments->sum('paid_amount'))
     @php($remainingTotal = max(0, (float) $loan->principal_amount - $paidTotal))
     @php($hasPaidInstallments = $loan->installments->contains(fn($installment) => $installment->status === 'paid'))
+    @php($authUser = auth()->user())
+    @php($canManageLoans = $authUser?->hasAnyPermission(['payroll.manage-loan', 'loan.update', 'employee_loan.update']) ?? false)
+    @php($canSupervisorApprove = $authUser?->hasAnyPermission(['payroll.manage-loan', 'loan.approve-supervisor', 'employee_loan.approve-supervisor']) ?? false)
+    @php($canFinalApprove = $authUser?->hasAnyPermission(['payroll.manage-loan', 'loan.approve-final', 'employee_loan.approve-final']) ?? false)
+    @php($canReject = $authUser?->hasAnyPermission(['payroll.manage-loan', 'loan.reject', 'employee_loan.reject']) ?? false)
+    @php($canMarkInstallmentPaid = $authUser?->hasAnyPermission(['payroll.manage-loan', 'loan_installment.mark-paid']) ?? false)
+    @php($statusLabels = ['pending_supervisor' => 'Pending Supervisor', 'pending_final' => 'Pending Final', 'active' => 'Active', 'paused' => 'Paused', 'closed' => 'Closed', 'rejected' => 'Rejected'])
 
     <div class="page-content">
         <div class="container-fluid">
@@ -21,7 +28,7 @@
                         <div class="col-md-3"><strong>Employee:</strong><br>{{ trim($loan->employee?->first_name.' '.$loan->employee?->last_name) }} ({{ $loan->employee?->employee_code }})</div>
                         <div class="col-md-3"><strong>Department:</strong><br>{{ $loan->employee?->department?->name ?: '-' }}</div>
                         <div class="col-md-2"><strong>Reference:</strong><br>{{ $loan->loan_reference }}</div>
-                        <div class="col-md-2"><strong>Status:</strong><br><span class="badge bg-secondary">{{ ucfirst($loan->status) }}</span></div>
+                        <div class="col-md-2"><strong>Status:</strong><br><span class="badge bg-secondary">{{ $statusLabels[$loan->status] ?? ucfirst($loan->status) }}</span></div>
                         <div class="col-md-2"><strong>Issued:</strong><br>{{ $loan->issued_date }}</div>
                     </div>
 
@@ -32,22 +39,62 @@
                         <div class="col-md-3"><strong>Installment:</strong><br>{{ $loan->installment_count }} x {{ number_format((float) $loan->installment_amount, 2) }}</div>
                     </div>
 
-                    <h5 class="table_banner_title mb-2">Update Loan Status</h5>
-                    <form method="POST" action="{{ route('payroll.loans.status', $loan) }}" class="row g-2 mb-4">
-                        @csrf
-                        @method('PATCH')
-                        <div class="col-md-3">
-                            <select name="status" class="form-control" required>
-                                @foreach(['active', 'paused', 'closed'] as $status)
-                                    <option value="{{ $status }}" {{ $loan->status === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
-                                @endforeach
-                            </select>
+                    @if(in_array($loan->status, ['pending_supervisor', 'pending_final'], true))
+                        <h5 class="table_banner_title mb-2">Loan Approval</h5>
+                        <div class="row g-2 mb-4">
+                            @if($loan->status === 'pending_supervisor' && $canSupervisorApprove)
+                                <div class="col-md-4">
+                                    <form method="POST" action="{{ route('payroll.loans.approve', $loan) }}" class="d-flex gap-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="step" value="supervisor">
+                                        <input type="text" name="remarks" class="form-control" placeholder="Supervisor note">
+                                        <button class="btn btn-custom" type="submit"><i class="icon-check"></i> Supervisor Approve</button>
+                                    </form>
+                                </div>
+                            @endif
+                            @if($canFinalApprove)
+                                <div class="col-md-4">
+                                    <form method="POST" action="{{ route('payroll.loans.approve', $loan) }}" class="d-flex gap-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="step" value="final">
+                                        <input type="text" name="remarks" class="form-control" placeholder="Final approval note">
+                                        <button class="btn btn-custom" type="submit"><i class="icon-check"></i> Final Approve</button>
+                                    </form>
+                                </div>
+                            @endif
+                            @if($canReject)
+                                <div class="col-md-4">
+                                    <form method="POST" action="{{ route('payroll.loans.reject', $loan) }}" class="d-flex gap-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="text" name="remarks" class="form-control" placeholder="Reject reason">
+                                        <button class="btn btn-custom-default" type="submit"><i class="icon-close"></i> Reject</button>
+                                    </form>
+                                </div>
+                            @endif
                         </div>
-                        <div class="col-md-6"><input type="text" name="remarks" class="form-control" value="{{ $loan->remarks }}" placeholder="Remarks"></div>
-                        <div class="col-md-3"><button class="btn btn-custom" type="submit"><i class="icon-check"></i> Update Status</button></div>
-                    </form>
+                    @endif
 
-                    @if(! $hasPaidInstallments)
+                    @if($canManageLoans && in_array($loan->status, ['active', 'paused', 'closed'], true))
+                        <h5 class="table_banner_title mb-2">Update Loan Status</h5>
+                        <form method="POST" action="{{ route('payroll.loans.status', $loan) }}" class="row g-2 mb-4">
+                            @csrf
+                            @method('PATCH')
+                            <div class="col-md-3">
+                                <select name="status" class="form-control" required>
+                                    @foreach(['active', 'paused', 'closed'] as $status)
+                                        <option value="{{ $status }}" {{ $loan->status === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6"><input type="text" name="remarks" class="form-control" value="{{ $loan->remarks }}" placeholder="Remarks"></div>
+                            <div class="col-md-3"><button class="btn btn-custom" type="submit"><i class="icon-check"></i> Update Status</button></div>
+                        </form>
+                    @endif
+
+                    @if($canManageLoans && in_array($loan->status, ['active', 'paused', 'closed'], true) && ! $hasPaidInstallments)
                         <h5 class="table_banner_title mb-2">Reschedule Loan</h5>
                         <form method="POST" action="{{ route('payroll.loans.reschedule', $loan) }}" class="row g-2 mb-4">
                             @csrf
@@ -64,7 +111,7 @@
                             <div class="col-md-7"><input type="text" name="remarks" class="form-control" value="{{ old('remarks', $loan->remarks) }}" placeholder="Remarks"></div>
                             <div class="col-md-3"><button class="btn btn-custom" type="submit"><i class="icon-refresh"></i> Reschedule</button></div>
                         </form>
-                    @else
+                    @elseif($canManageLoans && in_array($loan->status, ['active', 'paused', 'closed'], true) && $hasPaidInstallments)
                         <div class="alert alert-info">This loan has paid installments. Rescheduling is locked to protect payroll history.</div>
                     @endif
 
@@ -92,7 +139,7 @@
                                         <td>{{ $installment->paid_date ?: '-' }}</td>
                                         <td><span class="badge bg-secondary">{{ ucfirst($installment->status) }}</span></td>
                                         <td>
-                                            @if($installment->status !== 'paid')
+                                            @if($canMarkInstallmentPaid && $installment->status !== 'paid')
                                                 <form method="POST" action="{{ route('payroll.loan-installments.paid', $installment) }}" class="d-flex gap-2">
                                                     @csrf
                                                     @method('PATCH')

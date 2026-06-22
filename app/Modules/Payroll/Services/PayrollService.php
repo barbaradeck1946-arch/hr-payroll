@@ -46,7 +46,6 @@ class PayrollService
     public function assignSalaryTemplate(array $payload): void
     {
         $employee = Employee::query()
-            ->with('salaryGrade:id,min_salary,max_salary')
             ->find((int) $payload['employee_id']);
 
         if (! $employee) {
@@ -54,25 +53,17 @@ class PayrollService
         }
 
         $payload = array_merge([
+            'pay_frequency' => null,
             'house_rent' => 0,
             'medical_allowance' => 0,
             'conveyance_allowance' => 0,
             'other_allowance' => 0,
             'provident_fund_percent' => 0,
             'tax_percent' => 0,
+            'ctc_amount' => null,
+            'notes' => null,
+            'effective_to' => null,
         ], array_filter($payload, fn ($value) => $value !== null && $value !== ''));
-
-        $basicSalary = (float) $payload['basic_salary'];
-        $minSalary = $employee->salaryGrade?->min_salary;
-        $maxSalary = $employee->salaryGrade?->max_salary;
-
-        if ($minSalary !== null && $basicSalary < (float) $minSalary) {
-            throw new RuntimeException('Basic salary is below the employee salary grade minimum.');
-        }
-
-        if ($maxSalary !== null && $basicSalary > (float) $maxSalary) {
-            throw new RuntimeException('Basic salary is above the employee salary grade maximum.');
-        }
 
         $grossSalary = (float) $payload['basic_salary']
             + (float) $payload['house_rent']
@@ -96,9 +87,9 @@ class PayrollService
                 'gross_salary' => $grossSalary,
                 'provident_fund_percent' => $payload['provident_fund_percent'],
                 'tax_percent' => $payload['tax_percent'],
-                'ctc_amount' => $payload['ctc_amount'] ?? null,
-                'notes' => $payload['notes'] ?? null,
-                'effective_to' => $payload['effective_to'] ?: null,
+                'ctc_amount' => $payload['ctc_amount'],
+                'notes' => $payload['notes'],
+                'effective_to' => $payload['effective_to'],
                 'updated_at' => now(),
                 'created_at' => now(),
             ]
@@ -116,6 +107,50 @@ class PayrollService
         $bonus->save();
 
         return $bonus;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function generateBonusBatch(array $payload, int $userId): int
+    {
+        $employees = Employee::query()
+            ->with('salaryGrade:id,min_salary')
+            ->where('employment_status', 'active')
+            ->when((int) ($payload['employee_id'] ?? 0) > 0, fn ($query) => $query->where('id', (int) $payload['employee_id']))
+            ->get();
+
+        if ($employees->isEmpty()) {
+            throw new RuntimeException('No active employees found for bonus generation.');
+        }
+
+        $created = 0;
+        DB::transaction(function () use ($employees, $payload, $userId, &$created): void {
+            foreach ($employees as $employee) {
+                $amount = $this->calculateBonusAmount($employee, $payload);
+                if ($amount <= 0) {
+                    continue;
+                }
+
+                Bonus::query()->create([
+                    'employee_id' => $employee->id,
+                    'title' => $payload['title'],
+                    'amount' => $amount,
+                    'bonus_date' => $payload['bonus_date'],
+                    'bonus_type' => $payload['bonus_type'],
+                    'remarks' => $payload['remarks'] ?? null,
+                    'created_by' => $userId,
+                ]);
+
+                $created++;
+            }
+        });
+
+        if ($created === 0) {
+            throw new RuntimeException('Bonus rule did not produce any payable bonus amount.');
+        }
+
+        return $created;
     }
 
     /**
@@ -157,12 +192,82 @@ class PayrollService
             $loan->fill($payload);
             $loan->save();
 
-            if ($isNewLoan || $loan->installments()->count() === 0) {
+            if ($loan->status === 'active' && ($isNewLoan || $loan->installments()->count() === 0)) {
                 $this->createLoanInstallments($loan, $payload);
             }
 
             return $loan;
         });
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function applyLoan(array $payload, int $userId): EmployeeLoan
+    {
+        $payload['status'] = 'pending_supervisor';
+        $payload['applied_by'] = $userId;
+
+        return $this->saveLoan($payload);
+    }
+
+    public function approveLoan(EmployeeLoan $loan, string $step, int $userId, ?string $remarks = null): EmployeeLoan
+    {
+        return DB::transaction(function () use ($loan, $step, $userId, $remarks): EmployeeLoan {
+            $loan = EmployeeLoan::query()->lockForUpdate()->findOrFail($loan->id);
+
+            if ($step === 'supervisor') {
+                if ($loan->status !== 'pending_supervisor') {
+                    throw new RuntimeException('Only supervisor-pending loans can be supervisor approved.');
+                }
+
+                $loan->update([
+                    'status' => 'pending_final',
+                    'supervisor_approved_by' => $userId,
+                    'supervisor_approved_at' => now(),
+                    'remarks' => $remarks ?: $loan->remarks,
+                ]);
+
+                return $loan->refresh();
+            }
+
+            if ($step !== 'final') {
+                throw new RuntimeException('Invalid loan approval step.');
+            }
+
+            if (! in_array($loan->status, ['pending_supervisor', 'pending_final'], true)) {
+                throw new RuntimeException('Only pending loans can be final approved.');
+            }
+
+            $loan->update([
+                'status' => 'active',
+                'final_approved_by' => $userId,
+                'final_approved_at' => now(),
+                'remarks' => $remarks ?: $loan->remarks,
+            ]);
+
+            if ($loan->installments()->count() === 0) {
+                $this->createLoanInstallments($loan, $loan->toArray());
+            }
+
+            return $loan->refresh();
+        });
+    }
+
+    public function rejectLoan(EmployeeLoan $loan, int $userId, ?string $remarks = null): EmployeeLoan
+    {
+        if (! in_array($loan->status, ['pending_supervisor', 'pending_final'], true)) {
+            throw new RuntimeException('Only pending loans can be rejected.');
+        }
+
+        $loan->update([
+            'status' => 'rejected',
+            'rejected_by' => $userId,
+            'rejected_at' => now(),
+            'remarks' => $remarks ?: $loan->remarks,
+        ]);
+
+        return $loan->refresh();
     }
 
     /**
@@ -237,6 +342,10 @@ class PayrollService
                 ->first();
 
             if ($run && $run->status !== 'draft') {
+                if ((int) ($payload['employee_id'] ?? 0) > 0) {
+                    return $this->addEmployeeToProcessedRun($run, (int) $payload['employee_id'], $processedBy);
+                }
+
                 throw new RuntimeException('This payroll period is already finalized. Create a new period or review the existing run.');
             }
 
@@ -279,14 +388,7 @@ class PayrollService
                 $this->createPayrollItem($run, $employee, $periodStart, $periodEnd);
             }
 
-            $run->update([
-                'gross_total' => PayrollItem::query()
-                    ->where('payroll_run_id', $run->id)
-                    ->selectRaw('COALESCE(SUM(basic_salary + allowance_total + bonus_total), 0) as total')
-                    ->value('total'),
-                'deduction_total' => $run->items()->sum('total_deduction'),
-                'net_total' => $run->items()->sum('net_payable'),
-            ]);
+            $this->refreshRunTotals($run);
 
             return $run->refresh();
         });
@@ -309,22 +411,7 @@ class PayrollService
 
             foreach ($run->items as $item) {
                 $this->payDueLoanInstallmentsForPayrollItem($run, $item);
-
-                if ((float) $item->provident_fund_deduction <= 0) {
-                    continue;
-                }
-
-                ProvidentFundTransaction::query()->create([
-                    'employee_id' => $item->employee_id,
-                    'payroll_run_id' => $run->id,
-                    'transaction_date' => $run->period_end,
-                    'transaction_type' => 'contribution',
-                    'employee_contribution' => $item->provident_fund_deduction,
-                    'employer_contribution' => $item->provident_fund_deduction,
-                    'reference_no' => 'PF-' . $run->id . '-' . $item->employee_id,
-                    'reason' => 'Payroll provident fund contribution',
-                    'recorded_by' => $processedBy,
-                ]);
+                $this->recordProvidentFundContribution($run, $item, $processedBy);
             }
 
             $run->update([
@@ -335,6 +422,41 @@ class PayrollService
 
             return $run->refresh();
         });
+    }
+
+    private function addEmployeeToProcessedRun(PayrollRun $run, int $employeeId, int $processedBy): PayrollRun
+    {
+        $run = PayrollRun::query()->lockForUpdate()->findOrFail($run->id);
+
+        if ($run->status !== 'processed') {
+            throw new RuntimeException('Only processed payroll runs can receive a missing employee payslip. Create a new payroll period for approved or paid runs.');
+        }
+
+        if ($run->items()->where('employee_id', $employeeId)->exists()) {
+            throw new RuntimeException('This employee already exists in the selected payroll run.');
+        }
+
+        $employee = Employee::query()
+            ->with('salaryGrade:id,min_salary')
+            ->where('employment_status', 'active')
+            ->find($employeeId);
+
+        if (! $employee) {
+            throw new RuntimeException('Selected employee is not active or does not exist.');
+        }
+
+        $item = $this->createPayrollItem(
+            $run,
+            $employee,
+            CarbonImmutable::parse($run->period_start),
+            CarbonImmutable::parse($run->period_end)
+        );
+
+        $this->payDueLoanInstallmentsForPayrollItem($run, $item);
+        $this->recordProvidentFundContribution($run, $item, $processedBy);
+        $this->refreshRunTotals($run);
+
+        return $run->refresh();
     }
 
     private function createPayrollItem(PayrollRun $run, Employee $employee, CarbonImmutable $periodStart, CarbonImmutable $periodEnd): PayrollItem
@@ -426,6 +548,41 @@ class PayrollService
         }
     }
 
+    private function refreshRunTotals(PayrollRun $run): void
+    {
+        $run->update([
+            'gross_total' => PayrollItem::query()
+                ->where('payroll_run_id', $run->id)
+                ->selectRaw('COALESCE(SUM(basic_salary + allowance_total + bonus_total), 0) as total')
+                ->value('total'),
+            'deduction_total' => $run->items()->sum('total_deduction'),
+            'net_total' => $run->items()->sum('net_payable'),
+        ]);
+    }
+
+    private function recordProvidentFundContribution(PayrollRun $run, PayrollItem $item, int $processedBy): void
+    {
+        if ((float) $item->provident_fund_deduction <= 0) {
+            return;
+        }
+
+        ProvidentFundTransaction::query()->updateOrCreate(
+            [
+                'payroll_run_id' => $run->id,
+                'employee_id' => $item->employee_id,
+                'reference_no' => 'PF-' . $run->id . '-' . $item->employee_id,
+            ],
+            [
+                'transaction_date' => $run->period_end,
+                'transaction_type' => 'contribution',
+                'employee_contribution' => $item->provident_fund_deduction,
+                'employer_contribution' => $item->provident_fund_deduction,
+                'reason' => 'Payroll provident fund contribution',
+                'recorded_by' => $processedBy,
+            ]
+        );
+    }
+
     private function refreshLoanStatus(?EmployeeLoan $loan): void
     {
         if (! $loan) {
@@ -445,6 +602,30 @@ class PayrollService
             ->where(fn ($query) => $query->whereNull('effective_to')->orWhere('effective_to', '>=', $periodEnd->toDateString()))
             ->orderByDesc('effective_from')
             ->first();
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function calculateBonusAmount(Employee $employee, array $payload): float
+    {
+        $calculationType = (string) $payload['calculation_type'];
+        if ($calculationType === 'fixed') {
+            return round((float) ($payload['amount'] ?? 0), 2);
+        }
+
+        $assignment = $this->activeSalaryAssignment($employee->id, CarbonImmutable::parse($payload['bonus_date']));
+        $basicSalary = (float) ($assignment?->basic_salary ?? $employee->salaryGrade?->min_salary ?? 0);
+        $allowanceTotal = (float) (($assignment?->house_rent ?? 0)
+            + ($assignment?->medical_allowance ?? 0)
+            + ($assignment?->conveyance_allowance ?? 0)
+            + ($assignment?->other_allowance ?? 0));
+
+        $baseAmount = $calculationType === 'gross_percent'
+            ? $basicSalary + $allowanceTotal
+            : $basicSalary;
+
+        return round(($baseAmount * (float) ($payload['percentage'] ?? 0)) / 100, 2);
     }
 
     private function providentFundDeduction(int $employeeId, float $basicSalary, ?object $assignment): float
