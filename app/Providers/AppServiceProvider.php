@@ -65,6 +65,7 @@ class AppServiceProvider extends ServiceProvider
                     || request()->routeIs('tasks.*'),
                 'isHoliday' => request()->routeIs('holidays.*'),
                 'isPayroll' => request()->routeIs('payroll.*') || request()->routeIs('salary-grades.*'),
+                'isReports' => request()->routeIs('reports.*') || request()->routeIs('leave-reports.*'),
                 'isUserManagement' => request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('permissions.*'),
                 'isSettings' => request()->routeIs('settings.*'),
 
@@ -122,6 +123,11 @@ class AppServiceProvider extends ServiceProvider
                 'canPayrollManageDeduction' => $canAny(['deduction.view', 'deduction.create', 'employee_deduction.view', 'employee_deduction.create']),
                 'canPayrollManagePf' => $canAny(['provident_fund.view', 'provident_fund.create', 'provident_fund.update']),
                 'canPayrollReport' => $canAny(['payroll.report', 'payslip.view', 'payslip.export', 'salary_revision.view']),
+                'canReportMenu' => $canAny(['report.view', 'report.employee', 'report.attendance', 'report.leave', 'report.payroll', 'employee.view', 'attendance.report', 'leave.report', 'payroll.report', 'payslip.view']),
+                'canEmployeeReport' => $canAny(['report.employee', 'report.view', 'employee.view']),
+                'canAttendanceReportMenu' => $canAny(['report.attendance', 'report.view', 'attendance.report', 'attendance.view', 'attendance.manage']),
+                'canLeaveReportMenu' => $canAny(['report.leave', 'report.view', 'leave.report', 'leave.approve', 'leave.view']),
+                'canPayrollReportMenu' => $canAny(['report.payroll', 'report.view', 'payroll.report', 'payslip.view']),
                 'canPayrollMenu' => $canAny([
                     'payroll.view',
                     'payroll.generate',

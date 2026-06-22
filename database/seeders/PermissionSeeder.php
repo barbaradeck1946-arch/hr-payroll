@@ -86,7 +86,7 @@ class PermissionSeeder extends Seeder
             'invoice' => ['view', 'create', 'update', 'send', 'record_payment', 'delete'],
             'billing' => ['view'],
             'expense' => ['view', 'create', 'approve', 'pay', 'delete', 'report'],
-            'report' => ['view', 'print', 'export'],
+            'report' => ['view', 'employee', 'attendance', 'leave', 'payroll', 'print', 'export'],
             'notification' => ['view', 'send'],
             'audit' => ['view'],
             'settings' => ['view', 'update'],

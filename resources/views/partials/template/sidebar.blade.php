@@ -198,18 +198,28 @@
                     </li>
                 @endif
 
-                <li id="menu-reports" data-id="menu-reports" class="main">
-                    <a class="has-arrow" href="#">
+                @if($s['canReportMenu'] ?? false)
+                <li id="menu-reports" data-id="menu-reports" class="main {{ ($s['isReports'] ?? false) ? 'active' : '' }}">
+                    <a class="has-arrow" href="#" aria-expanded="{{ ($s['isReports'] ?? false) ? 'true' : 'false' }}">
                         <i class="icon-chart"></i>
                         <span>Reports</span>
                     </a>
-                    <ul aria-expanded="true">
-                        <li><a href="#">Attendance Report</a></li>
-                        <li><a href="#">Leave Report</a></li>
-                        <li><a href="#">Payroll Report</a></li>
-                        <li><a href="#">Employee Report</a></li>
+                    <ul aria-expanded="{{ ($s['isReports'] ?? false) ? 'true' : 'false' }}">
+                        @if($s['canEmployeeReport'] ?? false)
+                            <li class="{{ request()->routeIs('reports.employees') ? 'active' : '' }}"><a href="{{ route('reports.employees') }}">Employee Report</a></li>
+                        @endif
+                        @if($s['canAttendanceReportMenu'] ?? false)
+                            <li class="{{ request()->routeIs('reports.attendance') ? 'active' : '' }}"><a href="{{ route('reports.attendance') }}">Attendance Report</a></li>
+                        @endif
+                        @if($s['canLeaveReportMenu'] ?? false)
+                            <li class="{{ request()->routeIs('leave-reports.*') ? 'active' : '' }}"><a href="{{ route('leave-reports.index') }}">Leave Report</a></li>
+                        @endif
+                        @if($s['canPayrollReportMenu'] ?? false)
+                            <li class="{{ request()->routeIs('reports.payroll') ? 'active' : '' }}"><a href="{{ route('reports.payroll') }}">Payroll Report</a></li>
+                        @endif
                     </ul>
                 </li>
+                @endif
 
                 @if($s['canUserManagementMenu'] ?? false)
                     <li id="menu-user-management" data-id="menu-user-management" class="main {{ ($s['isUserManagement'] ?? false) ? 'active' : '' }}">

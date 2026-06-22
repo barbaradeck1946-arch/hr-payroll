@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportController;
 use App\Modules\Announcements\Http\Controllers\AnnouncementController;
 use App\Modules\Settings\Http\Controllers\SettingsController;
 use App\Modules\Departments\Http\Controllers\DepartmentController;
@@ -125,6 +126,16 @@ Route::middleware(['auth', 'portal.access'])->group(function (): void {
     Route::prefix('leave/reports')->name('leave-reports.')->group(function (): void {
         Route::get('/', [LeaveApplicationController::class, 'reportsIndex'])->middleware('permission:leave.report,leave.approve,leave.view')->name('index');
         Route::get('/export', [LeaveApplicationController::class, 'exportCsv'])->middleware('permission:leave.report,leave.approve,leave.view')->name('export');
+    });
+
+    Route::prefix('reports')->name('reports.')->group(function (): void {
+        Route::get('/', [ReportController::class, 'index'])->middleware('permission:report.view,report.employee,report.attendance,report.leave,report.payroll,employee.view,attendance.report,leave.report,payroll.report')->name('index');
+        Route::get('/employees', [ReportController::class, 'employees'])->middleware('permission:report.employee,report.view,employee.view')->name('employees');
+        Route::get('/employees/export', [ReportController::class, 'exportEmployees'])->middleware('permission:report.export,report.employee,employee.view')->name('employees.export');
+        Route::get('/attendance', [ReportController::class, 'attendance'])->middleware('permission:report.attendance,report.view,attendance.report,attendance.view,attendance.manage')->name('attendance');
+        Route::get('/attendance/export', [ReportController::class, 'exportAttendance'])->middleware('permission:report.export,report.attendance,attendance.report,attendance.view,attendance.manage')->name('attendance.export');
+        Route::get('/payroll', [ReportController::class, 'payroll'])->middleware('permission:report.payroll,report.view,payroll.report,payslip.view')->name('payroll');
+        Route::get('/payroll/export', [ReportController::class, 'exportPayroll'])->middleware('permission:report.export,report.payroll,payroll.report,payslip.export,payslip.view')->name('payroll.export');
     });
 
     Route::prefix('teams')->name('teams.')->group(function (): void {
