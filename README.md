@@ -149,6 +149,25 @@ DEFAULT_ADMIN_EMAIL=admin@zerihr.local
 DEFAULT_ADMIN_PASSWORD=password
 ```
 
+## Demo Users
+
+For demo environments, seed four ready-to-use users:
+
+```bash
+php artisan db:seed --class=DemoUserSeeder
+```
+
+All demo users use password `P@ssword`.
+
+| Role | Email |
+| --- | --- |
+| Admin | `demo.admin@zerihr.local` |
+| HR Admin | `hr.admin@zerihr.local` |
+| Department Head | `department.head@zerihr.local` |
+| Employee | `employee@zerihr.local` |
+
+The login page includes these demo accounts with copy buttons for visitors.
+
 ## Access Model (Current)
 
 Access is permission-driven. The default seed creates only the `Admin` role with full permissions. Create additional roles such as HR Manager, Department Head, Supervisor or Employee from the Roles screen and assign only the permissions needed for each role.

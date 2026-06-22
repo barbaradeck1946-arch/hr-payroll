@@ -500,6 +500,16 @@ php artisan optimize:clear</code></pre>
             </ol>
             <h3>Access Control</h3>
             <p>Access is controlled by role permissions. A user can only view modules and perform actions allowed by their assigned role.</p>
+            <h3>Demo User Login</h3>
+            <p>For demo environments, run the demo user seeder to create four ready-to-use accounts. The login page shows these demo users with copy buttons.</p>
+            <pre><code>php artisan db:seed --class=DemoUserSeeder</code></pre>
+            <table>
+                <tr><th>Role</th><th>Email</th><th>Password</th></tr>
+                <tr><td>Admin</td><td><code>demo.admin@zerihr.local</code></td><td><code>P@ssword</code></td></tr>
+                <tr><td>HR Admin</td><td><code>hr.admin@zerihr.local</code></td><td><code>P@ssword</code></td></tr>
+                <tr><td>Department Head</td><td><code>department.head@zerihr.local</code></td><td><code>P@ssword</code></td></tr>
+                <tr><td>Employee</td><td><code>employee@zerihr.local</code></td><td><code>P@ssword</code></td></tr>
+            </table>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Login Page</strong>
                 Add screenshot later at <span class="path">Documentation/assets/screenshots/login.png</span>
