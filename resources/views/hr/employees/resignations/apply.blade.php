@@ -15,7 +15,7 @@
                 <div class="alert alert-danger">Your account is not linked with an employee profile.</div>
             @else
                 <div class="card no-border mb-3">
-                    <div class="content_wrapper" style="padding:20px;">
+                    <div class="content_wrapper content-padded">
                         <h5 class="table_banner_title mb-3">Submit Resignation Request</h5>
                         <form method="POST" action="{{ route('employee-resignations.store') }}" class="row g-2">
                             @csrf
@@ -45,7 +45,7 @@
 
 
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <h5 class="table_banner_title mb-3">Resignation Requests</h5>
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">

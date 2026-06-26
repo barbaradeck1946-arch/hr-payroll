@@ -15,7 +15,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-4">
                             <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search name/code">
@@ -81,7 +81,7 @@
                                                 <a href="{{ route('teams.edit', $team) }}" title="Edit"><i class="icon-pencil"></i></a>
                                             @endif
                                             @if(auth()->user()?->hasPermission('team.delete'))
-                                                <form method="POST" action="{{ route('teams.destroy', $team) }}" onsubmit="return confirm('Delete this team?');" style="display:inline;">
+                                                <form method="POST" action="{{ route('teams.destroy', $team) }}" onsubmit="return confirm('Delete this team?');" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" title="Delete"><i class="icon-trash"></i></button>

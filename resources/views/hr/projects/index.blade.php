@@ -12,7 +12,7 @@
 
     @include('partials.flash')
 
-    <div class="page-content"><div class="container-fluid"><div class="card no-border"><div class="content_wrapper" style="padding:20px;">
+    <div class="page-content"><div class="container-fluid"><div class="card no-border"><div class="content_wrapper content-padded">
         <form method="GET" class="row g-2 mb-3">
             <div class="col-md-4"><input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search name/code"></div>
             <div class="col-md-2"><select name="team_id" class="form-control"><option value="0">All Teams</option>@foreach($teams as $team)<option value="{{ $team->id }}" {{ (int)$filters['team_id']===(int)$team->id?'selected':'' }}>{{ $team->name }}</option>@endforeach</select></div>
@@ -41,7 +41,7 @@
                                 @if(auth()->user()?->hasPermission('project.manage-members'))<a href="{{ route('projects.members', $project) }}" title="Members"><i class="icon-people"></i></a>@endif
                                 @if(auth()->user()?->hasPermission('project.update'))<a href="{{ route('projects.edit', $project) }}" title="Edit"><i class="icon-pencil"></i></a>@endif
                                 @if(auth()->user()?->hasPermission('project.delete'))
-                                <form method="POST" action="{{ route('projects.destroy', $project) }}" onsubmit="return confirm('Delete this project?');" style="display:inline;">@csrf @method('DELETE')<button type="submit" title="Delete"><i class="icon-trash"></i></button></form>
+                                <form method="POST" action="{{ route('projects.destroy', $project) }}" onsubmit="return confirm('Delete this project?');" class="d-inline">@csrf @method('DELETE')<button type="submit" title="Delete"><i class="icon-trash"></i></button></form>
                                 @endif
                             </td>
                         </tr>

@@ -11,13 +11,13 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <div class="row g-2 mb-3">
                         @foreach($permissionScopeLegend as $scope)
                             <div class="col-md-3">
-                                <div class="p-2 h-100" style="border:1px solid #e5e7eb; border-radius:8px;">
+                                <div class="p-2 h-100 role-scope-card">
                                     <span class="badge {{ $scope->access_scope_badge_class }}">{{ $scope->access_scope_label }}</span>
-                                    <div class="text-muted mt-2" style="font-size:12px; line-height:1.4;">{{ $scope->access_scope_description }}</div>
+                                    <div class="text-muted mt-2 role-scope-description">{{ $scope->access_scope_description }}</div>
                                 </div>
                             </div>
                         @endforeach
@@ -27,7 +27,7 @@
                         @csrf
 
                         @foreach($permissionsByGroup as $group => $permissions)
-                            <div class="mb-3 p-2" style="border:1px solid #e5e7eb; border-radius:8px;">
+                            <div class="mb-3 p-2 role-permission-group">
                                 <h6 class="mb-2 text-uppercase">{{ str_replace('_', ' ', $group) }}</h6>
                                 <div class="row">
                                     @foreach($permissions as $permission)
@@ -41,7 +41,7 @@
                                                     <span class="badge {{ $accessScope['badge_class'] }} ms-1" title="{{ $accessScope['description'] }}">{{ $accessScope['label'] }}</span>
                                                 </label>
                                             </div>
-                                            <div class="text-muted" style="font-size:11px; margin-left:24px;">{{ $permission->slug }}</div>
+                                            <div class="text-muted role-permission-slug">{{ $permission->slug }}</div>
                                         </div>
                                     @endforeach
                                 </div>

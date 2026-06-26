@@ -11,7 +11,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="POST" action="{{ $mode === 'edit' ? route('payroll.salary-templates.update', $template) : route('payroll.salary-templates.store') }}">
                         @csrf
                         @if($mode === 'edit') @method('PUT') @endif

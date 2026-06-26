@@ -10,7 +10,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <div class="row g-2 mb-3">
                         <div class="col-md-4"><strong>Employee:</strong> {{ trim($item->employee?->first_name.' '.$item->employee?->last_name) }} ({{ $item->employee?->employee_code }})</div>
                         <div class="col-md-4"><strong>Department:</strong> {{ $item->employee?->department?->name ?: '-' }}</div>

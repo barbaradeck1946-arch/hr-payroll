@@ -14,7 +14,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <div class="notice-page-meta d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                         <div class="notice-meta-chip">
                             <i class="icon-list"></i>
@@ -113,14 +113,14 @@
                                             <a href="{{ route('announcements.show', $announcement) }}" title="Details"><i class="icon-eye"></i></a>
 
                                             @if($canApprove && $announcement->approval_status !== 'approved')
-                                                <form method="POST" action="{{ route('announcements.approve', $announcement) }}" style="display:inline;" onsubmit="return confirm('Approve this item?');">
+                                                <form method="POST" action="{{ route('announcements.approve', $announcement) }}" class="d-inline" onsubmit="return confirm('Approve this item?');">
                                                     @csrf
                                                     <button type="submit" title="Approve"><i class="icon-check"></i></button>
                                                 </form>
                                             @endif
 
                                             @if($canPublish && $announcement->publish_at === null)
-                                                <form method="POST" action="{{ route('announcements.publish', $announcement) }}" style="display:inline;" onsubmit="return confirm('Publish this item?');">
+                                                <form method="POST" action="{{ route('announcements.publish', $announcement) }}" class="d-inline" onsubmit="return confirm('Publish this item?');">
                                                     @csrf
                                                     <button type="submit" title="Publish"><i class="icon-bell"></i></button>
                                                 </form>
@@ -142,9 +142,3 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-<style>
-
-</style>
-@endpush

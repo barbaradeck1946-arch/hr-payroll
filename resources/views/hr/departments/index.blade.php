@@ -14,7 +14,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-4">
                             <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search name/code/description">
@@ -81,7 +81,7 @@
                                                 </a>
                                             @endif
                                             @if(auth()->user()?->hasPermission('department.delete'))
-                                                <form method="POST" action="{{ route('departments.destroy', $department) }}" onsubmit="return confirm('Delete this department?');" style="display:inline;">
+                                                <form method="POST" action="{{ route('departments.destroy', $department) }}" onsubmit="return confirm('Delete this department?');" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" title="Delete Department"><i class="icon-trash"></i></button>

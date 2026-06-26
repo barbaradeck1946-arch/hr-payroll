@@ -21,7 +21,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-3">
                             <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search code/name/phone/email">
@@ -108,7 +108,7 @@
                                                 <a href="{{ route('employees.edit', $employee) }}" title="Edit Employee"><i class="icon-pencil"></i></a>
                                             @endif
                                             @if($canDeleteEmployee)
-                                                <form method="POST" action="{{ route('employees.destroy', $employee) }}" style="display:inline;" onsubmit="return confirm('Delete this employee?');">
+                                                <form method="POST" action="{{ route('employees.destroy', $employee) }}" class="d-inline" onsubmit="return confirm('Delete this employee?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" title="Delete Employee"><i class="icon-trash"></i></button>

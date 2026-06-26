@@ -12,7 +12,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border mb-3">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <div class="row g-3">
                         <div class="col-md-3"><strong>Payslips:</strong> {{ $summary['items'] }}</div>
                         <div class="col-md-3"><strong>Gross:</strong> {{ number_format((float) $summary['gross'], 2) }}</div>
@@ -23,7 +23,7 @@
             </div>
 
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-3"><select name="employee_id" class="form-control js-example-basic-single"><option value="0">All Employees</option>@foreach($employees as $employee)<option value="{{ $employee->id }}" {{ (int)$filters['employee_id']===$employee->id?'selected':'' }}>{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
                         <div class="col-md-2"><select name="status" class="form-control"><option value="">All Run Status</option>@foreach(['draft','processed','approved','paid'] as $status)<option value="{{ $status }}" {{ $filters['status']===$status?'selected':'' }}>{{ ucfirst($status) }}</option>@endforeach</select></div>

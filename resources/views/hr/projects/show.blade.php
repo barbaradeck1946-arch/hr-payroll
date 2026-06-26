@@ -14,7 +14,7 @@
     @include('partials.flash')
 
     <div class="page-content"><div class="container-fluid"><div class="row g-3">
-        <div class="col-md-6"><div class="content_wrapper" style="padding:20px;">
+        <div class="col-md-6"><div class="content_wrapper content-padded">
             <h5 class="table_banner_title mb-3">Project Summary</h5>
             <p><strong>Code:</strong> {{ $project->project_code }}</p>
             <p><strong>Team:</strong> {{ $project->team?->name ?? '-' }}</p>
@@ -25,7 +25,7 @@
             <p><strong>Timeline:</strong> {{ $project->start_date ?? '-' }} to {{ $project->deadline ?? '-' }}</p>
             <p><strong>Description:</strong><br>{{ $project->description ?: '-' }}</p>
         </div></div>
-        <div class="col-md-6"><div class="content_wrapper" style="padding:20px;">
+        <div class="col-md-6"><div class="content_wrapper content-padded">
             <h5 class="table_banner_title mb-3">Assigned Members</h5>
             @php
                 $assignedRows = collect();
@@ -78,7 +78,7 @@
                 @endforelse
             </ul>
         </div></div>
-        <div class="col-md-12"><div class="content_wrapper" style="padding:20px;">
+        <div class="col-md-12"><div class="content_wrapper content-padded">
             <h5 class="table_banner_title mb-3">Project Tasks</h5>
             <div class="table-responsive"><table class="table table-bordered align-middle"><thead><tr><th>Title</th><th>Assignee</th><th>Priority</th><th>Status</th><th>Due Date</th><th>Progress</th></tr></thead><tbody>
                 @forelse($project->tasks as $task)

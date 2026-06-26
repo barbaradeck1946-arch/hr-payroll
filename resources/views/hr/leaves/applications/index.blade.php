@@ -15,7 +15,7 @@
                 <div class="alert alert-danger">Your account is not linked with an employee profile. Contact HR.</div>
             @else
                 <div class="card no-border mb-3">
-                    <div class="content_wrapper" style="padding:20px;">
+                    <div class="content_wrapper content-padded">
                             <h5 class="table_banner_title mb-3">New Leave Request</h5>
                         <form method="POST" action="{{ route('leave-applications.store') }}" class="row g-2">
                             @csrf
@@ -67,7 +67,7 @@
                 </div>
             @endif
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <h5 class="table_banner_title mb-3">My Leave Requests</h5>
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">

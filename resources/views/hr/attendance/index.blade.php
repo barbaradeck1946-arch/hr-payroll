@@ -23,7 +23,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border mb-3" id="attendance-entry-form">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <h5 class="table_banner_title mb-3">Manual Attendance Entry</h5>
                     <form method="POST" action="{{ route('attendance.store') }}" class="row g-2">
                         @csrf
@@ -81,7 +81,7 @@
 
             @if($canManageAttendance && $hasAllAccess)
                 <div class="card no-border mb-3">
-                    <div class="content_wrapper" style="padding:20px;">
+                    <div class="content_wrapper content-padded">
                         <h5 class="table_banner_title mb-3">Excel Import (CSV)</h5>
                         <form method="POST" action="{{ route('attendance.import') }}" enctype="multipart/form-data" class="row g-2">
                             @csrf
@@ -103,7 +103,7 @@
             @endif
 
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <h5 class="table_banner_title mb-3">Attendance History</h5>
 
                     <form method="GET" class="row g-2 mb-3">

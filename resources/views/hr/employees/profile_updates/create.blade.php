@@ -11,7 +11,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                         @if($lastPending && ! session()->has('success'))
                             <div class="alert alert-info">
                                 Your pending request was submitted on {{ $lastPending->submitted_at?->format('Y-m-d H:i') }} and is waiting for HR review.
@@ -218,68 +218,6 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-<style>
-    .profile-update-tab-nav {
-        border-bottom: 1px solid #d9e1ea;
-    }
-    .profile-update-tab-nav .nav-link {
-        color: #607d8b;
-        font-weight: 500;
-        border: 0;
-        border-bottom: 2px solid transparent;
-        padding: 10px 14px;
-        background: transparent;
-    }
-    .profile-update-tab-nav .nav-link.active {
-        color: #2C3E50;
-        border-color: #2C3E50;
-        background: transparent;
-    }
-    .profile-panel {
-        border: 1px solid #dfe7ef;
-        border-radius: 8px;
-        background: #fff;
-        padding: 16px;
-    }
-    .profile-row-card {
-        border: 1px solid #e2eaf2;
-        border-radius: 8px;
-        padding: 14px;
-        background: #fdfefe;
-        margin-bottom: 10px;
-    }
-    .profile-row-remove {
-        min-width: 38px;
-    }
-    .profile-avatar-update {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        flex-wrap: wrap;
-    }
-    .profile-avatar-update img {
-        width: 88px;
-        height: 88px;
-        border-radius: 8px;
-        object-fit: cover;
-        border: 1px solid #d9e1ea;
-        background: #f7fafc;
-    }
-    .profile-avatar-actions {
-        flex: 1 1 260px;
-        max-width: 460px;
-    }
-    .profile-avatar-actions .btn {
-        min-width: 140px;
-    }
-    .profile-avatar-input {
-        position: fixed;
-        top: -1000px;
-    }
-</style>
-@endpush
 
 @push('scripts')
 <script>

@@ -11,7 +11,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="POST" action="{{ $mode === 'edit' ? route('employees.update', $employee) : route('employees.store') }}" enctype="multipart/form-data">
                         @csrf
                         @if($mode === 'edit') @method('PUT') @endif
@@ -211,54 +211,6 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-<style>
-    .employee-avatar-card {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 14px;
-        border: 1px solid #e7ecf1;
-        background: #fbfdff;
-    }
-
-    .employee-avatar-preview {
-        width: 96px;
-        height: 96px;
-        border: 1px solid #d8e0ea;
-        background: #fff;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .employee-avatar-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .employee-avatar-icon {
-        font-size: 32px;
-        color: #97a6b5;
-    }
-
-    .employee-avatar-actions .btn {
-        min-width: 140px;
-    }
-
-    .employee-avatar-remove {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 500;
-        color: #445b6e;
-    }
-</style>
-@endpush
 
 @push('scripts')
 <script>

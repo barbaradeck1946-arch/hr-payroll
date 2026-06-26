@@ -15,7 +15,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-2">
                             <select name="year" class="form-control">
@@ -108,7 +108,7 @@
                                                 <a href="{{ route('leave-policies.edit', $policy) }}" title="Edit">
                                                     <i class="icon-pencil"></i>
                                                 </a>
-                                                <form method="POST" action="{{ route('leave-policies.destroy', $policy) }}" onsubmit="return confirm('Delete this leave policy?');" style="display:inline;">
+                                                <form method="POST" action="{{ route('leave-policies.destroy', $policy) }}" onsubmit="return confirm('Delete this leave policy?');" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" title="Delete"><i class="icon-trash"></i></button>

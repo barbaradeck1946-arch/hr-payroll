@@ -11,7 +11,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="POST" action="{{ $mode === 'edit' ? route('holidays.update', $holiday) : route('holidays.store') }}">
                         @csrf
                         @if($mode === 'edit')

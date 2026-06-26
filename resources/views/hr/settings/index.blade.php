@@ -11,7 +11,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding: 20px;">
+                <div class="content_wrapper content-padded">
                     <form method="POST" action="{{ route('settings.update') }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -52,7 +52,7 @@
                                         <span id="company_logo_name" class="brand-file-name">No file selected</span>
                                     </div>
                                     @if(!empty($settings['company_logo']))
-                                        <div class="mt-2"><img src="{{ asset($settings['company_logo']) }}" alt="Logo" style="max-height:48px;"></div>
+                                        <div class="mt-2"><img src="{{ asset($settings['company_logo']) }}" alt="Logo" class="settings-logo-preview"></div>
                                     @endif
                                 </div>
                             </div>
@@ -65,7 +65,7 @@
                                         <span id="company_favicon_name" class="brand-file-name">No file selected</span>
                                     </div>
                                     @if(!empty($settings['company_favicon']))
-                                        <div class="mt-2"><img src="{{ asset($settings['company_favicon']) }}" alt="Favicon" style="max-height:32px;"></div>
+                                        <div class="mt-2"><img src="{{ asset($settings['company_favicon']) }}" alt="Favicon" class="settings-favicon-preview"></div>
                                     @endif
                                 </div>
                             </div>

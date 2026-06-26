@@ -14,7 +14,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-4">
                             <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search role">

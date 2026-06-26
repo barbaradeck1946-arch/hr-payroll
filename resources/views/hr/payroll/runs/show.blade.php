@@ -18,7 +18,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <div class="row g-2 mb-3">
                         <div class="col-md-3"><strong>Period:</strong> {{ $run->period_label ?: '-' }}</div>
                         <div class="col-md-3"><strong>Range:</strong> {{ $run->period_start }} to {{ $run->period_end }}</div>

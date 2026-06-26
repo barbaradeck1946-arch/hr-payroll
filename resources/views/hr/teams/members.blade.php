@@ -10,10 +10,10 @@
 
     @include('partials.flash')
 
-    <div class="page-content"><div class="container-fluid"><div class="card no-border"><div class="content_wrapper" style="padding:20px;">
+    <div class="page-content"><div class="container-fluid"><div class="card no-border"><div class="content_wrapper content-padded">
         <form method="POST" action="{{ route('teams.members.sync', $team) }}">
             @csrf
-            <div id="team-members-wrapper" class="d-grid" style="gap:10px;">
+            <div id="team-members-wrapper" class="d-grid" class="gap-10">
                 @php($rows = old('members', $team->members->map(fn($m) => ['employee_id' => $m->id, 'member_role' => (string)($m->pivot->member_role ?? 'member'), 'joined_on' => $m->pivot->joined_on, 'left_on' => $m->pivot->left_on, 'is_active' => (int)($m->pivot->is_active ?? 1)])->values()->all()))
                 @forelse($rows as $idx => $row)
                     <div class="row g-2 align-items-end team-member-row">

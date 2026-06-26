@@ -15,13 +15,13 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <div class="d-flex align-items-center gap-3 flex-wrap">
-                        <div style="width:96px;height:96px;border:1px solid #ddd;border-radius:10px;overflow:hidden;background:#f8f8f8;display:flex;align-items:center;justify-content:center;">
+                        <div class="employee-profile-avatar">
                             @if($employee->avatar_path)
-                                <img src="{{ asset($employee->avatar_path) }}" alt="Employee Avatar" style="width:100%;height:100%;object-fit:cover;">
+                                <img src="{{ asset($employee->avatar_path) }}" alt="Employee Avatar">
                             @else
-                                <i class="icon-user" style="font-size:32px;color:#999;"></i>
+                                <i class="icon-user employee-profile-avatar-icon"></i>
                             @endif
                         </div>
                         <h4 class="mb-0">{{ trim($employee->first_name.' '.$employee->last_name) }} <small class="text-muted">({{ $employee->employee_code }})</small></h4>

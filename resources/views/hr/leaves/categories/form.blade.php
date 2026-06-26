@@ -12,7 +12,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="POST" action="{{ $mode === 'edit' ? route('leave-categories.update', $leaveCategory) : route('leave-categories.store') }}">
                         @csrf
                         @if($mode === 'edit')

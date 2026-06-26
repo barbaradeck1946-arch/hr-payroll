@@ -23,7 +23,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <div class="row g-3 mb-3">
                         <div class="col-md-3"><strong>Employee:</strong><br>{{ trim($loan->employee?->first_name.' '.$loan->employee?->last_name) }} ({{ $loan->employee?->employee_code }})</div>
                         <div class="col-md-3"><strong>Department:</strong><br>{{ $loan->employee?->department?->name ?: '-' }}</div>
@@ -153,7 +153,7 @@
                                                 <form method="POST" action="{{ route('payroll.loan-installments.paid', $installment) }}" class="d-flex gap-2">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <input type="text" name="paid_date" class="form-control datetimepicker" value="{{ now()->toDateString() }}" style="max-width: 150px;">
+                                                    <input type="text" name="paid_date" class="form-control datetimepicker form-control-compact-date" value="{{ now()->toDateString() }}">
                                                     <button class="btn btn-custom btn-sm" type="submit"><i class="icon-check"></i> Paid</button>
                                                 </form>
                                             @else

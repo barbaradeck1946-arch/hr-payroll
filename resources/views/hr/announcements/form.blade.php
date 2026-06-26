@@ -11,7 +11,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="POST" action="{{ route('announcements.store') }}">
                         @csrf
 
@@ -51,7 +51,7 @@
                             </select>
                             </div>
 
-                            <div class="col-md-12 form-group mb-3 audience-employees-block" style="{{ $audienceType === 'employees' ? '' : 'display:none;' }}">
+                            <div class="col-md-12 form-group mb-3 audience-employees-block {{ $audienceType === 'employees' ? '' : 'd-none' }}">
                             <label>Employees</label>
                                 @php($selectedEmployees = collect(old('audience_employee_ids', []))->map(fn ($id) => (int) $id)->all())
                                 <select name="audience_employee_ids[]" class="form-control js-example-basic-multiple audience-employees-select" multiple>
@@ -107,18 +107,7 @@
 </div>
 @endsection
 
-@push('scripts')
-    <style>
-        .audience-employees-block .select2-container {
-            width: 100% !important;
-        }
-        .audience-employees-block .select2-selection--multiple {
-            min-height: 42px;
-            border: 1px solid #d7d7d7;
-            border-radius: 4px;
-        }
-    </style>
-    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+@push('scripts')    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
     <script>
         (function () {
             if (window.CKEDITOR) {
@@ -158,10 +147,10 @@
 
             function toggleAudienceBlock() {
                 if ($audience.val() === 'employees') {
-                    $employeeBlock.show();
+                    $employeeBlock.removeClass('d-none');
                     ensureEmployeeSelect2();
                 } else {
-                    $employeeBlock.hide();
+                    $employeeBlock.addClass('d-none');
                 }
             }
 

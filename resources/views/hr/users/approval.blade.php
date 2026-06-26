@@ -11,7 +11,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <div class="mb-3">
                         <strong>{{ $user->name }}</strong><br>
                         {{ $user->email }} | {{ $user->phone ?: '-' }}

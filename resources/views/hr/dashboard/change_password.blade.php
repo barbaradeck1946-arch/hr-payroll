@@ -11,7 +11,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px; max-width: 720px;">
+                <div class="content_wrapper content-padded-narrow">
                     <form method="POST" action="{{ route('dashboard.password.update') }}">
                         @csrf
                         @method('PUT')

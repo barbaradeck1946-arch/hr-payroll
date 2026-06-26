@@ -12,7 +12,7 @@
 
     @include('partials.flash')
 
-    <div class="page-content"><div class="container-fluid"><div class="card no-border"><div class="content_wrapper" style="padding:20px;">
+    <div class="page-content"><div class="container-fluid"><div class="card no-border"><div class="content_wrapper content-padded">
         <form method="GET" class="row g-2 mb-3">
             <div class="col-md-3"><input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search title"></div>
             <div class="col-md-2"><select name="project_id" class="form-control"><option value="0">All Projects</option>@foreach($projects as $project)<option value="{{ $project->id }}" {{ (int)$filters['project_id']===(int)$project->id?'selected':'' }}>{{ $project->name }}</option>@endforeach</select></div>
@@ -37,7 +37,7 @@
                         <a href="{{ route('tasks.show', $task) }}" title="View"><i class="icon-eye"></i></a>
                         @if(auth()->user()?->hasPermission('task.update'))<a href="{{ route('tasks.edit', $task) }}" title="Edit"><i class="icon-pencil"></i></a>@endif
                         @if(auth()->user()?->hasPermission('task.delete'))
-                        <form method="POST" action="{{ route('tasks.destroy', $task) }}" onsubmit="return confirm('Delete this task?');" style="display:inline;">@csrf @method('DELETE')<button type="submit" title="Delete"><i class="icon-trash"></i></button></form>
+                        <form method="POST" action="{{ route('tasks.destroy', $task) }}" onsubmit="return confirm('Delete this task?');" class="d-inline">@csrf @method('DELETE')<button type="submit" title="Delete"><i class="icon-trash"></i></button></form>
                         @endif
                     </td>
                 </tr>

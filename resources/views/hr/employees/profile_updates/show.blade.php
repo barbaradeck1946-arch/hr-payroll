@@ -12,7 +12,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <h5>
                         {{ trim($requestItem->employee?->first_name.' '.$requestItem->employee?->last_name) }}
                         <small class="text-muted">({{ $requestItem->employee?->employee_code }})</small>
@@ -159,30 +159,3 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-<style>
-    .profile-review-avatar {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px;
-        border: 1px solid #dfe7ef;
-        border-radius: 8px;
-        background: #fff;
-    }
-    .profile-review-avatar span {
-        min-width: 120px;
-        color: #607d8b;
-        font-weight: 700;
-    }
-    .profile-review-avatar img {
-        width: 88px;
-        height: 88px;
-        border-radius: 8px;
-        object-fit: cover;
-        border: 1px solid #d9e1ea;
-        background: #f7fafc;
-    }
-</style>
-@endpush

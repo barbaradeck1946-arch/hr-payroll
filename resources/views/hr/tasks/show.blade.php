@@ -14,7 +14,7 @@
     @include('partials.flash')
 
     <div class="page-content"><div class="container-fluid"><div class="row g-3">
-        <div class="col-md-7"><div class="card no-border"><div class="content_wrapper" style="padding:20px;">
+        <div class="col-md-7"><div class="card no-border"><div class="content_wrapper content-padded">
             <h5 class="table_banner_title mb-3">Task Summary</h5>
             <p><strong>Project:</strong> {{ $task->project?->name ?? '-' }}</p>
             <p><strong>Assignee:</strong> {{ trim(($task->assignee?->first_name ?? '').' '.($task->assignee?->last_name ?? '')) ?: '-' }}</p>
@@ -37,9 +37,9 @@
             @endif
         </div></div></div>
 
-        <div class="col-md-5"><div class="card no-border"><div class="content_wrapper" style="padding:20px;">
+        <div class="col-md-5"><div class="card no-border"><div class="content_wrapper content-padded">
             <h5 class="table_banner_title mb-3">Comments</h5>
-            <div style="max-height:360px;overflow:auto;">
+            <div class="scroll-panel-sm">
                 @forelse($task->comments as $comment)
                     @php($name = trim(($comment->employee?->first_name ?? '').' '.($comment->employee?->last_name ?? '')))
                     <div class="border p-2 mb-2">

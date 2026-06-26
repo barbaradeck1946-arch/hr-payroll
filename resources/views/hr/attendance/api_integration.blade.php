@@ -16,14 +16,14 @@
             @if($latestPlainToken)
                 <div class="alert alert-warning">
                             <strong>New API Token (copy now):</strong>
-                        <div style="word-break:break-all;">{{ $latestPlainToken }}</div>
+                        <div class="break-all">{{ $latestPlainToken }}</div>
                     <small>This token will not be shown again.</small>
                 </div>
             @endif
 
             @if($canManageAttendance)
                 <div class="card no-border mb-3">
-                    <div class="content_wrapper" style="padding:20px;">
+                    <div class="content_wrapper content-padded">
                         <h5 class="table_banner_title mb-3">Create API Client</h5>
                         <form method="POST" action="{{ route('attendance.api-clients.store') }}" class="row g-2">
                             @csrf
@@ -44,7 +44,7 @@
             @endif
 
             <div class="card no-border mb-3">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <h5 class="table_banner_title mb-3">Endpoint</h5>
                     <pre class="mb-2 api-endpoint-block"><code>POST /api/v1/attendance/logs/bulk</code></pre>
                     <h6>Headers</h6>
@@ -73,7 +73,7 @@ Content-Type: application/json</code></pre>
             </div>
 
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <h5 class="table_banner_title mb-3">API Clients</h5>
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">
@@ -95,7 +95,7 @@ Content-Type: application/json</code></pre>
                                         <td>{{ $client->last_used_at ? $client->last_used_at->format('Y-m-d H:i:s') : '-' }}</td>
                                         <td>
                                             @if($canManageAttendance)
-                                                <form method="POST" action="{{ route('attendance.api-clients.toggle', $client) }}" style="display:inline;">
+                                                <form method="POST" action="{{ route('attendance.api-clients.toggle', $client) }}" class="d-inline">
                                                     @csrf
                                                     @method('PATCH')
                                                     <button class="btn btn-custom-default btn-sm" type="submit">
@@ -121,26 +121,3 @@ Content-Type: application/json</code></pre>
     </div>
 </div>
 @endsection
-
-@push('styles')
-<style>
-    .api-endpoint-block {
-        background: #1f2733;
-        color: #f3f7fb;
-        border-radius: 8px;
-        padding: 12px 14px;
-    }
-    .api-json-block {
-        background: #121a13;
-        color: #8ee39d;
-        border-radius: 8px;
-        padding: 12px 14px;
-    }
-    .api-endpoint-block code,
-    .api-json-block code {
-        color: inherit;
-        font-size: 13px;
-        line-height: 1.55;
-    }
-</style>
-@endpush

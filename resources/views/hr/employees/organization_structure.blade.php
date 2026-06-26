@@ -12,7 +12,7 @@
         <div class="container-fluid">
             @if($authEmployee)
                 <div class="card no-border mb-3">
-                    <div class="content_wrapper" style="padding:20px;">
+                    <div class="content_wrapper content-padded">
                         <h5 class="mb-3">My Reporting Line</h5>
                         @if($supervisorChain->isEmpty())
                             <div class="alert alert-info mb-2">No supervisor assigned for your profile.</div>
@@ -63,7 +63,7 @@
             @endif
 
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <h5 class="mb-3">Company Employee Structure</h5>
                     @php($grouped = $employees->groupBy(fn ($item) => $item->department?->name ?? 'Unassigned Department'))
 

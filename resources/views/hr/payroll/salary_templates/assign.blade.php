@@ -7,7 +7,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="POST" action="{{ route('payroll.salary-template-assignments.store') }}">
                         @csrf
                         <div class="row">

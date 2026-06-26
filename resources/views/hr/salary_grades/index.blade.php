@@ -14,7 +14,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-4">
                             <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search grade/band/code/description">
@@ -84,7 +84,7 @@
                                                 </a>
                                             @endif
                                             @if(auth()->user()?->hasPermission('salary_grade.delete'))
-                                                <form method="POST" action="{{ route('salary-grades.destroy', $salaryGrade) }}" onsubmit="return confirm('Delete this salary grade?');" style="display:inline;">
+                                                <form method="POST" action="{{ route('salary-grades.destroy', $salaryGrade) }}" onsubmit="return confirm('Delete this salary grade?');" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" title="Delete Salary Grade"><i class="icon-trash"></i></button>

@@ -19,7 +19,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="card no-border">
-                <div class="content_wrapper" style="padding:20px;">
+                <div class="content_wrapper content-padded">
                     <ul class="nav nav-tabs holiday-tab-nav mb-3" id="holidayTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="holiday-table-tab" data-bs-toggle="tab" data-bs-target="#holiday-table-pane" type="button" role="tab" aria-controls="holiday-table-pane" aria-selected="true">
@@ -91,7 +91,7 @@
                                                         </a>
                                                     @endif
                                                     @if(auth()->user()?->hasPermission('holiday.delete'))
-                                                        <form method="POST" action="{{ route('holidays.destroy', $holiday) }}" style="display:inline;" onsubmit="return confirm('Delete this holiday?');">
+                                                        <form method="POST" action="{{ route('holidays.destroy', $holiday) }}" class="d-inline" onsubmit="return confirm('Delete this holiday?');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" title="Delete Holiday"><i class="icon-trash"></i></button>
@@ -149,125 +149,6 @@
 @endsection
 
 @push('scripts')
-<style>
-    .holiday-tab-nav {
-        border-bottom: 1px solid #d9e1e7;
-    }
-    .holiday-tab-nav .nav-link {
-        color: #607d8b;
-        font-weight: 500;
-        border: 0;
-        border-bottom: 2px solid transparent;
-        padding: 10px 14px;
-    }
-    .holiday-tab-nav .nav-link.active {
-        color: #2C3E50;
-        border-color: #2C3E50;
-        background: transparent;
-    }
-    .holiday-badge {
-        display: inline-block;
-        border-radius: 30px;
-        padding: 5px 10px;
-        font-size: 11px;
-        font-weight: 500;
-        line-height: 1;
-    }
-    .holiday-badge-type {
-        background: #dbe8ff;
-        color: #1f3f66;
-    }
-    .holiday-badge-optional {
-        background: #fff1d6;
-        color: #7a4d00;
-    }
-    .holiday-badge-regular {
-        background: #ddf8ea;
-        color: #1f6b46;
-    }
-    .holiday-badge-holiday {
-        background: #2C3E50;
-        color: #fff;
-    }
-    .holiday-calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-        gap: 8px;
-    }
-    .holiday-calendar-cell {
-        min-height: 110px;
-        border: 1px solid #e6edf3;
-        border-radius: 8px;
-        padding: 8px;
-        background: #fff;
-    }
-    .holiday-calendar-cell.header {
-        min-height: auto;
-        font-weight: 600;
-        text-align: center;
-        background: #f8f9fa;
-    }
-    .holiday-calendar-cell.empty {
-        background: #f9fbfc;
-    }
-    .holiday-calendar-cell.day {
-        cursor: default;
-        transition: box-shadow 0.15s ease-in-out;
-    }
-    .holiday-calendar-cell.day.has-holiday {
-        border-color: #2C3E50;
-        background: #f3f7fb;
-        cursor: pointer;
-    }
-    .holiday-calendar-cell.day.has-holiday:hover {
-        box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.15) inset;
-    }
-    .holiday-day-number {
-        font-size: 14px;
-        font-weight: 700;
-        margin-bottom: 6px;
-    }
-    .holiday-chip {
-        display: block;
-        font-size: 11px;
-        line-height: 1.25;
-        padding: 2px 6px;
-        border-radius: 999px;
-        background: #2C3E50;
-        color: #fff;
-        margin-bottom: 4px;
-    }
-    .holiday-chip.weekend {
-        background: #6c757d;
-    }
-    .holiday-calendar-cell.day.weekend {
-        border-color: #6c757d;
-        background: #f2f3f5;
-    }
-    .holiday-calendar-cell.day.weekend:hover {
-        box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.2) inset;
-    }
-    .holiday-calendar-cell.day.weekend.has-holiday {
-        border-color: #2C3E50;
-        background: linear-gradient(135deg, #f3f7fb 0%, #f3f7fb 55%, #f2f3f5 100%);
-    }
-    .weekend-legend {
-        color: #fff;
-        background: #6c757d;
-    }
-    .holiday-modal .modal-header {
-        background: #f6f9fc;
-        border-bottom: 1px solid #e3e9ef;
-    }
-    .holiday-modal .modal-title {
-        color: #2C3E50;
-        font-weight: 600;
-    }
-    .holiday-modal .modal-content {
-        border: 1px solid #dfe8ef;
-        border-radius: 8px;
-    }
-</style>
 <script>
     (function () {
         const holidays = @json($calendarItems);
