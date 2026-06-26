@@ -4,7 +4,9 @@
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-key"></i> Permissions</h1>
-        <a href="{{ route('permissions.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Permission</a>
+        @if(auth()->user()?->hasPermission('role.update'))
+            <a href="{{ route('permissions.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Permission</a>
+        @endif
     </div>
 
     @include('partials.flash')
@@ -60,9 +62,11 @@
                                         </td>
                                         <td>{{ $permission->slug }}</td>
                                         <td class="action-buttons">
-                                            <a href="{{ route('permissions.edit', $permission) }}" title="Edit Permission">
-                                                <i class="icon-pencil"></i>
-                                            </a>
+                                            @if(auth()->user()?->hasPermission('role.update'))
+                                                <a href="{{ route('permissions.edit', $permission) }}" title="Edit Permission">
+                                                    <i class="icon-pencil"></i>
+                                                </a>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

@@ -33,7 +33,7 @@ class TaskController extends Controller
         ];
 
         return view('hr.tasks.index', [
-            'tasks' => $this->taskRepository->paginate($filters),
+            'tasks' => $this->taskRepository->paginate($filters, $request->user()),
             'projects' => $this->taskRepository->listProjects(),
             'employees' => $this->taskRepository->listActiveEmployees(),
             'filters' => $filters,
@@ -58,6 +58,8 @@ class TaskController extends Controller
 
     public function show(Task $task): View
     {
+        abort_if(! $this->taskRepository->canAccess($task, request()->user()), 403);
+
         return view('hr.tasks.show', [
             'task' => $this->taskRepository->withComments($task),
         ]);
@@ -65,6 +67,8 @@ class TaskController extends Controller
 
     public function edit(Task $task): View
     {
+        abort_if(! $this->taskRepository->canAccess($task, request()->user()), 403);
+
         return view('hr.tasks.form', [
             'mode' => 'edit',
             'task' => $task,
@@ -75,6 +79,8 @@ class TaskController extends Controller
 
     public function update(UpdateTaskRequest $request, Task $task): RedirectResponse
     {
+        abort_if(! $this->taskRepository->canAccess($task, $request->user()), 403);
+
         $this->taskService->updateTask($task, $request->validated());
 
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
@@ -82,6 +88,8 @@ class TaskController extends Controller
 
     public function destroy(Task $task): RedirectResponse
     {
+        abort_if(! $this->taskRepository->canAccess($task, request()->user()), 403);
+
         $this->taskService->deleteTask($task);
 
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
@@ -89,6 +97,8 @@ class TaskController extends Controller
 
     public function updateStatus(UpdateTaskStatusRequest $request, Task $task): RedirectResponse
     {
+        abort_if(! $this->taskRepository->canAccess($task, $request->user()), 403);
+
         $validated = $request->validated();
         $this->taskService->updateStatus($task, (string) $validated['status'], (int) ($validated['progress_percent'] ?? (int) $task->progress_percent));
 
@@ -97,6 +107,8 @@ class TaskController extends Controller
 
     public function addComment(AddTaskCommentRequest $request, Task $task): RedirectResponse
     {
+        abort_if(! $this->taskRepository->canAccess($task, $request->user()), 403);
+
         $this->taskService->addComment($task, $request->user()?->employee?->id, (string) $request->validated()['comment']);
 
         return redirect()->route('tasks.show', $task)->with('success', 'Task comment added successfully.');

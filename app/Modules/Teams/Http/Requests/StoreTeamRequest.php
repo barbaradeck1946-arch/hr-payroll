@@ -22,6 +22,8 @@ class StoreTeamRequest extends FormRequest
             'code' => ['nullable', 'string', 'max:30', 'unique:teams,code'],
             'department_id' => ['nullable', 'integer', 'exists:departments,id'],
             'lead_employee_id' => ['nullable', 'integer', 'exists:employees,id'],
+            'member_ids' => ['nullable', 'array'],
+            'member_ids.*' => ['integer', 'distinct', 'exists:employees,id'],
             'description' => ['nullable', 'string', 'max:3000'],
             'is_active' => ['nullable', Rule::in(['0', '1', 0, 1, true, false])],
         ];

@@ -404,7 +404,7 @@ class AttendanceController extends Controller
     }
     private function hasAllAccess(User $user): bool
     {
-        return $user->hasAnyPermission(['attendance.view', 'attendance.manage', 'attendance.report']);
+        return $user->hasAnyPermission(['attendance.manage', 'attendance.report', 'attendance.import']);
     }
 
     private function normalizeEntryType(string $value): string

@@ -8,20 +8,22 @@
         <div class="container-fluid">
             <div class="card no-border">
                 <div class="content_wrapper" style="padding:20px;">
-                    <form method="POST" action="{{ route('payroll.deductions.store') }}" class="row g-2 mb-4">
-                        @csrf
-                        <div class="col-md-3"><select name="employee_id" class="form-control js-example-basic-single" required><option value="">Employee</option>@foreach($employees as $employee)<option value="{{ $employee->id }}">{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
-                        <div class="col-md-2"><input type="text" name="deduction_type" class="form-control" placeholder="Type" required></div>
-                        <div class="col-md-2"><select name="calculation_type" class="form-control"><option value="fixed">Fixed</option><option value="percent">Percent</option></select></div>
-                        <div class="col-md-2"><input type="number" step="0.01" min="0" name="amount" class="form-control" placeholder="Amount" required></div>
-                        <div class="col-md-2"><select name="frequency" class="form-control"><option value="monthly">Monthly</option><option value="weekly">Weekly</option><option value="one_time">One Time</option></select></div>
-                        <div class="col-md-1"><button class="btn btn-custom w-100" type="submit"><i class="icon-plus"></i></button></div>
-                        <div class="col-md-2"><input type="text" name="effective_from" class="form-control datetimepicker" value="{{ now()->toDateString() }}" placeholder="Effective from" required></div>
-                        <div class="col-md-2"><input type="text" name="effective_to" class="form-control datetimepicker" placeholder="Effective to"></div>
-                        <div class="col-md-2"><select name="is_active" class="form-control"><option value="1">Active</option><option value="0">Inactive</option></select></div>
-                        <div class="col-md-3"><input type="text" name="reason" class="form-control" placeholder="Reason"></div>
-                        <div class="col-md-3"><input type="text" name="comments" class="form-control" placeholder="Comments"></div>
-                    </form>
+                    @if($canManageDeductions ?? false)
+                        <form method="POST" action="{{ route('payroll.deductions.store') }}" class="row g-2 mb-4">
+                            @csrf
+                            <div class="col-md-3"><select name="employee_id" class="form-control js-example-basic-single" required><option value="">Employee</option>@foreach($employees as $employee)<option value="{{ $employee->id }}">{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
+                            <div class="col-md-2"><input type="text" name="deduction_type" class="form-control" placeholder="Type" required></div>
+                            <div class="col-md-2"><select name="calculation_type" class="form-control"><option value="fixed">Fixed</option><option value="percent">Percent</option></select></div>
+                            <div class="col-md-2"><input type="number" step="0.01" min="0" name="amount" class="form-control" placeholder="Amount" required></div>
+                            <div class="col-md-2"><select name="frequency" class="form-control"><option value="monthly">Monthly</option><option value="weekly">Weekly</option><option value="one_time">One Time</option></select></div>
+                            <div class="col-md-1"><button class="btn btn-custom w-100" type="submit"><i class="icon-plus"></i></button></div>
+                            <div class="col-md-2"><input type="text" name="effective_from" class="form-control datetimepicker" value="{{ now()->toDateString() }}" placeholder="Effective from" required></div>
+                            <div class="col-md-2"><input type="text" name="effective_to" class="form-control datetimepicker" placeholder="Effective to"></div>
+                            <div class="col-md-2"><select name="is_active" class="form-control"><option value="1">Active</option><option value="0">Inactive</option></select></div>
+                            <div class="col-md-3"><input type="text" name="reason" class="form-control" placeholder="Reason"></div>
+                            <div class="col-md-3"><input type="text" name="comments" class="form-control" placeholder="Comments"></div>
+                        </form>
+                    @endif
 
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-3"><select name="employee_id" class="form-control"><option value="0">All Employees</option>@foreach($employees as $employee)<option value="{{ $employee->id }}" {{ (int)$filters['employee_id']===$employee->id?'selected':'' }}>{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
@@ -43,7 +45,13 @@
                                         <td>{{ ucfirst(str_replace('_', ' ', $deduction->frequency)) }}</td>
                                         <td>{{ $deduction->effective_from }} - {{ $deduction->effective_to ?: 'Open' }}</td>
                                         <td><span class="badge {{ $deduction->is_active ? 'bg-success' : 'bg-secondary' }}">{{ $deduction->is_active ? 'Active' : 'Inactive' }}</span></td>
-                                        <td class="action-buttons"><form method="POST" action="{{ route('payroll.deductions.destroy', $deduction) }}" onsubmit="return confirm('Delete this deduction?');">@csrf @method('DELETE')<button type="submit"><i class="icon-trash"></i></button></form></td>
+                                        <td class="action-buttons">
+                                            @if($canManageDeductions ?? false)
+                                                <form method="POST" action="{{ route('payroll.deductions.destroy', $deduction) }}" onsubmit="return confirm('Delete this deduction?');">@csrf @method('DELETE')<button type="submit"><i class="icon-trash"></i></button></form>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="8" class="text-center">No deductions found.</td></tr>

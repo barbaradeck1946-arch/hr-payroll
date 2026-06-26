@@ -138,7 +138,7 @@ php artisan migrate
 php artisan db:seed --class=AdminUserSeeder
 ```
 
-The default admin seeder creates all permissions, creates one `Admin` role, syncs every permission to that role, and creates the default admin user.
+The default admin seeder creates all permissions, default organization roles, role-permission assignments, and the default admin user.
 
 5. Run app
 
@@ -161,6 +161,20 @@ DEFAULT_ADMIN_EMAIL=admin@zerihr.local
 DEFAULT_ADMIN_PASSWORD=password
 ```
 
+## Default Organization Roles
+
+The default seed creates ready-to-edit role templates for a typical organization:
+
+- `Super Admin` and `Admin` with full permissions
+- `HR Admin` and `HR Manager` for HR operations and approvals
+- `Payroll Manager` for salary, payroll, payslip, bonus, loan, deduction and provident fund modules
+- `Finance Manager` for billing, invoices, estimates, expenses and finance reports
+- `Department Head`, `Supervisor`, `Project Manager` and `Team Lead` for scoped team/project workflows
+- `Auditor` for read-only review access
+- `Employee` for self-service profile, attendance, leave, task and own payroll records
+
+Admin or HR users can adjust these default mappings later from the Roles and Permissions screens.
+
 ## Demo Users
 
 For demo environments, seed four ready-to-use users:
@@ -182,7 +196,7 @@ The login page includes these demo accounts with copy buttons for visitors.
 
 ## Access Model (Current)
 
-Access is permission-driven. The default seed creates only the `Admin` role with full permissions. Create additional roles such as HR Manager, Department Head, Supervisor or Employee from the Roles screen and assign only the permissions needed for each role.
+Access is permission-driven. The default seed creates common organization roles and assigns practical permissions by default. Admin or HR users can change those permissions later based on company policy.
 
 Menus and module actions are shown or hidden based on assigned permissions.  
 Self-service profile update remains available via topbar dropdown when user is linked to an employee profile.

@@ -93,10 +93,21 @@ class PayrollRepository
     /**
      * @param array<string, mixed> $filters
      */
-    public function deductions(array $filters): LengthAwarePaginator
+    public function deductions(array $filters, ?User $user = null): LengthAwarePaginator
     {
+        $employeeIds = $this->financeEmployeeScope($user, [
+            'payroll.manage-deduction',
+            'deduction.create',
+            'deduction.update',
+            'deduction.delete',
+            'employee_deduction.create',
+            'employee_deduction.update',
+            'employee_deduction.delete',
+        ]);
+
         return EmployeeDeduction::query()
             ->with('employee:id,employee_code,first_name,last_name')
+            ->when($employeeIds !== null, fn ($query) => $query->whereIn('employee_id', $employeeIds))
             ->when((int) ($filters['employee_id'] ?? 0) > 0, fn ($query) => $query->where('employee_id', (int) $filters['employee_id']))
             ->when((string) ($filters['status'] ?? '') === 'active', fn ($query) => $query->where('is_active', true))
             ->when((string) ($filters['status'] ?? '') === 'inactive', fn ($query) => $query->where('is_active', false))
@@ -106,10 +117,19 @@ class PayrollRepository
             ->withQueryString();
     }
 
-    public function providentFunds(array $filters): LengthAwarePaginator
+    public function providentFunds(array $filters, ?User $user = null): LengthAwarePaginator
     {
+        $employeeIds = $this->financeEmployeeScope($user, [
+            'payroll.manage-pf',
+            'provident_fund.create',
+            'provident_fund.update',
+            'provident_fund.adjust',
+            'provident_fund.post-transaction',
+        ]);
+
         return EmployeeProvidentFund::query()
             ->with('employee:id,employee_code,first_name,last_name')
+            ->when($employeeIds !== null, fn ($query) => $query->whereIn('employee_id', $employeeIds))
             ->when((int) ($filters['employee_id'] ?? 0) > 0, fn ($query) => $query->where('employee_id', (int) $filters['employee_id']))
             ->orderByDesc('id')
             ->paginate($this->perPage($filters))
@@ -131,12 +151,13 @@ class PayrollRepository
             ->withQueryString();
     }
 
-    public function employeesForSelect(): Collection
+    public function employeesForSelect(?array $employeeIds = null): Collection
     {
         return Employee::query()
             ->select(['id', 'employee_code', 'first_name', 'last_name', 'salary_grade_id'])
             ->with('salaryGrade:id,grade_name,min_salary,max_salary')
             ->whereNotIn('employment_status', ['resigned', 'terminated'])
+            ->when($employeeIds !== null, fn ($query) => $query->whereIn('id', $employeeIds))
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
@@ -180,5 +201,24 @@ class PayrollRepository
     private function perPage(array $filters): int
     {
         return max(10, min(100, (int) ($filters['per_page'] ?? 20)));
+    }
+
+    /**
+     * @param array<int, string> $globalPermissions
+     * @return array<int, int>|null
+     */
+    public function financeEmployeeScope(?User $user, array $globalPermissions): ?array
+    {
+        if (! $user) {
+            return [];
+        }
+
+        if ($user->hasAnyPermission($globalPermissions)) {
+            return null;
+        }
+
+        $employeeId = (int) ($user->employee?->id ?? 0);
+
+        return $employeeId > 0 ? [$employeeId] : [];
     }
 }

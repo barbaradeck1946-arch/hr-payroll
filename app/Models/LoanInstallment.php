@@ -16,4 +16,9 @@ class LoanInstallment extends Model
     {
         return $this->belongsTo(EmployeeLoan::class, 'employee_loan_id');
     }
+
+    public function payrollItem(): BelongsTo
+    {
+        return $this->belongsTo(PayrollItem::class);
+    }
 }

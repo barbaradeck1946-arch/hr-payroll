@@ -177,6 +177,9 @@
                             @if($s['canPayrollManagePf'] ?? false)
                                 <li class="{{ request()->routeIs('payroll.provident-funds.*') ? 'active' : '' }}"><a href="{{ route('payroll.provident-funds.index') }}">Provident Fund</a></li>
                             @endif
+                            @if(($s['canPayrollReport'] ?? false) && !($s['canPayrollView'] ?? false))
+                                <li class="{{ request()->routeIs('reports.payroll') ? 'active' : '' }}"><a href="{{ route('reports.payroll') }}">Payslips</a></li>
+                            @endif
                         </ul>
                     </li>
                 @endif

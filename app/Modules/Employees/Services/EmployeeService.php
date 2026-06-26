@@ -99,6 +99,7 @@ class EmployeeService
             'last_name' => $payload['last_name'] ?? null,
             'gender' => $payload['gender'] ?? null,
             'date_of_birth' => $payload['date_of_birth'] ?? null,
+            'blood_group' => $payload['blood_group'] ?? null,
             'nid_number' => $payload['nid_number'] ?? null,
             'passport_number' => $payload['passport_number'] ?? null,
             'tax_id' => $payload['tax_id'] ?? null,

@@ -4,7 +4,9 @@
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-organization"></i> Departments</h1>
-        <a href="{{ route('departments.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Department</a>
+        @if(auth()->user()?->hasPermission('department.create'))
+            <a href="{{ route('departments.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Department</a>
+        @endif
     </div>
 
     @include('partials.flash')
@@ -73,14 +75,18 @@
                                             @endif
                                         </td>
                                         <td class="action-buttons">
-                                            <a href="{{ route('departments.edit', $department) }}" title="Edit Department">
-                                                <i class="icon-pencil"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('departments.destroy', $department) }}" onsubmit="return confirm('Delete this department?');" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" title="Delete Department"><i class="icon-trash"></i></button>
-                                            </form>
+                                            @if(auth()->user()?->hasPermission('department.update'))
+                                                <a href="{{ route('departments.edit', $department) }}" title="Edit Department">
+                                                    <i class="icon-pencil"></i>
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()?->hasPermission('department.delete'))
+                                                <form method="POST" action="{{ route('departments.destroy', $department) }}" onsubmit="return confirm('Delete this department?');" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" title="Delete Department"><i class="icon-trash"></i></button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

@@ -8,18 +8,20 @@
         <div class="container-fluid">
             <div class="card no-border">
                 <div class="content_wrapper" style="padding:20px;">
-                    <h5 class="table_banner_title mb-2">Generate Payroll Draft</h5>
-                    <form method="POST" action="{{ route('payroll.runs.generate') }}" class="row g-2 mb-4">
-                        @csrf
-                        <div class="col-md-2"><select name="pay_frequency" class="form-control" required><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select></div>
-                        <div class="col-md-3"><select name="employee_id" class="form-control js-example-basic-single"><option value="0">All Active Employees</option>@foreach($employees as $employee)<option value="{{ $employee->id }}">{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
-                        <div class="col-md-2"><input type="text" name="period_label" class="form-control" value="{{ now()->format('M Y') }}" placeholder="Period label"></div>
-                        <div class="col-md-2"><input type="text" name="period_start" class="form-control datetimepicker" value="{{ now()->startOfMonth()->toDateString() }}" required></div>
-                        <div class="col-md-2"><input type="text" name="period_end" class="form-control datetimepicker" value="{{ now()->endOfMonth()->toDateString() }}" required></div>
-                        <div class="col-md-1"><button class="btn btn-custom w-100" type="submit" title="Generate Draft"><i class="icon-plus"></i></button></div>
-                        <div class="col-md-2"><input type="text" name="pay_date" class="form-control datetimepicker" placeholder="Pay date"></div>
-                        <div class="col-md-2"><input type="number" min="1" max="53" name="payroll_week" class="form-control" placeholder="Week"></div>
-                    </form>
+                    @if($canGeneratePayroll ?? false)
+                        <h5 class="table_banner_title mb-2">Generate Payroll Draft</h5>
+                        <form method="POST" action="{{ route('payroll.runs.generate') }}" class="row g-2 mb-4">
+                            @csrf
+                            <div class="col-md-2"><select name="pay_frequency" class="form-control" required><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select></div>
+                            <div class="col-md-3"><select name="employee_id" class="form-control js-example-basic-single"><option value="0">All Active Employees</option>@foreach($employees as $employee)<option value="{{ $employee->id }}">{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
+                            <div class="col-md-2"><input type="text" name="period_label" class="form-control" value="{{ now()->format('M Y') }}" placeholder="Period label"></div>
+                            <div class="col-md-2"><input type="text" name="period_start" class="form-control datetimepicker" value="{{ now()->startOfMonth()->toDateString() }}" required></div>
+                            <div class="col-md-2"><input type="text" name="period_end" class="form-control datetimepicker" value="{{ now()->endOfMonth()->toDateString() }}" required></div>
+                            <div class="col-md-1"><button class="btn btn-custom w-100" type="submit" title="Generate Draft"><i class="icon-plus"></i></button></div>
+                            <div class="col-md-2"><input type="text" name="pay_date" class="form-control datetimepicker" placeholder="Pay date"></div>
+                            <div class="col-md-2"><input type="number" min="1" max="53" name="payroll_week" class="form-control" placeholder="Week"></div>
+                        </form>
+                    @endif
 
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-2"><select name="status" class="form-control"><option value="">All Status</option>@foreach(['draft','processed','approved','paid'] as $status)<option value="{{ $status }}" {{ $filters['status']===$status?'selected':'' }}>{{ ucfirst($status) }}</option>@endforeach</select></div>

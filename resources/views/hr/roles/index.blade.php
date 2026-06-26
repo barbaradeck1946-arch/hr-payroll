@@ -4,7 +4,9 @@
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-lock"></i> Roles</h1>
-        <a href="{{ route('roles.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Role</a>
+        @if(auth()->user()?->hasPermission('role.create'))
+            <a href="{{ route('roles.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Role</a>
+        @endif
     </div>
 
     @include('partials.flash')
@@ -49,12 +51,14 @@
                                         <td>{{ $role->users_count }}</td>
                                         <td>{{ $role->permissions_count }}</td>
                                         <td class="action-buttons">
-                                            <a href="{{ route('roles.edit', $role) }}" title="Edit Role">
-                                                <i class="icon-pencil"></i>
-                                            </a>
-                                            <a href="{{ route('roles.permissions', $role) }}" title="Assign Permissions">
-                                                <i class="icon-shield"></i>
-                                            </a>
+                                            @if(auth()->user()?->hasPermission('role.update'))
+                                                <a href="{{ route('roles.edit', $role) }}" title="Edit Role">
+                                                    <i class="icon-pencil"></i>
+                                                </a>
+                                                <a href="{{ route('roles.permissions', $role) }}" title="Assign Permissions">
+                                                    <i class="icon-shield"></i>
+                                                </a>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

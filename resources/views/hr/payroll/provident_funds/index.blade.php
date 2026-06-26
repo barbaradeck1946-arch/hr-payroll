@@ -8,15 +8,17 @@
         <div class="container-fluid">
             <div class="card no-border">
                 <div class="content_wrapper" style="padding:20px;">
-                    <form method="POST" action="{{ route('payroll.provident-funds.store') }}" class="row g-2 mb-4">
-                        @csrf
-                        <div class="col-md-3"><select name="employee_id" class="form-control js-example-basic-single" required><option value="">Employee</option>@foreach($employees as $employee)<option value="{{ $employee->id }}">{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
-                        <div class="col-md-2"><input type="number" step="0.01" min="0" max="100" name="employee_contribution_percent" class="form-control" placeholder="Employee %" required></div>
-                        <div class="col-md-2"><input type="number" step="0.01" min="0" max="100" name="employer_contribution_percent" class="form-control" placeholder="Employer %" required></div>
-                        <div class="col-md-2"><input type="number" step="0.01" min="0" name="opening_balance" class="form-control" value="0" placeholder="Opening balance"></div>
-                        <div class="col-md-2"><input type="text" name="effective_from" class="form-control datetimepicker" value="{{ now()->toDateString() }}" placeholder="Effective from"></div>
-                        <div class="col-md-1"><button class="btn btn-custom w-100" type="submit"><i class="icon-check"></i></button></div>
-                    </form>
+                    @if($canManageProvidentFund ?? false)
+                        <form method="POST" action="{{ route('payroll.provident-funds.store') }}" class="row g-2 mb-4">
+                            @csrf
+                            <div class="col-md-3"><select name="employee_id" class="form-control js-example-basic-single" required><option value="">Employee</option>@foreach($employees as $employee)<option value="{{ $employee->id }}">{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
+                            <div class="col-md-2"><input type="number" step="0.01" min="0" max="100" name="employee_contribution_percent" class="form-control" placeholder="Employee %" required></div>
+                            <div class="col-md-2"><input type="number" step="0.01" min="0" max="100" name="employer_contribution_percent" class="form-control" placeholder="Employer %" required></div>
+                            <div class="col-md-2"><input type="number" step="0.01" min="0" name="opening_balance" class="form-control" value="0" placeholder="Opening balance"></div>
+                            <div class="col-md-2"><input type="text" name="effective_from" class="form-control datetimepicker" value="{{ now()->toDateString() }}" placeholder="Effective from"></div>
+                            <div class="col-md-1"><button class="btn btn-custom w-100" type="submit"><i class="icon-check"></i></button></div>
+                        </form>
+                    @endif
 
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">

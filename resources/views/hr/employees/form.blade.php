@@ -80,6 +80,16 @@
                                     <label>Date of Birth</label>
                                     <input type="text" name="date_of_birth" class="form-control datetimepicker" value="{{ old('date_of_birth', $employee->date_of_birth ?? '') }}" placeholder="YYYY-MM-DD">
                                 </div>
+                                <div class="col-md-4 form-group mb-3">
+                                    <label>Blood Group</label>
+                                    @php($selectedBloodGroup = old('blood_group', $employee->blood_group ?? ''))
+                                    <select name="blood_group" class="form-control">
+                                        <option value="">Select Blood Group</option>
+                                        @foreach(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $bloodGroup)
+                                            <option value="{{ $bloodGroup }}" {{ $selectedBloodGroup === $bloodGroup ? 'selected' : '' }}>{{ $bloodGroup }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
                             <div class="col-md-4 form-group mb-3">
                                 <label>Phone</label>

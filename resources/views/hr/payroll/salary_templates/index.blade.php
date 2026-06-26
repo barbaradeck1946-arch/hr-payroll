@@ -5,8 +5,12 @@
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-wallet"></i> Salary Templates</h1>
         <div class="d-flex gap-2">
-            <a href="{{ route('payroll.salary-template-assignments.create') }}" class="btn btn-custom-default"><i class="icon-user-follow"></i> Assign Template</a>
-            <a href="{{ route('payroll.salary-templates.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Template</a>
+            @if(auth()->user()?->hasAnyPermission(['salary_template.assign', 'employee_salary.assign', 'payroll.manage-salary-templates']))
+                <a href="{{ route('payroll.salary-template-assignments.create') }}" class="btn btn-custom-default"><i class="icon-user-follow"></i> Assign Template</a>
+            @endif
+            @if(auth()->user()?->hasAnyPermission(['salary_template.create', 'payroll.manage-salary-templates']))
+                <a href="{{ route('payroll.salary-templates.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Template</a>
+            @endif
         </div>
     </div>
 
@@ -54,7 +58,11 @@
                                         <td>{{ number_format((float) $template->tax_percent, 2) }}</td>
                                         <td>{{ $template->employees_count }}</td>
                                         <td><span class="badge {{ $template->is_active ? 'bg-success' : 'bg-secondary' }}">{{ $template->is_active ? 'Active' : 'Inactive' }}</span></td>
-                                        <td class="action-buttons"><a href="{{ route('payroll.salary-templates.edit', $template) }}" title="Edit"><i class="icon-pencil"></i></a></td>
+                                        <td class="action-buttons">
+                                            @if(auth()->user()?->hasAnyPermission(['salary_template.update', 'payroll.manage-salary-templates']))
+                                                <a href="{{ route('payroll.salary-templates.edit', $template) }}" title="Edit"><i class="icon-pencil"></i></a>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="10" class="text-center">No salary templates found.</td></tr>

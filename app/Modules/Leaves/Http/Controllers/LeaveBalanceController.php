@@ -76,6 +76,8 @@ class LeaveBalanceController extends Controller
     // The edit method displays the form for editing a specific leave balance. It accepts an EmployeeLeaveBalance instance as a parameter, which is automatically resolved by Laravel's route model binding. The method loads the related employee, salary grade, leave category, and leave policy data to provide context for the balance being edited. It then returns the view for editing the leave balance, passing the loaded balance data to the view for rendering. The view will allow users to modify the leave balance details and submit the changes for updating.
     public function edit(EmployeeLeaveBalance $leaveBalance): View
     {
+        abort_if(! $this->canAccessBalance(request()->user(), $leaveBalance), 403);
+
         return view('hr.leaves.balances.edit', [
             'leaveBalance' => $leaveBalance->load([
                 'employee:id,first_name,last_name,employee_code',
@@ -90,6 +92,8 @@ class LeaveBalanceController extends Controller
     // The update method processes the form submission for updating a specific leave balance. It accepts an UpdateLeaveBalanceRequest instance, which contains the validated data from the form, and an EmployeeLeaveBalance instance that represents the balance to be updated. The method first checks if the user has the necessary permissions to manage balances and if they have all-access permissions. If the user does not have the required permissions, it redirects back to the index route with an error message. If the user has the appropriate access, it calls the leave service to update the balance with the validated data from the request. After successfully updating the balance, it redirects back to the index route for the year of the updated balance with a success message indicating that the leave balance was updated successfully.
     public function update(UpdateLeaveBalanceRequest $request, EmployeeLeaveBalance $leaveBalance): RedirectResponse
     {
+        abort_if(! $this->hasAllAccess($request->user()), 403);
+
         $this->leaveService->updateBalance($leaveBalance, $request->validated());
         return redirect()->route('leave-balances.index', ['year' => $leaveBalance->year])
             ->with('success', 'Leave balance updated successfully.');
@@ -114,6 +118,15 @@ class LeaveBalanceController extends Controller
 
     private function hasAllAccess(User $user): bool
     {
-        return $user->hasAnyPermission(['leave.view', 'leave.manage-quotas', 'leave.manage-balances']);
+        return $user->hasAnyPermission(['leave.manage-quotas', 'leave.manage-balances']);
+    }
+
+    private function canAccessBalance(User $user, EmployeeLeaveBalance $leaveBalance): bool
+    {
+        if ($this->hasAllAccess($user)) {
+            return true;
+        }
+
+        return in_array((int) $leaveBalance->employee_id, $this->scopedEmployeeIds($user) ?? [], true);
     }
 }

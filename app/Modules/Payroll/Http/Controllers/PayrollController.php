@@ -35,6 +35,7 @@ class PayrollController extends Controller
             'runs' => $this->payrollRepository->runs($filters),
             'filters' => $filters,
             'employees' => $this->payrollRepository->activeEmployeesForSelect(),
+            'canGeneratePayroll' => $request->user()->hasAnyPermission(['payroll.generate', 'payroll_run.generate']),
         ]);
     }
 
@@ -86,7 +87,10 @@ class PayrollController extends Controller
             'processor:id,name',
         ]);
 
-        return view('hr.payroll.runs.show', ['run' => $run]);
+        return view('hr.payroll.runs.show', [
+            'run' => $run,
+            'canFinalizePayroll' => request()->user()?->hasAnyPermission(['payroll.generate', 'payroll_run.approve']) ?? false,
+        ]);
     }
 
     public function finalizeRun(Request $request, PayrollRun $run): RedirectResponse
@@ -102,6 +106,12 @@ class PayrollController extends Controller
 
     public function showItem(PayrollItem $item): View
     {
+        $user = request()->user();
+        $canViewAll = $user?->hasAnyPermission(['payroll.view', 'payroll.report', 'payroll_run.view']) ?? false;
+        $ownEmployeeId = (int) ($user?->employee?->id ?? 0);
+
+        abort_if(! $canViewAll && $ownEmployeeId !== (int) $item->employee_id, 403);
+
         $item->load([
             'payrollRun',
             'employee:id,employee_code,first_name,last_name,department_id,designation_id',
@@ -315,6 +325,7 @@ class PayrollController extends Controller
             'employee:id,employee_code,first_name,last_name,department_id,designation_id',
             'employee.department:id,name',
             'employee.designation:id,name',
+            'installments.payrollItem.payrollRun:id,period_label,period_start,period_end',
             'installments' => fn ($query) => $query->orderBy('installment_no'),
         ]);
 
@@ -426,23 +437,46 @@ class PayrollController extends Controller
     public function deductions(Request $request): View
     {
         $filters = $this->filters($request);
+        $employeeScope = $this->payrollRepository->financeEmployeeScope($request->user(), [
+            'payroll.manage-deduction',
+            'deduction.create',
+            'deduction.update',
+            'deduction.delete',
+            'employee_deduction.create',
+            'employee_deduction.update',
+            'employee_deduction.delete',
+        ]);
 
         return view('hr.payroll.deductions.index', [
-            'deductions' => $this->payrollRepository->deductions($filters),
+            'deductions' => $this->payrollRepository->deductions($filters, $request->user()),
             'filters' => $filters,
-            'employees' => $this->payrollRepository->employeesForSelect(),
+            'employees' => $this->payrollRepository->employeesForSelect($employeeScope),
+            'canManageDeductions' => $employeeScope === null,
         ]);
     }
 
     public function storeDeduction(Request $request): RedirectResponse
     {
-        $this->payrollService->saveDeduction($this->validateDeduction($request));
+        $validated = $this->validateDeduction($request);
+        $this->abortIfOutsideFinanceScope($request, (int) $validated['employee_id'], [
+            'payroll.manage-deduction',
+            'deduction.create',
+            'employee_deduction.create',
+        ]);
+
+        $this->payrollService->saveDeduction($validated);
 
         return back()->with('success', 'Deduction saved successfully.');
     }
 
     public function destroyDeduction(EmployeeDeduction $deduction): RedirectResponse
     {
+        $this->abortIfOutsideFinanceScope(request(), (int) $deduction->employee_id, [
+            'payroll.manage-deduction',
+            'deduction.delete',
+            'employee_deduction.delete',
+        ]);
+
         $deduction->delete();
 
         return back()->with('success', 'Deduction deleted successfully.');
@@ -451,11 +485,19 @@ class PayrollController extends Controller
     public function providentFunds(Request $request): View
     {
         $filters = $this->filters($request);
+        $employeeScope = $this->payrollRepository->financeEmployeeScope($request->user(), [
+            'payroll.manage-pf',
+            'provident_fund.create',
+            'provident_fund.update',
+            'provident_fund.adjust',
+            'provident_fund.post-transaction',
+        ]);
 
         return view('hr.payroll.provident_funds.index', [
-            'funds' => $this->payrollRepository->providentFunds($filters),
+            'funds' => $this->payrollRepository->providentFunds($filters, $request->user()),
             'filters' => $filters,
-            'employees' => $this->payrollRepository->employeesForSelect(),
+            'employees' => $this->payrollRepository->employeesForSelect($employeeScope),
+            'canManageProvidentFund' => $employeeScope === null,
         ]);
     }
 
@@ -467,6 +509,12 @@ class PayrollController extends Controller
             'employer_contribution_percent' => ['required', 'numeric', 'min:0', 'max:100'],
             'opening_balance' => ['nullable', 'numeric', 'min:0'],
             'effective_from' => ['nullable', 'date'],
+        ]);
+
+        $this->abortIfOutsideFinanceScope($request, (int) $validated['employee_id'], [
+            'payroll.manage-pf',
+            'provident_fund.create',
+            'provident_fund.update',
         ]);
 
         $this->payrollService->saveProvidentFund($validated);
@@ -559,5 +607,15 @@ class PayrollController extends Controller
             'comments' => ['nullable', 'string'],
             'is_active' => ['required', 'boolean'],
         ]);
+    }
+
+    /**
+     * @param array<int, string> $globalPermissions
+     */
+    private function abortIfOutsideFinanceScope(Request $request, int $employeeId, array $globalPermissions): void
+    {
+        $scope = $this->payrollRepository->financeEmployeeScope($request->user(), $globalPermissions);
+
+        abort_if($scope !== null && ! in_array($employeeId, $scope, true), 403);
     }
 }

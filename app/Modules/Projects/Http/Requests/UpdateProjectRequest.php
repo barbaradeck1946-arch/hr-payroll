@@ -13,6 +13,13 @@ class UpdateProjectRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'member_ids' => $this->input('member_ids', []),
+        ]);
+    }
+
     /**
      * @return array<string, array<int, mixed>>
      */
@@ -26,6 +33,8 @@ class UpdateProjectRequest extends FormRequest
             'project_code' => ['required', 'string', 'max:50', Rule::unique('projects', 'project_code')->ignore($project->id)],
             'team_id' => ['nullable', 'integer', 'exists:teams,id'],
             'manager_employee_id' => ['nullable', 'integer', 'exists:employees,id'],
+            'member_ids' => ['nullable', 'array'],
+            'member_ids.*' => ['integer', 'distinct', 'exists:employees,id'],
             'start_date' => ['nullable', 'date'],
             'deadline' => ['nullable', 'date', 'after_or_equal:start_date'],
             'budget' => ['nullable', 'numeric', 'min:0'],

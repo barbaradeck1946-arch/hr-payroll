@@ -26,6 +26,7 @@ class StoreEmployeeRequest extends FormRequest
             'last_name' => ['nullable', 'string', 'max:120'],
             'gender' => ['nullable', Rule::in(['male', 'female', 'other'])],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
+            'blood_group' => ['nullable', Rule::in(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])],
             'nid_number' => ['nullable', 'string', 'max:64', Rule::unique(Employee::class, 'nid_number')],
             'passport_number' => ['nullable', 'string', 'max:64', Rule::unique(Employee::class, 'passport_number')],
             'tax_id' => ['nullable', 'string', 'max:64', Rule::unique(Employee::class, 'tax_id')],

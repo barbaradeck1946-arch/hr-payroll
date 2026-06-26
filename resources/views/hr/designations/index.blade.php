@@ -4,7 +4,9 @@
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-badge"></i> Designations</h1>
-        <a href="{{ route('designations.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Designation</a>
+        @if(auth()->user()?->hasPermission('designation.create'))
+            <a href="{{ route('designations.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Designation</a>
+        @endif
     </div>
 
     @include('partials.flash')
@@ -74,14 +76,18 @@
                                             @endif
                                         </td>
                                         <td class="action-buttons">
-                                            <a href="{{ route('designations.edit', $designation) }}" title="Edit Designation">
-                                                <i class="icon-pencil"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('designations.destroy', $designation) }}" style="display:inline;" onsubmit="return confirm('Delete this designation?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" title="Delete Designation"><i class="icon-trash"></i></button>
-                                            </form>
+                                            @if(auth()->user()?->hasPermission('designation.update'))
+                                                <a href="{{ route('designations.edit', $designation) }}" title="Edit Designation">
+                                                    <i class="icon-pencil"></i>
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()?->hasPermission('designation.delete'))
+                                                <form method="POST" action="{{ route('designations.destroy', $designation) }}" style="display:inline;" onsubmit="return confirm('Delete this designation?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" title="Delete Designation"><i class="icon-trash"></i></button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

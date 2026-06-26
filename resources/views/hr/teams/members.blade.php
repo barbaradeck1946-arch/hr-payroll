@@ -23,7 +23,8 @@
                                 <option value="">Select Employee</option>
                                 @foreach($employees as $employee)
                                     @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
-                                    <option value="{{ $employee->id }}" {{ (int) ($row['employee_id'] ?? 0) === (int) $employee->id ? 'selected' : '' }}>{{ $name }} ({{ $employee->employee_code }})</option>
+                                    @php($departmentName = $employee->department?->name ?? 'No Department')
+                                    <option value="{{ $employee->id }}" {{ (int) ($row['employee_id'] ?? 0) === (int) $employee->id ? 'selected' : '' }}>{{ $name }} ({{ $employee->employee_code }}) - {{ $departmentName }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -53,16 +54,18 @@
 @endsection
 
 @push('scripts')
+@php($memberEmployeeOptions = $employees->map(fn ($employee) => [
+    'id' => $employee->id,
+    'name' => trim(($employee->first_name ?? '') . ' ' . ($employee->last_name ?? '')),
+    'code' => $employee->employee_code,
+    'department' => $employee->department?->name ?? 'No Department',
+])->values())
 <script>
 (function () {
     var wrapper = document.getElementById('team-members-wrapper');
     var addBtn = document.getElementById('add-team-member');
     if (!wrapper || !addBtn) return;
-    var employees = @json($employees->map(fn ($employee) => [
-        'id' => $employee->id,
-        'name' => trim(($employee->first_name ?? '') . ' ' . ($employee->last_name ?? '')),
-        'code' => $employee->employee_code,
-    ])->values());
+    var employees = @json($memberEmployeeOptions);
 
     function setupDatePickers(ctx) {
         if ($.fn.datepicker) {
@@ -86,7 +89,7 @@
         }
 
         return '<option value="">Select Employee</option>' + employees.map(function (employee) {
-            return '<option value="' + employee.id + '">' + employee.name + ' (' + employee.code + ')</option>';
+            return '<option value="' + employee.id + '">' + employee.name + ' (' + employee.code + ') - ' + employee.department + '</option>';
         }).join('');
     }
 

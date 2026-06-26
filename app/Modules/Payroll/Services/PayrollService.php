@@ -317,6 +317,7 @@ class PayrollService
             $installment->update([
                 'paid_amount' => $installment->amount,
                 'paid_date' => $paidDate ?: now()->toDateString(),
+                'payroll_item_id' => null,
                 'status' => 'paid',
             ]);
 
@@ -523,10 +524,6 @@ class PayrollService
 
     private function payDueLoanInstallmentsForPayrollItem(PayrollRun $run, PayrollItem $item): void
     {
-        if ((float) $item->loan_deduction <= 0) {
-            return;
-        }
-
         $installments = LoanInstallment::query()
             ->whereHas('loan', fn ($query) => $query
                 ->where('employee_id', $item->employee_id)
@@ -535,12 +532,25 @@ class PayrollService
             ->where('status', 'pending')
             ->orderBy('due_date')
             ->orderBy('installment_no')
+            ->lockForUpdate()
             ->get();
+
+        $pendingDueAmount = round((float) $installments->sum('amount'), 2);
+        $draftDeduction = round((float) $item->loan_deduction, 2);
+
+        if (abs($pendingDueAmount - $draftDeduction) > 0.01) {
+            throw new RuntimeException('Loan installment amounts changed after payroll draft generation. Regenerate the payroll draft before final submission.');
+        }
+
+        if ($pendingDueAmount <= 0) {
+            return;
+        }
 
         foreach ($installments as $installment) {
             $installment->update([
                 'paid_amount' => $installment->amount,
                 'paid_date' => $run->pay_date ?: $run->period_end,
+                'payroll_item_id' => $item->id,
                 'status' => 'paid',
             ]);
 

@@ -54,7 +54,7 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Code</th>
-                                    <th>Department</th>
+                                    <th>Primary Department</th>
                                     <th>Lead</th>
                                     <th>Members</th>
                                     <th>Projects</th>

@@ -427,7 +427,7 @@ class LeaveApplicationController extends Controller
 
     private function hasAllAccess(User $user): bool
     {
-        return $user->hasAnyPermission(['leave.view', 'leave.report', 'leave.manage-balances', 'leave.manage-quotas']);
+        return $user->hasAnyPermission(['leave.report', 'leave.manage-balances', 'leave.manage-quotas']);
     }
 
     /**

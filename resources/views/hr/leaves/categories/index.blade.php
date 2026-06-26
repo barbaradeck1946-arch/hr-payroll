@@ -5,7 +5,9 @@
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-layers"></i> Leave Categories</h1>
-        <a href="{{ route('leave-categories.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Leave Category</a>
+        @if(auth()->user()?->hasPermission('leave.manage-categories'))
+            <a href="{{ route('leave-categories.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Leave Category</a>
+        @endif
     </div>
 
     @include('partials.flash')
@@ -69,14 +71,16 @@
                                             @endif
                                         </td>
                                         <td class="action-buttons">
-                                            <a href="{{ route('leave-categories.edit', $category) }}" title="Edit">
-                                                <i class="icon-pencil"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('leave-categories.destroy', $category) }}" onsubmit="return confirm('Delete this leave category?');" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" title="Delete"><i class="icon-trash"></i></button>
-                                            </form>
+                                            @if(auth()->user()?->hasPermission('leave.manage-categories'))
+                                                <a href="{{ route('leave-categories.edit', $category) }}" title="Edit">
+                                                    <i class="icon-pencil"></i>
+                                                </a>
+                                                <form method="POST" action="{{ route('leave-categories.destroy', $category) }}" onsubmit="return confirm('Delete this leave category?');" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" title="Delete"><i class="icon-trash"></i></button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

@@ -31,7 +31,7 @@ class ProjectController extends Controller
         ];
 
         return view('hr.projects.index', [
-            'projects' => $this->projectRepository->paginate($filters),
+            'projects' => $this->projectRepository->paginate($filters, $request->user()),
             'teams' => $this->projectRepository->listTeams(),
             'filters' => $filters,
         ]);
@@ -55,6 +55,8 @@ class ProjectController extends Controller
 
     public function show(Project $project): View
     {
+        abort_if(! $this->projectRepository->canAccess($project, request()->user()), 403);
+
         return view('hr.projects.show', [
             'project' => $this->projectRepository->withMembersAndTasks($project),
         ]);
@@ -62,9 +64,11 @@ class ProjectController extends Controller
 
     public function edit(Project $project): View
     {
+        abort_if(! $this->projectRepository->canAccess($project, request()->user()), 403);
+
         return view('hr.projects.form', [
             'mode' => 'edit',
-            'project' => $project,
+            'project' => $this->projectRepository->withMembersAndTasks($project),
             'teams' => $this->projectRepository->listTeams(),
             'employees' => $this->projectRepository->listActiveEmployees(),
         ]);
@@ -72,6 +76,8 @@ class ProjectController extends Controller
 
     public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
+        abort_if(! $this->projectRepository->canAccess($project, $request->user()), 403);
+
         $this->projectService->updateProject($project, $request->validated());
 
         return redirect()->route('projects.index')->with('success', 'Project updated successfully.');
@@ -79,6 +85,8 @@ class ProjectController extends Controller
 
     public function destroy(Project $project): RedirectResponse
     {
+        abort_if(! $this->projectRepository->canAccess($project, request()->user()), 403);
+
         $this->projectService->deleteProject($project);
 
         return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
@@ -86,6 +94,8 @@ class ProjectController extends Controller
 
     public function members(Project $project): View
     {
+        abort_if(! $this->projectRepository->canAccess($project, request()->user()), 403);
+
         return view('hr.projects.members', [
             'project' => $this->projectRepository->withMembersAndTasks($project),
             'employees' => $this->projectRepository->listActiveEmployees(),
@@ -94,6 +104,8 @@ class ProjectController extends Controller
 
     public function syncMembers(SyncProjectMembersRequest $request, Project $project): RedirectResponse
     {
+        abort_if(! $this->projectRepository->canAccess($project, $request->user()), 403);
+
         $this->projectService->syncMembers($project, $request->validated()['members'] ?? []);
 
         return redirect()->route('projects.members', $project)->with('success', 'Project members updated successfully.');

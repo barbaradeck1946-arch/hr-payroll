@@ -16,7 +16,7 @@ class ProjectService
     public function createProject(array $payload): Project
     {
         return DB::transaction(function () use ($payload): Project {
-            return $this->projectRepository->create([
+            $project = $this->projectRepository->create([
                 'name' => $payload['name'],
                 'project_code' => $payload['project_code'],
                 'team_id' => $payload['team_id'] ?? null,
@@ -28,6 +28,12 @@ class ProjectService
                 'progress_percent' => (int) ($payload['progress_percent'] ?? 0),
                 'description' => $payload['description'] ?? null,
             ]);
+
+            if (array_key_exists('member_ids', $payload)) {
+                $this->syncSelectedMembers($project, $payload['member_ids'] ?? []);
+            }
+
+            return $project;
         });
     }
 
@@ -47,6 +53,10 @@ class ProjectService
                 'progress_percent' => (int) ($payload['progress_percent'] ?? 0),
                 'description' => $payload['description'] ?? null,
             ]);
+
+            if (array_key_exists('member_ids', $payload)) {
+                $this->syncSelectedMembers($project, $payload['member_ids'] ?? []);
+            }
 
             return $project->fresh() ?? $project;
         });
@@ -82,5 +92,35 @@ class ProjectService
 
             $project->members()->sync($syncData);
         });
+    }
+
+    /** @param array<int, mixed> $memberIds */
+    private function syncSelectedMembers(Project $project, array $memberIds): void
+    {
+        $selectedIds = collect($memberIds)
+            ->map(fn ($employeeId) => (int) $employeeId)
+            ->filter(fn (int $employeeId) => $employeeId > 0)
+            ->unique()
+            ->values();
+
+        $existingMembers = $project->members()
+            ->whereIn('employees.id', $selectedIds->all())
+            ->get()
+            ->keyBy('id');
+
+        $syncData = [];
+        foreach ($selectedIds as $employeeId) {
+            $existing = $existingMembers->get($employeeId);
+
+            $syncData[$employeeId] = [
+                'project_role' => (string) ($existing?->pivot?->project_role ?? 'member'),
+                'is_billable' => (bool) ($existing?->pivot?->is_billable ?? true),
+                'hourly_rate' => $existing?->pivot?->hourly_rate,
+                'updated_at' => now(),
+                'created_at' => now(),
+            ];
+        }
+
+        $project->members()->sync($syncData);
     }
 }

@@ -6,6 +6,7 @@ use App\Models\AttendanceLog;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\PayrollItem;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -67,11 +68,13 @@ class ReportController extends Controller
     public function attendance(Request $request): View
     {
         $filters = $this->attendanceFilters($request);
-        $query = $this->attendanceQuery($filters);
+        $employeeIds = $this->attendanceEmployeeScope($request->user());
+        $this->normalizeEmployeeFilter($filters, $employeeIds);
+        $query = $this->attendanceQuery($filters, $employeeIds);
 
         return view('hr.reports.attendance', [
             'logs' => (clone $query)->paginate($filters['per_page'])->withQueryString(),
-            'employees' => $this->employeesForSelect(),
+            'employees' => $this->employeesForSelect($employeeIds),
             'filters' => $filters,
             'summary' => [
                 'present' => (clone $query)->where('status', 'present')->count(),
@@ -86,7 +89,9 @@ class ReportController extends Controller
     public function exportAttendance(Request $request): StreamedResponse
     {
         $filters = $this->attendanceFilters($request, false);
-        $rows = $this->attendanceQuery($filters)->get();
+        $employeeIds = $this->attendanceEmployeeScope($request->user());
+        $this->normalizeEmployeeFilter($filters, $employeeIds);
+        $rows = $this->attendanceQuery($filters, $employeeIds)->get();
 
         return $this->csv('attendance_report_' . $filters['from_date'] . '_to_' . $filters['to_date'] . '.csv', [
             'Date',
@@ -116,11 +121,13 @@ class ReportController extends Controller
     public function payroll(Request $request): View
     {
         $filters = $this->payrollFilters($request);
-        $query = $this->payrollQuery($filters);
+        $employeeIds = $this->payrollEmployeeScope($request->user());
+        $this->normalizeEmployeeFilter($filters, $employeeIds);
+        $query = $this->payrollQuery($filters, $employeeIds);
 
         return view('hr.reports.payroll', [
             'items' => (clone $query)->paginate($filters['per_page'])->withQueryString(),
-            'employees' => $this->employeesForSelect(),
+            'employees' => $this->employeesForSelect($employeeIds),
             'filters' => $filters,
             'summary' => [
                 'items' => (clone $query)->count(),
@@ -134,7 +141,9 @@ class ReportController extends Controller
     public function exportPayroll(Request $request): StreamedResponse
     {
         $filters = $this->payrollFilters($request, false);
-        $rows = $this->payrollQuery($filters)->get();
+        $employeeIds = $this->payrollEmployeeScope($request->user());
+        $this->normalizeEmployeeFilter($filters, $employeeIds);
+        $rows = $this->payrollQuery($filters, $employeeIds)->get();
 
         return $this->csv('payroll_report_' . $filters['from_date'] . '_to_' . $filters['to_date'] . '.csv', [
             'Period',
@@ -225,11 +234,12 @@ class ReportController extends Controller
      * @param array<string, mixed> $filters
      * @return Builder<AttendanceLog>
      */
-    private function attendanceQuery(array $filters): Builder
+    private function attendanceQuery(array $filters, ?array $employeeIds = null): Builder
     {
         return AttendanceLog::query()
             ->with(['employee:id,employee_code,first_name,last_name,department_id', 'employee.department:id,name'])
             ->whereBetween('attendance_date', [$filters['from_date'], $filters['to_date']])
+            ->when($employeeIds !== null, fn (Builder $query) => $query->whereIn('employee_id', $employeeIds))
             ->when((int) $filters['employee_id'] > 0, fn (Builder $query) => $query->where('employee_id', (int) $filters['employee_id']))
             ->when((string) $filters['status'] !== '', fn (Builder $query) => $query->where('status', $filters['status']))
             ->orderByDesc('attendance_date')
@@ -256,24 +266,87 @@ class ReportController extends Controller
      * @param array<string, mixed> $filters
      * @return Builder<PayrollItem>
      */
-    private function payrollQuery(array $filters): Builder
+    private function payrollQuery(array $filters, ?array $employeeIds = null): Builder
     {
         return PayrollItem::query()
             ->with(['payrollRun', 'employee:id,employee_code,first_name,last_name'])
             ->whereHas('payrollRun', fn (Builder $query) => $query->whereBetween('period_start', [$filters['from_date'], $filters['to_date']]))
+            ->when($employeeIds !== null, fn (Builder $query) => $query->whereIn('employee_id', $employeeIds))
             ->when((int) $filters['employee_id'] > 0, fn (Builder $query) => $query->where('employee_id', (int) $filters['employee_id']))
             ->when((string) $filters['status'] !== '', fn (Builder $query) => $query->whereHas('payrollRun', fn (Builder $runQuery) => $runQuery->where('status', $filters['status'])))
             ->orderByDesc('id');
     }
 
-    private function employeesForSelect(): \Illuminate\Support\Collection
+    private function employeesForSelect(?array $employeeIds = null): \Illuminate\Support\Collection
     {
         return Employee::query()
             ->select(['id', 'employee_code', 'first_name', 'last_name'])
             ->whereNotIn('employment_status', ['resigned', 'terminated'])
+            ->when($employeeIds !== null, fn (Builder $query) => $query->whereIn('id', $employeeIds))
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     * @param array<int, int>|null $employeeIds
+     */
+    private function normalizeEmployeeFilter(array &$filters, ?array $employeeIds): void
+    {
+        if ($employeeIds !== null && (int) $filters['employee_id'] > 0 && ! in_array((int) $filters['employee_id'], $employeeIds, true)) {
+            $filters['employee_id'] = 0;
+        }
+    }
+
+    /**
+     * @return array<int, int>|null
+     */
+    private function attendanceEmployeeScope(?User $user): ?array
+    {
+        if (! $user) {
+            return [];
+        }
+
+        if ($user->hasAnyPermission(['report.attendance', 'report.view', 'attendance.report', 'attendance.manage'])) {
+            return null;
+        }
+
+        return $this->ownAndSubordinateEmployeeIds($user);
+    }
+
+    /**
+     * @return array<int, int>|null
+     */
+    private function payrollEmployeeScope(?User $user): ?array
+    {
+        if (! $user) {
+            return [];
+        }
+
+        if ($user->hasAnyPermission(['report.payroll', 'report.view', 'payroll.report', 'payroll.view', 'payroll.generate', 'payroll_run.view'])) {
+            return null;
+        }
+
+        $employeeId = (int) ($user->employee?->id ?? 0);
+
+        return $employeeId > 0 ? [$employeeId] : [];
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function ownAndSubordinateEmployeeIds(User $user): array
+    {
+        $employee = $user->employee;
+        if (! $employee) {
+            return [];
+        }
+
+        return array_values(array_unique(array_merge(
+            [(int) $employee->id],
+            $employee->subordinates()->pluck('id')->map(fn ($id) => (int) $id)->all()
+        )));
     }
 
     private function departmentsForSelect(): \Illuminate\Support\Collection

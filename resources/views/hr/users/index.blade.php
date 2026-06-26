@@ -4,7 +4,9 @@
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-user"></i> Users</h1>
-        <a href="{{ route('users.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add User</a>
+        @if(auth()->user()?->hasPermission('role.assign'))
+            <a href="{{ route('users.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add User</a>
+        @endif
     </div>
 
     @include('partials.flash')
@@ -86,10 +88,12 @@
                                             @endif
                                         </td>
                                         <td class="action-buttons">
-                                            <a href="{{ route('users.edit', $user) }}" title="Edit User">
-                                                <i class="icon-pencil"></i>
-                                            </a>
-                                            @if($user->account_status === 'pending_approval')
+                                            @if(auth()->user()?->hasPermission('role.assign'))
+                                                <a href="{{ route('users.edit', $user) }}" title="Edit User">
+                                                    <i class="icon-pencil"></i>
+                                                </a>
+                                            @endif
+                                            @if($user->account_status === 'pending_approval' && auth()->user()?->hasPermission('role.assign'))
                                                 <a href="{{ route('users.approval', $user) }}" title="Approve Signup">
                                                     <i class="icon-check"></i>
                                                 </a>

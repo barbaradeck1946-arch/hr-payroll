@@ -31,7 +31,7 @@ class TeamController extends Controller
         ];
 
         return view('hr.teams.index', [
-            'teams' => $this->teamRepository->paginate($filters),
+            'teams' => $this->teamRepository->paginate($filters, $request->user()),
             'departments' => $this->teamRepository->listDepartments(),
             'filters' => $filters,
         ]);
@@ -55,9 +55,11 @@ class TeamController extends Controller
 
     public function edit(Team $team): View
     {
+        abort_if(! $this->teamRepository->canAccess($team, request()->user()), 403);
+
         return view('hr.teams.form', [
             'mode' => 'edit',
-            'team' => $team,
+            'team' => $this->teamRepository->withMembers($team),
             'departments' => $this->teamRepository->listDepartments(),
             'employees' => $this->teamRepository->listActiveEmployees(),
         ]);
@@ -65,6 +67,8 @@ class TeamController extends Controller
 
     public function update(UpdateTeamRequest $request, Team $team): RedirectResponse
     {
+        abort_if(! $this->teamRepository->canAccess($team, $request->user()), 403);
+
         $this->teamService->updateTeam($team, $request->validated());
 
         return redirect()->route('teams.index')->with('success', 'Team updated successfully.');
@@ -72,6 +76,8 @@ class TeamController extends Controller
 
     public function destroy(Team $team): RedirectResponse
     {
+        abort_if(! $this->teamRepository->canAccess($team, request()->user()), 403);
+
         $this->teamService->deleteTeam($team);
 
         return redirect()->route('teams.index')->with('success', 'Team deleted successfully.');
@@ -79,6 +85,8 @@ class TeamController extends Controller
 
     public function members(Team $team): View
     {
+        abort_if(! $this->teamRepository->canAccess($team, request()->user()), 403);
+
         return view('hr.teams.members', [
             'team' => $this->teamRepository->withMembers($team),
             'employees' => $this->teamRepository->listActiveEmployees(),
@@ -87,6 +95,8 @@ class TeamController extends Controller
 
     public function syncMembers(SyncTeamMembersRequest $request, Team $team): RedirectResponse
     {
+        abort_if(! $this->teamRepository->canAccess($team, $request->user()), 403);
+
         $this->teamService->syncMembers($team, $request->validated()['members'] ?? []);
 
         return redirect()->route('teams.members', $team)->with('success', 'Team members updated successfully.');

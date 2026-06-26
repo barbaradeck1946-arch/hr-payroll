@@ -16,7 +16,7 @@ class TeamService
     public function createTeam(array $payload): Team
     {
         return DB::transaction(function () use ($payload): Team {
-            return $this->teamRepository->create([
+            $team = $this->teamRepository->create([
                 'name' => $payload['name'],
                 'code' => $payload['code'] ?? null,
                 'department_id' => $payload['department_id'] ?? null,
@@ -24,6 +24,10 @@ class TeamService
                 'description' => $payload['description'] ?? null,
                 'is_active' => (bool) ($payload['is_active'] ?? true),
             ]);
+
+            $this->syncSelectedMembers($team, $payload['member_ids'] ?? []);
+
+            return $team;
         });
     }
 
@@ -39,6 +43,8 @@ class TeamService
                 'description' => $payload['description'] ?? null,
                 'is_active' => (bool) ($payload['is_active'] ?? false),
             ]);
+
+            $this->syncSelectedMembers($team, $payload['member_ids'] ?? []);
 
             return $team->fresh() ?? $team;
         });
@@ -75,5 +81,36 @@ class TeamService
 
             $team->members()->sync($syncData);
         });
+    }
+
+    /** @param array<int, mixed> $memberIds */
+    private function syncSelectedMembers(Team $team, array $memberIds): void
+    {
+        $selectedIds = collect($memberIds)
+            ->map(fn ($employeeId) => (int) $employeeId)
+            ->filter(fn (int $employeeId) => $employeeId > 0)
+            ->unique()
+            ->values();
+
+        $existingMembers = $team->members()
+            ->whereIn('employees.id', $selectedIds->all())
+            ->get()
+            ->keyBy('id');
+
+        $syncData = [];
+        foreach ($selectedIds as $employeeId) {
+            $existing = $existingMembers->get($employeeId);
+
+            $syncData[$employeeId] = [
+                'member_role' => (string) ($existing?->pivot?->member_role ?? 'member'),
+                'joined_on' => $existing?->pivot?->joined_on,
+                'left_on' => $existing?->pivot?->left_on,
+                'is_active' => (bool) ($existing?->pivot?->is_active ?? true),
+                'updated_at' => now(),
+                'created_at' => now(),
+            ];
+        }
+
+        $team->members()->sync($syncData);
     }
 }

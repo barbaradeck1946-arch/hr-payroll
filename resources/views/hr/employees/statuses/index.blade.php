@@ -15,7 +15,7 @@
                 <div class="content_wrapper" style="padding:20px;">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-4">
-                            <input type="text" name="q" class="form-control" placeholder="Search by name or employee code" value="{{ $filters['q'] }}">
+                            <input type="text" name="q" class="form-control" placeholder="Search code, name, phone, email or blood group" value="{{ $filters['q'] }}">
                         </div>
                         <div class="col-md-3">
                             <select name="employment_status" class="form-control">
@@ -43,6 +43,9 @@
                             <thead>
                                 <tr>
                                     <th>Employee</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Blood Group</th>
                                     <th>Reports To</th>
                                     <th>Department / Designation / Grade</th>
                                     <th>Current Status</th>
@@ -55,8 +58,12 @@
                                 @forelse($employees as $employee)
                                     @php($name = trim(($employee->first_name ?? '') . ' ' . ($employee->last_name ?? '')))
                                     @php($managerName = trim(($employee->manager?->first_name ?? '') . ' ' . ($employee->manager?->last_name ?? '')))
+                                    @php($email = $employee->work_email ?: ($employee->personal_email ?: $employee->user?->email))
                                     <tr>
                                         <td>{{ $name !== '' ? $name : '-' }} ({{ $employee->employee_code }})</td>
+                                        <td>{{ $employee->phone ?: '-' }}</td>
+                                        <td>{{ $email ?: '-' }}</td>
+                                        <td>{{ $employee->blood_group ?: '-' }}</td>
                                         <td>{{ $managerName !== '' ? $managerName : '-' }}</td>
                                         <td>
                                             <div><strong>Dept:</strong> {{ $employee->department?->name ?? '-' }}</div>
@@ -82,7 +89,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">No employees found.</td>
+                                        <td colspan="10" class="text-center">No employees found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

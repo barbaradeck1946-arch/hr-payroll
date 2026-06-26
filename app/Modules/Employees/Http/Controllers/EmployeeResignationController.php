@@ -315,6 +315,7 @@ class EmployeeResignationController extends Controller
 
         $employees = Employee::query()
             ->with([
+                'user:id,email',
                 'manager:id,first_name,last_name',
                 'department:id,name',
                 'designation:id,name',
@@ -325,7 +326,12 @@ class EmployeeResignationController extends Controller
                 $q->where(function (Builder $inner) use ($search): void {
                     $inner->where('employee_code', 'like', "%{$search}%")
                         ->orWhere('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhere('work_email', 'like', "%{$search}%")
+                        ->orWhere('personal_email', 'like', "%{$search}%")
+                        ->orWhere('blood_group', 'like', "%{$search}%")
+                        ->orWhereHas('user', fn (Builder $userQuery) => $userQuery->where('email', 'like', "%{$search}%"));
                 });
             })
             ->when($filters['employment_status'] !== '', fn (Builder $q) => $q->where('employment_status', $filters['employment_status']))

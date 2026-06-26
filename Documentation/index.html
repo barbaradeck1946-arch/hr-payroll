@@ -436,10 +436,10 @@ php artisan optimize:clear</code></pre>
 
         <section id="default-seed">
             <h2>Default Seed Data</h2>
-            <p>Zeri HR includes a single default admin seeder for fresh installations. It creates all permissions, one Admin role with full permissions and one active admin user.</p>
+            <p>Zeri HR includes a single default admin seeder for fresh installations. It creates all permissions, default organization roles, role-permission assignments and one active admin user.</p>
             <h3>Seed Command</h3>
             <pre><code>php artisan db:seed --class=AdminUserSeeder</code></pre>
-            <p>Run this command after migrations. Additional roles such as HR Manager, Department Head, Supervisor or Employee should be created from the Roles screen and assigned only the permissions needed for that role.</p>
+            <p>Run this command after migrations. Admin or HR users can adjust the default roles and permissions later from the Roles screen based on company policy.</p>
 
             <h3>Default Admin Login</h3>
             <table>
@@ -457,12 +457,28 @@ DEFAULT_ADMIN_EMAIL=admin@zerihr.local
 DEFAULT_ADMIN_PASSWORD=password</code></pre>
 
             <h3>Permissions Seed</h3>
-            <p>The default admin seeder creates all system permissions, creates one <strong>Admin</strong> role, syncs that role with all permissions and creates the default admin user.</p>
+            <p>The default admin seeder creates all system permissions, creates organization role templates, syncs each role with a practical permission set and creates the default admin user.</p>
             <h4>Single Default Seed Command</h4>
             <pre><code>php artisan db:seed --class=AdminUserSeeder</code></pre>
-            <p>Use this command when you only need the default permissions, one Admin role and one admin user with full access.</p>
+            <p>Use this command when you need the default permissions, role templates, role-permission assignments and one admin user with full access.</p>
+            <h4>Default Organization Roles</h4>
+            <table>
+                <tr><th>Role</th><th>Default Purpose</th></tr>
+                <tr><td>Super Admin</td><td>Highest-level system owner with full access.</td></tr>
+                <tr><td>Admin</td><td>Full system administration access. The default admin user receives this role.</td></tr>
+                <tr><td>HR Admin</td><td>Employee, attendance, leave, announcement, team, project and HR report operations.</td></tr>
+                <tr><td>HR Manager</td><td>HR oversight, employee lifecycle approvals, attendance and leave reports.</td></tr>
+                <tr><td>Payroll Manager</td><td>Salary, payroll runs, payslips, bonus, loan, deduction, provident fund and salary revision management.</td></tr>
+                <tr><td>Finance Manager</td><td>Billing, clients, estimates, invoices, expenses and finance reports.</td></tr>
+                <tr><td>Department Head</td><td>Department-level employee visibility, team approvals and department reports.</td></tr>
+                <tr><td>Supervisor</td><td>Direct subordinate visibility, first-level approvals, tasks and team reports.</td></tr>
+                <tr><td>Project Manager</td><td>Project, team, task, file and client workflow access.</td></tr>
+                <tr><td>Team Lead</td><td>Assigned team, project and task execution access.</td></tr>
+                <tr><td>Auditor</td><td>Read-only review access for reports, audit and key module data.</td></tr>
+                <tr><td>Employee</td><td>Self-service access for own profile, attendance, leave, tasks, payslips, loans, deductions and provident fund records.</td></tr>
+            </table>
             <h4>Payroll Permission Update Commands</h4>
-            <p>After adding or updating payroll, loan, bonus and permission-scope features, run these commands to update the database, refresh the default Admin role and clear cached files.</p>
+            <p>After adding or updating payroll, loan, bonus and permission-scope features, run these commands to update the database, refresh the default role mappings and clear cached files.</p>
             <pre><code>php artisan migrate
 php artisan db:seed --class=AdminUserSeeder
 php artisan view:cache
@@ -781,11 +797,12 @@ php artisan optimize:clear</code></pre>
                 <li>Create reusable Salary Templates.</li>
                 <li>Assign Salary Template to Employee and customize individual salary values.</li>
                 <li>Add bonuses, loans, deductions and provident fund settings.</li>
-                <li>Generate Payroll Draft for selected period.</li>
-                <li>Review all payroll items and payslips.</li>
-                <li>Final Submit payroll run.</li>
+                <li>Generate Payroll Draft for selected period. Draft shows expected salary, bonus, loan installment deduction, other deductions, PF, tax and net payable.</li>
+                <li>Review all payroll items and payslips before final submission.</li>
+                <li>Final Submit payroll run. This is the posting step for salary-linked records such as loan installment payment and PF contribution.</li>
                 <li>Mark individual payslips as paid after payment processing.</li>
             </ol>
+            <div class="note">Loan balances are not reduced during draft generation. Loan installments are marked paid only when the payroll run is finalized, because the deduction becomes real only when salary is processed.</div>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Payroll Dashboard / Runs</strong>
                 Add screenshot later at <span class="path">Documentation/assets/screenshots/payroll-runs.png</span>
@@ -885,7 +902,7 @@ php artisan optimize:clear</code></pre>
 
         <section id="loans">
             <h2>Employee Loans</h2>
-            <p>The Loan module tracks employee loan master records and installment schedules.</p>
+            <p>The Loan module tracks employee loan requests, approval status, installment schedules and salary-based repayment.</p>
             <h3>Loan Master</h3>
             <ul>
                 <li>Employee.</li>
@@ -906,7 +923,20 @@ php artisan optimize:clear</code></pre>
                 <li>Rejected loans are stored with rejection information and are not deducted from payroll.</li>
             </ol>
             <h3>Loan Installments</h3>
-            <p>Installments are created for the loan schedule and loan deduction is calculated in payroll when the installment due date falls inside the payroll period.</p>
+            <p>Installments are created from the approved loan schedule. Payroll picks pending installments when their due date falls inside the payroll period.</p>
+            <h3>Salary Deduction Workflow</h3>
+            <ol>
+                <li>Loan must be active before it can be deducted from payroll.</li>
+                <li>Payroll draft calculates <code>loan_deduction</code> from pending installments due inside the payroll period.</li>
+                <li>HR reviews the draft payslip and confirms that the loan deduction is correct.</li>
+                <li>When HR final submits the payroll run, those due installments are marked as paid.</li>
+                <li>The paid installment stores the payroll item reference so HR can see which salary/payslip paid it.</li>
+                <li>When all installments are paid, the loan status becomes closed automatically.</li>
+            </ol>
+            <div class="success">Recommended workflow: employee applies for loan, supervisor approves, final approver activates it, payroll deducts due installments from salary, and final payroll updates loan balances.</div>
+            <div class="warning">If loan installments are manually paid, rescheduled or changed after payroll draft generation, regenerate the payroll draft before final submission so payslip deduction and loan balance remain the same.</div>
+            <h3>Manual Installment Payment</h3>
+            <p>Manual installment payment should be used only for payments collected outside salary, such as cash, bank deposit or adjustment. Salary-related repayment should normally happen through payroll finalization.</p>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Employee Loans</strong>
                 Add screenshot later at <span class="path">Documentation/assets/screenshots/employee-loans.png</span>
@@ -915,7 +945,7 @@ php artisan optimize:clear</code></pre>
 
         <section id="deductions">
             <h2>Deductions</h2>
-            <p>Deductions are employee-specific amounts deducted during payroll calculation.</p>
+            <p>Deductions are employee-specific amounts deducted during payroll calculation. General deductions and loan deductions are handled separately so loan balances remain accurate.</p>
             <h3>Supported Deduction Setup</h3>
             <ul>
                 <li>Deduction type.</li>
@@ -926,6 +956,7 @@ php artisan optimize:clear</code></pre>
                 <li>Reason and comments.</li>
                 <li>Active/inactive status.</li>
             </ul>
+            <div class="note">Use Employee Deductions for regular non-loan deductions such as welfare fund, penalties, advances or adjustments. Use the Loan module for installment-based employee loans because payroll will update loan installment balances after final submission.</div>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Deductions</strong>
                 Add screenshot later at <span class="path">Documentation/assets/screenshots/deductions.png</span>
@@ -958,12 +989,21 @@ php artisan optimize:clear</code></pre>
                 <li>If needed, HR adjusts employee salary assignment, bonus, loan, deduction or PF setup.</li>
                 <li>HR regenerates draft for the same period.</li>
                 <li>When everything is correct, HR clicks Final Submit.</li>
-                <li>The run becomes processed and PF transactions are posted.</li>
+                <li>The run becomes processed, PF transactions are posted and due loan installments are marked paid against their payslips.</li>
             </ol>
             <h3>Payroll Calculation</h3>
             <pre><code>Gross = basic_salary + allowance_total + bonus_total
 Total Deduction = loan_deduction + other_deduction + provident_fund_deduction + tax_deduction
 Net Payable = Gross - Total Deduction</code></pre>
+            <h3>Final Submit Posting Rules</h3>
+            <ul>
+                <li>Payroll draft can be regenerated before final submission.</li>
+                <li>Final submission locks the payroll run as processed.</li>
+                <li>Due pending loan installments in the payroll period are marked paid and linked to the employee payslip.</li>
+                <li>If due loan installment amounts changed after draft generation, the system blocks final submission and asks HR to regenerate the draft.</li>
+                <li>Provident fund contribution transactions are posted for the run.</li>
+                <li>After final submission, payslips can be marked as paid when salary payment is completed.</li>
+            </ul>
             <div class="warning">Finalized payroll runs cannot be regenerated for the same period. Create a new period or review the finalized run.</div>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Payroll Run Detail</strong>
@@ -988,7 +1028,9 @@ Net Payable = Gross - Total Deduction</code></pre>
                 <li>Net payable.</li>
             </ul>
             <h3>Payment Status</h3>
-            <p>Payment can be marked as paid only after the payroll run is finalized.</p>
+            <p>Payment can be marked as paid only after the payroll run is finalized. Loan deduction on the payslip is already posted to loan installments at payroll final submission; marking payslip payment as paid records the salary payment status.</p>
+            <h3>Loan Deduction Trace</h3>
+            <p>When a payslip deducts loan installment amount, the loan installment stores the payroll item reference. The loan installment list shows whether the installment was paid by payroll or manually.</p>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Payslip Detail</strong>
                 Add screenshot later at <span class="path">Documentation/assets/screenshots/payslip-detail.png</span>
@@ -1039,14 +1081,23 @@ Net Payable = Gross - Total Deduction</code></pre>
             </ul>
             <h3>Roles</h3>
             <ul>
-                <li>The default seed creates one <strong>Admin</strong> role with all permissions.</li>
-                <li>Create additional role groups such as HR Manager, Department Head, Supervisor or Employee from the Roles screen.</li>
-                <li>Assign permissions to each role.</li>
+                <li>The default seed creates common organization roles with practical permission assignments.</li>
+                <li><strong>Super Admin</strong> and <strong>Admin</strong> receive all permissions by default.</li>
+                <li><strong>HR Admin</strong>, <strong>HR Manager</strong>, <strong>Payroll Manager</strong>, <strong>Finance Manager</strong>, <strong>Department Head</strong>, <strong>Supervisor</strong>, <strong>Project Manager</strong>, <strong>Team Lead</strong>, <strong>Auditor</strong> and <strong>Employee</strong> receive scoped default permissions.</li>
+                <li>Admin or HR users can change the assigned permissions later from the Roles screen.</li>
                 <li>Users inherit access from assigned roles.</li>
             </ul>
             <h3>Permissions</h3>
             <p>Permissions are grouped by module, for example <code>employee.view</code>, <code>payroll_run.generate</code>, <code>payslip.view</code> and <code>settings.update</code>.</p>
             <p>Permission access labels are database driven. Each permission stores an access scope key, label, badge class and description, so the role permission screen can show whether a permission is for own access, department/team access, admin/global access or general access.</p>
+            <h3>Data Access Rules</h3>
+            <ul>
+                <li><strong>Employee self-service:</strong> Employees can view their own attendance, leave applications, leave balances, assigned teams, assigned projects, assigned tasks, payslips, loans, deductions and provident fund records when the related view permission is assigned.</li>
+                <li><strong>Supervisor access:</strong> Supervisors can view their own records and direct subordinate records for attendance, leave approval/reporting and task work scope. Supervisor access does not automatically expose payroll finance records.</li>
+                <li><strong>Payroll privacy:</strong> Salary, payslip, loan, deduction and provident fund records are self-only unless payroll management or payroll report permissions are assigned.</li>
+                <li><strong>Work module access:</strong> Team, project and task lists are scoped to records where the user is a lead, manager, member, assignee, creator or direct supervisor of an assignee. Management permissions allow wider setup access.</li>
+                <li><strong>Holiday access:</strong> Users with holiday view permission can see the holiday list/calendar. Create, update and delete actions require separate holiday permissions.</li>
+            </ul>
             <table>
                 <tr><th>Scope</th><th>Meaning</th></tr>
                 <tr><td>Own / Self</td><td>User can access their own records or personal actions.</td></tr>

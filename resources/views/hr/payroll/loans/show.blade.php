@@ -125,6 +125,7 @@
                                     <th>Amount</th>
                                     <th>Paid Amount</th>
                                     <th>Paid Date</th>
+                                    <th>Paid By</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -137,6 +138,15 @@
                                         <td>{{ number_format((float) $installment->amount, 2) }}</td>
                                         <td>{{ number_format((float) $installment->paid_amount, 2) }}</td>
                                         <td>{{ $installment->paid_date ?: '-' }}</td>
+                                        <td>
+                                            @if($installment->payrollItem?->payrollRun)
+                                                Payroll: {{ $installment->payrollItem->payrollRun->period_label ?: $installment->payrollItem->payrollRun->period_start.' to '.$installment->payrollItem->payrollRun->period_end }}
+                                            @elseif($installment->status === 'paid')
+                                                Manual
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td><span class="badge bg-secondary">{{ ucfirst($installment->status) }}</span></td>
                                         <td>
                                             @if($canMarkInstallmentPaid && $installment->status !== 'paid')
@@ -152,7 +162,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="7" class="text-center">No installments found.</td></tr>
+                                    <tr><td colspan="8" class="text-center">No installments found.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>

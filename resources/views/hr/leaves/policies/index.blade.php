@@ -5,7 +5,9 @@
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-calendar"></i> Leave Policies (Salary Grade Wise)</h1>
-        <a href="{{ route('leave-policies.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Policy</a>
+        @if(auth()->user()?->hasPermission('leave.manage-quotas'))
+            <a href="{{ route('leave-policies.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Policy</a>
+        @endif
     </div>
 
     @include('partials.flash')
@@ -102,14 +104,16 @@
                                             @endif
                                         </td>
                                         <td class="action-buttons">
-                                            <a href="{{ route('leave-policies.edit', $policy) }}" title="Edit">
-                                                <i class="icon-pencil"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('leave-policies.destroy', $policy) }}" onsubmit="return confirm('Delete this leave policy?');" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" title="Delete"><i class="icon-trash"></i></button>
-                                            </form>
+                                            @if(auth()->user()?->hasPermission('leave.manage-quotas'))
+                                                <a href="{{ route('leave-policies.edit', $policy) }}" title="Edit">
+                                                    <i class="icon-pencil"></i>
+                                                </a>
+                                                <form method="POST" action="{{ route('leave-policies.destroy', $policy) }}" onsubmit="return confirm('Delete this leave policy?');" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" title="Delete"><i class="icon-trash"></i></button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

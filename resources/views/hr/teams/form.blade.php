@@ -3,6 +3,7 @@
 
 @section('content')
 <div class="wrapper-page">
+    @php($selectedMemberIds = collect(old('member_ids', isset($team) ? $team->members->pluck('id')->all() : []))->map(fn($id) => (int) $id)->all())
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-people"></i> {{ $mode === 'create' ? 'Add Team' : 'Edit Team' }}</h1>
         <a href="{{ route('teams.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
@@ -27,9 +28,9 @@
                             <input type="text" name="code" value="{{ old('code', $team->code ?? '') }}" class="form-control">
                         </div>
                         <div class="col-md-4">
-                            <label>Department</label>
+                            <label>Primary Department</label>
                             <select name="department_id" class="form-control">
-                                <option value="">Select Department</option>
+                                <option value="">No Primary Department</option>
                                 @foreach($departments as $department)
                                     <option value="{{ $department->id }}" {{ (int) old('department_id', $team->department_id ?? 0) === (int) $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
                                 @endforeach
@@ -41,7 +42,8 @@
                                 <option value="">Select Lead</option>
                                 @foreach($employees as $employee)
                                     @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
-                                    <option value="{{ $employee->id }}" {{ (int) old('lead_employee_id', $team->lead_employee_id ?? 0) === (int) $employee->id ? 'selected' : '' }}>{{ $name }} ({{ $employee->employee_code }})</option>
+                                    @php($departmentName = $employee->department?->name ?? 'No Department')
+                                    <option value="{{ $employee->id }}" {{ (int) old('lead_employee_id', $team->lead_employee_id ?? 0) === (int) $employee->id ? 'selected' : '' }}>{{ $name }} ({{ $employee->employee_code }}) - {{ $departmentName }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -50,6 +52,16 @@
                             <select name="is_active" class="form-control">
                                 <option value="1" {{ (string) old('is_active', (isset($team) ? (int) $team->is_active : 1)) === '1' ? 'selected' : '' }}>Active</option>
                                 <option value="0" {{ (string) old('is_active', (isset($team) ? (int) $team->is_active : 1)) === '0' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label>Team Members</label>
+                            <select name="member_ids[]" class="form-control js-example-basic-multiple" multiple>
+                                @foreach($employees as $employee)
+                                    @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
+                                    @php($departmentName = $employee->department?->name ?? 'No Department')
+                                    <option value="{{ $employee->id }}" {{ in_array((int) $employee->id, $selectedMemberIds, true) ? 'selected' : '' }}>{{ $name }} ({{ $employee->employee_code }}) - {{ $departmentName }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-12">
@@ -66,3 +78,16 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    if ($.fn.select2) {
+        $('.js-example-basic-multiple').select2({
+            width: '100%',
+            placeholder: 'Select employees from any department'
+        });
+    }
+})();
+</script>
+@endpush

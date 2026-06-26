@@ -5,7 +5,7 @@
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-docs"></i> Payroll Run</h1>
         <div class="d-flex gap-2">
-            @if($run->status === 'draft')
+            @if($run->status === 'draft' && ($canFinalizePayroll ?? false))
                 <form method="POST" action="{{ route('payroll.runs.finalize', $run) }}" onsubmit="return confirm('Finalize this payroll run? After final submission, salary calculations will be locked for this run.');">
                     @csrf
                     <button type="submit" class="btn btn-custom"><i class="icon-check"></i> Final Submit</button>

@@ -4,7 +4,9 @@
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-wallet"></i> Salary Grades</h1>
-        <a href="{{ route('salary-grades.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Salary Grade</a>
+        @if(auth()->user()?->hasAnyPermission(['salary_grade.create', 'payroll.manage-salary-templates']))
+            <a href="{{ route('salary-grades.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Salary Grade</a>
+        @endif
     </div>
 
     @include('partials.flash')
@@ -76,14 +78,18 @@
                                             @endif
                                         </td>
                                         <td class="action-buttons">
-                                            <a href="{{ route('salary-grades.edit', $salaryGrade) }}" title="Edit Salary Grade">
-                                                <i class="icon-pencil"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('salary-grades.destroy', $salaryGrade) }}" onsubmit="return confirm('Delete this salary grade?');" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" title="Delete Salary Grade"><i class="icon-trash"></i></button>
-                                            </form>
+                                            @if(auth()->user()?->hasAnyPermission(['salary_grade.update', 'payroll.manage-salary-templates']))
+                                                <a href="{{ route('salary-grades.edit', $salaryGrade) }}" title="Edit Salary Grade">
+                                                    <i class="icon-pencil"></i>
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()?->hasPermission('salary_grade.delete'))
+                                                <form method="POST" action="{{ route('salary-grades.destroy', $salaryGrade) }}" onsubmit="return confirm('Delete this salary grade?');" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" title="Delete Salary Grade"><i class="icon-trash"></i></button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
