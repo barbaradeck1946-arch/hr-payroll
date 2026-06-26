@@ -44,15 +44,15 @@
             @endif
 
 
-            // Resignation Requests Table
             <div class="card no-border">
                 <div class="content_wrapper" style="padding:20px;">
-                    <h5 class="table_banner_title mb-3">My Resignation Requests</h5>
+                    <h5 class="table_banner_title mb-3">Resignation Requests</h5>
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
                                     <th>Applied At</th>
+                                    <th>Employee</th>
                                     <th>Supervisor</th>
                                     <th>Notice Date</th>
                                     <th>Requested LWD</th>
@@ -63,9 +63,11 @@
                             </thead>
                             <tbody>
                                 @forelse($requests as $item)
+                                    @php($employeeName = trim(($item->employee?->first_name ?? '') . ' ' . ($item->employee?->last_name ?? '')))
                                     @php($supervisorName = trim(($item->supervisorEmployee?->first_name ?? '') . ' ' . ($item->supervisorEmployee?->last_name ?? '')))
                                     <tr>
                                         <td>{{ $item->created_at?->format('Y-m-d H:i') }}</td>
+                                        <td>{{ $employeeName !== '' ? $employeeName : '-' }} ({{ $item->employee?->employee_code ?? '-' }})</td>
                                         <td>{{ $supervisorName !== '' ? $supervisorName : '-' }}</td>
                                         <td>{{ $item->notice_date ?? '-' }}</td>
                                         <td>{{ $item->requested_last_working_day }}</td>
@@ -87,7 +89,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">No resignation requests found.</td>
+                                        <td colspan="8" class="text-center">No resignation requests found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

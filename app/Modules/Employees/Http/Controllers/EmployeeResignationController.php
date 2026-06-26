@@ -30,11 +30,18 @@ class EmployeeResignationController extends Controller
     // Helper method to get IDs of employees who report directly to the given user
     public function applyIndex(Request $request): View
     {
+        $user = $request->user();
         $employee = $request->user()?->employee;
+        $visibleEmployeeIds = $this->visibleResignationEmployeeIds($user);
 
         $requests = EmployeeResignationRequest::query()
-            ->with(['supervisorEmployee:id,first_name,last_name,employee_code', 'supervisorActionBy:id,name', 'finalActionBy:id,name'])
-            ->when($employee, fn (Builder $q) => $q->where('employee_id', (int) $employee->id), fn (Builder $q) => $q->whereRaw('1 = 0'))
+            ->with([
+                'employee:id,employee_code,first_name,last_name,department_id',
+                'supervisorEmployee:id,first_name,last_name,employee_code',
+                'supervisorActionBy:id,name',
+                'finalActionBy:id,name',
+            ])
+            ->whereIn('employee_id', $visibleEmployeeIds)
             ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
@@ -88,7 +95,7 @@ class EmployeeResignationController extends Controller
     public function supervisorApprovalsIndex(Request $request): View
     {
         $user = $request->user();
-        $subordinateIds = $this->subordinateEmployeeIds($user);
+        $approvableEmployeeIds = $this->approvableResignationEmployeeIds($user);
 
         $filters = [
             'status' => (string) $request->input('status', 'pending_supervisor'),
@@ -96,11 +103,11 @@ class EmployeeResignationController extends Controller
             'per_page' => max(10, min(100, (int) $request->input('per_page', 20))),
         ];
 
-        if ($filters['employee_id'] > 0 && ! in_array($filters['employee_id'], $subordinateIds, true)) {
+        if ($filters['employee_id'] > 0 && ! in_array($filters['employee_id'], $approvableEmployeeIds, true)) {
             $filters['employee_id'] = 0;
         }
 
-        // Only fetch requests from direct subordinates, with optional filtering by status and employee
+        // Only fetch requests from employees inside the user's approval scope.
         $requests = EmployeeResignationRequest::query()
             ->with([
                 'employee:id,employee_code,first_name,last_name,reports_to_id,employment_status',
@@ -108,7 +115,7 @@ class EmployeeResignationController extends Controller
                 'supervisorActionBy:id,name',
                 'finalActionBy:id,name',
             ])
-            ->whereIn('employee_id', $subordinateIds)
+            ->whereIn('employee_id', $approvableEmployeeIds)
             ->when($filters['status'] !== '', fn (Builder $q) => $q->where('status', $filters['status']))
             ->when($filters['employee_id'] > 0, fn (Builder $q) => $q->where('employee_id', $filters['employee_id']))
             ->orderByDesc('id')
@@ -119,7 +126,7 @@ class EmployeeResignationController extends Controller
             'requests' => $requests,
             'employees' => Employee::query()
                 ->select(['id', 'employee_code', 'first_name', 'last_name'])
-                ->whereIn('id', $subordinateIds)
+                ->whereIn('id', $approvableEmployeeIds)
                 ->orderBy('first_name')
                 ->orderBy('last_name')
                 ->get(),
@@ -131,10 +138,10 @@ class EmployeeResignationController extends Controller
     public function processSupervisor(ProcessEmployeeResignationSupervisorRequest $request, EmployeeResignationRequest $resignationRequest): RedirectResponse
     {
         $user = $request->user();
-        $subordinateIds = $this->subordinateEmployeeIds($user);
+        $approvableEmployeeIds = $this->approvableResignationEmployeeIds($user);
 
-        if (! in_array((int) $resignationRequest->employee_id, $subordinateIds, true)) {
-            return redirect()->route('employee-resignations.supervisor-approvals')->withErrors(['action' => 'You can only process requests from your direct subordinates.']);
+        if (! in_array((int) $resignationRequest->employee_id, $approvableEmployeeIds, true)) {
+            return redirect()->route('employee-resignations.supervisor-approvals')->withErrors(['action' => 'You can only process requests inside your resignation approval scope.']);
         }
 
         if ($resignationRequest->status !== 'pending_supervisor') {
@@ -541,5 +548,51 @@ class EmployeeResignationController extends Controller
         }
 
         return $employee->subordinates()->pluck('id')->all();
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function visibleResignationEmployeeIds(?User $user): array
+    {
+        $employee = $user?->employee;
+        if (! $employee) {
+            return [];
+        }
+
+        $ids = collect([(int) $employee->id]);
+
+        if ($user?->hasPermission('dashboard.view-department') && (int) $employee->department_id > 0) {
+            $ids = $ids->merge(
+                Employee::query()
+                    ->where('department_id', (int) $employee->department_id)
+                    ->pluck('id')
+            );
+        }
+
+        return $ids->map(fn ($id) => (int) $id)->unique()->values()->all();
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function approvableResignationEmployeeIds(?User $user): array
+    {
+        $employee = $user?->employee;
+        if (! $employee) {
+            return [];
+        }
+
+        if ($user?->hasPermission('dashboard.view-department') && (int) $employee->department_id > 0) {
+            return Employee::query()
+                ->where('department_id', (int) $employee->department_id)
+                ->where('id', '!=', (int) $employee->id)
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->values()
+                ->all();
+        }
+
+        return $this->subordinateEmployeeIds($user);
     }
 }

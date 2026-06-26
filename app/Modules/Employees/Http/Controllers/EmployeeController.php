@@ -33,9 +33,9 @@ class EmployeeController extends Controller
         ];
 
         return view('hr.employees.index', [
-            'employees' => $this->employeeRepository->paginate($filters),
-            'departments' => $this->employeeRepository->listDepartments(),
-             'designations' => $this->employeeRepository->listDesignations(),
+            'employees' => $this->employeeRepository->paginate($filters, $request->user()),
+            'departments' => $this->employeeRepository->listDepartments($request->user()),
+             'designations' => $this->employeeRepository->listDesignations($request->user()),
             'filters' => $filters,
         ]);
     }
@@ -44,8 +44,8 @@ class EmployeeController extends Controller
     {
         return view('hr.employees.form', [
             'mode' => 'create',
-            'departments' => $this->employeeRepository->listDepartments(),
-             'designations' => $this->employeeRepository->listDesignations(),
+            'departments' => $this->employeeRepository->listDepartments(request()->user()),
+             'designations' => $this->employeeRepository->listDesignations(request()->user()),
              'salaryGrades' => $this->employeeRepository->listSalaryGrades(),
             'managers' => $this->employeeRepository->listManagers(),
             'users' => $this->employeeRepository->listUsersForLinking(),
@@ -66,6 +66,8 @@ class EmployeeController extends Controller
 
     public function show(Employee $employee): View
     {
+        abort_if(! $this->employeeRepository->canAccess($employee, request()->user()), 403);
+
         return view('hr.employees.show', [
             'employee' => $this->employeeRepository->withDetails($employee),
         ]);
@@ -95,11 +97,13 @@ class EmployeeController extends Controller
     // Show the form for editing the specified resource.
     public function edit(Employee $employee): View
     {
+        abort_if(! $this->employeeRepository->canAccess($employee, request()->user()), 403);
+
         return view('hr.employees.form', [
              'mode' => 'edit',
              'employee' => $employee,
-             'departments' => $this->employeeRepository->listDepartments(),
-            'designations' => $this->employeeRepository->listDesignations(),
+             'departments' => $this->employeeRepository->listDepartments(request()->user()),
+            'designations' => $this->employeeRepository->listDesignations(request()->user()),
             'salaryGrades' => $this->employeeRepository->listSalaryGrades(),
             'managers' => $this->employeeRepository->listManagers($employee->id),
             'users' => $this->employeeRepository->listUsersForLinking($employee->user_id),
@@ -108,6 +112,8 @@ class EmployeeController extends Controller
 
     public function update(UpdateEmployeeRequest $request, Employee $employee): RedirectResponse
     {
+        abort_if(! $this->employeeRepository->canAccess($employee, $request->user()), 403);
+
         $this->employeeService->updateEmployee(
             $employee,
             $request->validated(),
@@ -120,6 +126,8 @@ class EmployeeController extends Controller
     // Remove the specified resource from storage.
     public function destroy(Employee $employee): RedirectResponse
     {
+        abort_if(! $this->employeeRepository->canAccess($employee, request()->user()), 403);
+
         $this->employeeService->deleteEmployee($employee);
 
         return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');

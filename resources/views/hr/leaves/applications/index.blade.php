@@ -11,11 +11,9 @@
 
     <div class="page-content">
         <div class="container-fluid">
-            // This check is to prevent errors in case the employee record is not found for the logged-in user
             @if(! $employee)
                 <div class="alert alert-danger">Your account is not linked with an employee profile. Contact HR.</div>
             @else
-            // Show the leave application form only if the employee record exists
                 <div class="card no-border mb-3">
                     <div class="content_wrapper" style="padding:20px;">
                             <h5 class="table_banner_title mb-3">New Leave Request</h5>
@@ -68,7 +66,6 @@
                     </div>
                 </div>
             @endif
-    // Show the list of leave applications for the logged-in employee
             <div class="card no-border">
                 <div class="content_wrapper" style="padding:20px;">
                     <h5 class="table_banner_title mb-3">My Leave Requests</h5>

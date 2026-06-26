@@ -17,7 +17,7 @@ class EmployeeRepository
      * @param array<string, mixed> $filters
      * @return LengthAwarePaginator<Employee>
      */
-    public function paginate(array $filters): LengthAwarePaginator
+    public function paginate(array $filters, ?User $user = null): LengthAwarePaginator
     {
         $q = trim((string) ($filters['q'] ?? ''));
         $departmentId = (int) ($filters['department_id'] ?? 0);
@@ -34,6 +34,7 @@ class EmployeeRepository
                 'manager:id,employee_code,first_name,last_name',
                 'user:id,name,email',
             ])
+            ->when($user !== null && ! $this->canViewAll($user), fn ($query) => $this->scopeToUser($query, $user))
             ->when($q !== '', function ($query) use ($q): void {
                 $query->where(function ($inner) use ($q): void {
                     $inner
@@ -52,6 +53,33 @@ class EmployeeRepository
             ->orderByDesc('id')
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    public function canAccess(Employee $employee, ?User $user): bool
+    {
+        if ($this->canViewAll($user)) {
+            return true;
+        }
+
+        $authEmployee = $user?->employee;
+        if (! $authEmployee) {
+            return false;
+        }
+
+        if ((int) $employee->id === (int) $authEmployee->id) {
+            return true;
+        }
+
+        if ($this->canViewDepartment($user)) {
+            return (int) $employee->department_id > 0
+                && (int) $employee->department_id === (int) $authEmployee->department_id;
+        }
+
+        if ($this->canViewTeam($user)) {
+            return (int) $employee->reports_to_id === (int) $authEmployee->id;
+        }
+
+        return false;
     }
 
     // create, update, delete, withDetails
@@ -85,17 +113,41 @@ class EmployeeRepository
     }
 
 
-    public function listDepartments(): Collection
+    public function listDepartments(?User $user = null): Collection
     {
-        return Department::query()->orderBy('name')->get(['id', 'name', 'code']);
+        return Department::query()
+            ->when($user !== null && ! $this->canViewAll($user), function ($query) use ($user): void {
+                $authDepartmentId = (int) ($user?->employee?->department_id ?? 0);
+
+                if ($authDepartmentId > 0 && $this->canViewTeam($user)) {
+                    $query->where('id', $authDepartmentId);
+                    return;
+                }
+
+                $query->whereRaw('1 = 0');
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'code']);
     }
 
     /**
      * @return Collection<int, Designation>
      */
-    public function listDesignations(): Collection
+    public function listDesignations(?User $user = null): Collection
     {
-        return Designation::query()->orderBy('name')->get(['id', 'name', 'code', 'department_id']);
+        return Designation::query()
+            ->when($user !== null && ! $this->canViewAll($user), function ($query) use ($user): void {
+                $authDepartmentId = (int) ($user?->employee?->department_id ?? 0);
+
+                if ($authDepartmentId > 0 && $this->canViewTeam($user)) {
+                    $query->where('department_id', $authDepartmentId);
+                    return;
+                }
+
+                $query->whereRaw('1 = 0');
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'code', 'department_id']);
     }
 
     /**
@@ -213,5 +265,67 @@ class EmployeeRepository
         }
 
         return $chain;
+    }
+
+    private function canViewAll(?User $user): bool
+    {
+        return $user?->hasAnyPermission([
+            'employee.create',
+            'employee.update',
+            'employee.delete',
+            'employee.resignation-final-approve',
+            'employee.status-update',
+            'employee.promotion-manage',
+            'employee.rejoin-manage',
+            'role.assign',
+        ]) ?? false;
+    }
+
+    private function canViewTeam(?User $user): bool
+    {
+        return $user?->hasAnyPermission([
+            'employee.view',
+            'employee.view-hierarchy',
+            'employee.profile-update-request-review',
+            'employee.resignation-supervisor-approve',
+        ]) ?? false;
+    }
+
+    private function canViewDepartment(?User $user): bool
+    {
+        return $user?->hasPermission('dashboard.view-department') ?? false;
+    }
+
+    private function scopeToUser($query, ?User $user): void
+    {
+        $authEmployee = $user?->employee;
+        if (! $authEmployee) {
+            $query->whereRaw('1 = 0');
+            return;
+        }
+
+        if ($this->canViewDepartment($user)) {
+            $query->where(function ($inner) use ($authEmployee): void {
+                if ((int) $authEmployee->department_id > 0) {
+                    $inner->where('department_id', $authEmployee->department_id);
+                    return;
+                }
+
+                $inner->where('id', $authEmployee->id);
+            });
+
+            return;
+        }
+
+        if ($this->canViewTeam($user)) {
+            $query->where(function ($inner) use ($authEmployee): void {
+                $inner->where('id', $authEmployee->id)
+                    ->orWhere('reports_to_id', $authEmployee->id);
+            });
+
+            return;
+        }
+
+        $query->where('id', $authEmployee->id);
     }
 }

@@ -46,7 +46,6 @@
                         </div>
                     </form>
 
-                    // Resignation Requests Table
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">
                             <thead>
