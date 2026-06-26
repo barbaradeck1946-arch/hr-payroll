@@ -25,7 +25,24 @@
             <div class="card no-border">
                 <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
-                        <div class="col-md-3"><select name="employee_id" class="form-control js-example-basic-single"><option value="0">All Employees</option>@foreach($employees as $employee)<option value="{{ $employee->id }}" {{ (int)$filters['employee_id']===$employee->id?'selected':'' }}>{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
+                        <div class="col-md-3">
+                            @if($canViewAllPayroll)
+                                <select name="employee_id" class="form-control js-example-basic-single">
+                                    <option value="0">All Employees</option>
+                                    @foreach($employees as $employee)
+                                        <option value="{{ $employee->id }}" {{ (int)$filters['employee_id']===$employee->id?'selected':'' }}>{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <select name="employee_id" class="form-control" disabled>
+                                    @forelse($employees as $employee)
+                                        <option>{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>
+                                    @empty
+                                        <option>My payroll records</option>
+                                    @endforelse
+                                </select>
+                            @endif
+                        </div>
                         <div class="col-md-2"><select name="status" class="form-control"><option value="">All Run Status</option>@foreach(['draft','processed','approved','paid'] as $status)<option value="{{ $status }}" {{ $filters['status']===$status?'selected':'' }}>{{ ucfirst($status) }}</option>@endforeach</select></div>
                         <div class="col-md-2"><input type="text" name="from_date" class="form-control datetimepicker" value="{{ $filters['from_date'] }}" placeholder="From date"></div>
                         <div class="col-md-2"><input type="text" name="to_date" class="form-control datetimepicker" value="{{ $filters['to_date'] }}" placeholder="To date"></div>

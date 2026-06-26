@@ -52,10 +52,10 @@ class PayrollRepository
      */
     public function loans(array $filters, ?User $user = null): LengthAwarePaginator
     {
-        $canViewAll = $user?->hasAnyPermission(['payroll.manage-loan', 'loan.view', 'employee_loan.view']) ?? false;
+        $canViewAll = $this->canViewAllLoans($user);
         $canSupervisorApprove = $user?->hasAnyPermission(['loan.approve-supervisor', 'employee_loan.approve-supervisor']) ?? false;
         $canFinalApprove = $user?->hasAnyPermission(['loan.approve', 'loan.approve-final', 'employee_loan.approve', 'employee_loan.approve-final']) ?? false;
-        $canViewOwn = $user?->hasAnyPermission(['loan.apply', 'employee_loan.apply', 'employee_loan.view-own']) ?? false;
+        $canViewOwn = $user?->hasAnyPermission(['loan.view', 'loan.apply', 'employee_loan.view', 'employee_loan.apply', 'employee_loan.view-own']) ?? false;
         $employeeId = $user?->employee?->id;
 
         return EmployeeLoan::query()
@@ -88,6 +88,20 @@ class PayrollRepository
             ->orderByDesc('id')
             ->paginate($this->perPage($filters))
             ->withQueryString();
+    }
+
+    public function canViewAllLoans(?User $user): bool
+    {
+        return $user?->hasAnyPermission([
+            'payroll.manage-loan',
+            'loan.create',
+            'loan.update',
+            'loan.delete',
+            'employee_loan.create',
+            'employee_loan.update',
+            'employee_loan.delete',
+            'loan_installment.mark-paid',
+        ]) ?? false;
     }
 
     /**

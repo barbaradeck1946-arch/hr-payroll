@@ -129,6 +129,7 @@ class ReportController extends Controller
             'items' => (clone $query)->paginate($filters['per_page'])->withQueryString(),
             'employees' => $this->employeesForSelect($employeeIds),
             'filters' => $filters,
+            'canViewAllPayroll' => $employeeIds === null,
             'summary' => [
                 'items' => (clone $query)->count(),
                 'gross' => (clone $query)->reorder()->selectRaw('COALESCE(SUM(basic_salary + allowance_total + bonus_total), 0) as total')->value('total'),
@@ -324,13 +325,32 @@ class ReportController extends Controller
             return [];
         }
 
-        if ($user->hasAnyPermission(['report.payroll', 'report.view', 'payroll.report', 'payroll.view', 'payroll.generate', 'payroll_run.view'])) {
+        if ($user->hasAnyPermission($this->globalPayrollReportPermissions())) {
             return null;
         }
 
         $employeeId = (int) ($user->employee?->id ?? 0);
 
         return $employeeId > 0 ? [$employeeId] : [];
+    }
+
+    /**
+     * Payroll is confidential, so generic report access must not unlock company-wide payroll rows.
+     *
+     * @return array<int, string>
+     */
+    private function globalPayrollReportPermissions(): array
+    {
+        return [
+            'report.payroll',
+            'payroll.report',
+            'payroll.view',
+            'payroll.generate',
+            'payroll_run.view',
+            'payroll_run.generate',
+            'payroll_run.approve',
+            'payroll_run.mark-paid',
+        ];
     }
 
     /**

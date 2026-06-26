@@ -26,7 +26,24 @@
                     @endif
 
                     <form method="GET" class="row g-2 mb-3">
-                        <div class="col-md-3"><select name="employee_id" class="form-control"><option value="0">All Employees</option>@foreach($employees as $employee)<option value="{{ $employee->id }}" {{ (int)$filters['employee_id']===$employee->id?'selected':'' }}>{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>@endforeach</select></div>
+                        <div class="col-md-3">
+                            @if($canViewAllDeductions ?? false)
+                                <select name="employee_id" class="form-control">
+                                    <option value="0">All Employees</option>
+                                    @foreach($employees as $employee)
+                                        <option value="{{ $employee->id }}" {{ (int)$filters['employee_id']===$employee->id?'selected':'' }}>{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <select name="employee_id" class="form-control" disabled>
+                                    @forelse($employees as $employee)
+                                        <option>{{ trim($employee->first_name.' '.$employee->last_name) }} ({{ $employee->employee_code }})</option>
+                                    @empty
+                                        <option>My deduction records</option>
+                                    @endforelse
+                                </select>
+                            @endif
+                        </div>
                         <div class="col-md-2"><select name="status" class="form-control"><option value="">All Status</option><option value="active" {{ $filters['status']==='active'?'selected':'' }}>Active</option><option value="inactive" {{ $filters['status']==='inactive'?'selected':'' }}>Inactive</option></select></div>
                         <div class="col-md-2"><select name="per_page" class="form-control">@foreach([10,20,50,100] as $size)<option value="{{ $size }}" {{ (int)$filters['per_page']===$size?'selected':'' }}>{{ $size }} / page</option>@endforeach</select></div>
                         <div class="col-md-5 d-flex gap-2"><button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> Filter</button><a href="{{ route('payroll.deductions.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> Reset</a></div>

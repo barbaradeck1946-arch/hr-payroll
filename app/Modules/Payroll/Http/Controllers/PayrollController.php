@@ -274,11 +274,14 @@ class PayrollController extends Controller
     public function loans(Request $request): View
     {
         $filters = $this->filters($request);
+        $canViewAllLoans = $this->payrollRepository->canViewAllLoans($request->user());
+        $employeeScope = $canViewAllLoans ? null : [(int) ($request->user()?->employee?->id ?? 0)];
 
         return view('hr.payroll.loans.index', [
             'loans' => $this->payrollRepository->loans($filters, $request->user()),
             'filters' => $filters,
-            'employees' => $this->payrollRepository->employeesForSelect(),
+            'employees' => $this->payrollRepository->employeesForSelect($employeeScope),
+            'canViewAllLoans' => $canViewAllLoans,
         ]);
     }
 
@@ -310,7 +313,7 @@ class PayrollController extends Controller
     public function showLoan(EmployeeLoan $loan): View
     {
         $user = request()->user();
-        $canViewAll = $user?->hasAnyPermission(['payroll.manage-loan', 'loan.view', 'employee_loan.view']) ?? false;
+        $canViewAll = $this->payrollRepository->canViewAllLoans($user);
         $canSupervisorApprovePending = ($user?->hasAnyPermission(['employee_loan.approve-supervisor', 'loan.approve-supervisor']) ?? false)
             && $this->isTeamLoan($loan, $user?->employee?->id)
             && $loan->status === 'pending_supervisor';
@@ -452,6 +455,7 @@ class PayrollController extends Controller
             'filters' => $filters,
             'employees' => $this->payrollRepository->employeesForSelect($employeeScope),
             'canManageDeductions' => $employeeScope === null,
+            'canViewAllDeductions' => $employeeScope === null,
         ]);
     }
 
