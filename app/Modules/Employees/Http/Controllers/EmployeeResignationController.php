@@ -89,7 +89,7 @@ class EmployeeResignationController extends Controller
             'status' => 'pending_supervisor',
         ]);
 
-        return redirect()->route('employee-resignations.index')->with('success', 'Resignation request submitted. Waiting for supervisor approval.');
+        return redirect()->route('employee-resignations.index')->with('success', __('Resignation request submitted. Waiting for supervisor approval.'));
     }
 
     public function supervisorApprovalsIndex(Request $request): View
@@ -187,7 +187,7 @@ class EmployeeResignationController extends Controller
             ]);
         });
 
-        return redirect()->route('employee-resignations.supervisor-approvals')->with('success', 'Supervisor action completed.');
+        return redirect()->route('employee-resignations.supervisor-approvals')->with('success', __('Supervisor action completed.'));
     }
 
     public function finalApprovalsIndex(Request $request): View
@@ -309,7 +309,7 @@ class EmployeeResignationController extends Controller
             return redirect()->route('employee-resignations.final-approvals')->withErrors(['action' => $exception->getMessage()]);
         }
 
-        return redirect()->route('employee-resignations.final-approvals')->with('success', 'Final approval action completed.');
+        return redirect()->route('employee-resignations.final-approvals')->with('success', __('Final approval action completed.'));
     }
 
     public function statusIndex(Request $request): View
@@ -384,7 +384,7 @@ class EmployeeResignationController extends Controller
             ]);
         });
 
-        return redirect()->route('employee-statuses.index')->with('success', 'Employee status updated successfully.');
+        return redirect()->route('employee-statuses.index')->with('success', __('Employee status updated successfully.'));
     }
 
     public function statusActionPage(Employee $employee): View
@@ -478,13 +478,13 @@ class EmployeeResignationController extends Controller
             ]);
         });
 
-        return redirect()->route('employee-statuses.index')->with('success', 'Employee promotion updated successfully.');
+        return redirect()->route('employee-statuses.index')->with('success', __('Employee promotion updated successfully.'));
     }
 
     public function rejoinPage(Employee $employee): View
     {
         if (! in_array((string) $employee->employment_status, ['resigned', 'terminated', 'inactive'], true)) {
-            abort(422, 'Employee is not in a rejoin-eligible status.');
+            abort(422, __('Employee is not in a rejoin-eligible status.'));
         }
 
         return view('hr.employees.statuses.rejoin', [
@@ -534,7 +534,7 @@ class EmployeeResignationController extends Controller
             ]);
         });
 
-        return redirect()->route('employee-statuses.index')->with('success', 'Employee rejoined and account reactivated successfully.');
+        return redirect()->route('employee-statuses.index')->with('success', __('Employee rejoined and account reactivated successfully.'));
     }
 
     /**

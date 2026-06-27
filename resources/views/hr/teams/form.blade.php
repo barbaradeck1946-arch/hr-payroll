@@ -1,12 +1,12 @@
 @extends('layouts.backend')
-@section('title', $mode === 'create' ? 'Add Team' : 'Edit Team')
+@section('title', $mode === 'create' ? __('Add Team') : __('Edit Team'))
 
 @section('content')
 <div class="wrapper-page">
     @php($selectedMemberIds = collect(old('member_ids', isset($team) ? $team->members->pluck('id')->all() : []))->map(fn($id) => (int) $id)->all())
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-people"></i> {{ $mode === 'create' ? 'Add Team' : 'Edit Team' }}</h1>
-        <a href="{{ route('teams.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+        <h1><i class="icon-people"></i> {{ $mode === 'create' ? __('Add Team') : __('Edit Team') }}</h1>
+        <a href="{{ route('teams.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> {{ __('Back') }}</a>
     </div>
 
     @include('partials.flash')
@@ -20,26 +20,26 @@
                         @if($mode === 'edit') @method('PUT') @endif
 
                         <div class="col-md-4">
-                            <label>Name</label>
+                            <label>{{ __('Name') }}</label>
                             <input type="text" name="name" value="{{ old('name', $team->name ?? '') }}" class="form-control" required>
                         </div>
                         <div class="col-md-4">
-                            <label>Code</label>
+                            <label>{{ __('Code') }}</label>
                             <input type="text" name="code" value="{{ old('code', $team->code ?? '') }}" class="form-control">
                         </div>
                         <div class="col-md-4">
-                            <label>Primary Department</label>
+                            <label>{{ __('Primary Department') }}</label>
                             <select name="department_id" class="form-control">
-                                <option value="">No Primary Department</option>
+                                <option value="">{{ __('No Primary Department') }}</option>
                                 @foreach($departments as $department)
                                     <option value="{{ $department->id }}" {{ (int) old('department_id', $team->department_id ?? 0) === (int) $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label>Lead Employee</label>
+                            <label>{{ __('Lead Employee') }}</label>
                             <select name="lead_employee_id" class="form-control js-example-basic-single">
-                                <option value="">Select Lead</option>
+                                <option value="">{{ __('Select Lead') }}</option>
                                 @foreach($employees as $employee)
                                     @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
                                     @php($departmentName = $employee->department?->name ?? 'No Department')
@@ -48,14 +48,14 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label>Status</label>
+                            <label>{{ __('Status') }}</label>
                             <select name="is_active" class="form-control">
-                                <option value="1" {{ (string) old('is_active', (isset($team) ? (int) $team->is_active : 1)) === '1' ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ (string) old('is_active', (isset($team) ? (int) $team->is_active : 1)) === '0' ? 'selected' : '' }}>Inactive</option>
+                                <option value="1" {{ (string) old('is_active', (isset($team) ? (int) $team->is_active : 1)) === '1' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                <option value="0" {{ (string) old('is_active', (isset($team) ? (int) $team->is_active : 1)) === '0' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                             </select>
                         </div>
                         <div class="col-md-12">
-                            <label>Team Members</label>
+                            <label>{{ __('Team Members') }}</label>
                             <select name="member_ids[]" class="form-control js-example-basic-multiple" multiple>
                                 @foreach($employees as $employee)
                                     @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
@@ -65,11 +65,11 @@
                             </select>
                         </div>
                         <div class="col-md-12">
-                            <label>Description</label>
+                            <label>{{ __('Description') }}</label>
                             <textarea name="description" class="form-control" rows="3">{{ old('description', $team->description ?? '') }}</textarea>
                         </div>
                         <div class="col-md-12 mt-2">
-                            <button type="submit" class="btn btn-custom"><i class="icon-check"></i> Save Team</button>
+                            <button type="submit" class="btn btn-custom"><i class="icon-check"></i> {{ __('Save Team') }}</button>
                         </div>
                     </form>
                 </div>
@@ -85,7 +85,7 @@
     if ($.fn.select2) {
         $('.js-example-basic-multiple').select2({
             width: '100%',
-            placeholder: 'Select employees from any department'
+            placeholder: @json(__('Select employees from any department'))
         });
     }
 })();

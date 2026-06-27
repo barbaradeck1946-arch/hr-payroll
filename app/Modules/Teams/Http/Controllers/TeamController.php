@@ -50,7 +50,7 @@ class TeamController extends Controller
     {
         $this->teamService->createTeam($request->validated());
 
-        return redirect()->route('teams.index')->with('success', 'Team created successfully.');
+        return redirect()->route('teams.index')->with('success', __('Team created successfully.'));
     }
 
     public function edit(Team $team): View
@@ -71,7 +71,7 @@ class TeamController extends Controller
 
         $this->teamService->updateTeam($team, $request->validated());
 
-        return redirect()->route('teams.index')->with('success', 'Team updated successfully.');
+        return redirect()->route('teams.index')->with('success', __('Team updated successfully.'));
     }
 
     public function destroy(Team $team): RedirectResponse
@@ -80,7 +80,7 @@ class TeamController extends Controller
 
         $this->teamService->deleteTeam($team);
 
-        return redirect()->route('teams.index')->with('success', 'Team deleted successfully.');
+        return redirect()->route('teams.index')->with('success', __('Team deleted successfully.'));
     }
 
     public function members(Team $team): View
@@ -99,6 +99,6 @@ class TeamController extends Controller
 
         $this->teamService->syncMembers($team, $request->validated()['members'] ?? []);
 
-        return redirect()->route('teams.members', $team)->with('success', 'Team members updated successfully.');
+        return redirect()->route('teams.members', $team)->with('success', __('Team members updated successfully.'));
     }
 }

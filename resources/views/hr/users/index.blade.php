@@ -3,9 +3,9 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-user"></i> Users</h1>
+        <h1><i class="icon-user"></i> {{ __('Users') }}</h1>
         @if(auth()->user()?->hasPermission('role.assign'))
-            <a href="{{ route('users.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add User</a>
+            <a href="{{ route('users.create') }}" class="btn btn-custom"><i class="icon-plus"></i> {{ __('Add User') }}</a>
         @endif
     </div>
 
@@ -17,19 +17,19 @@
                 <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-3">
-                            <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search name/email/phone">
+                            <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="{{ __('Search name/email/phone') }}">
                         </div>
                         <div class="col-md-2">
                             <select name="status" class="form-control">
-                                <option value="">All Status</option>
+                                <option value="">{{ __('All Status') }}</option>
                                 @foreach(['pending_approval','active','inactive','rejected'] as $status)
-                                    <option value="{{ $status }}" {{ $filters['status'] === $status ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $status)) }}</option>
+                                    <option value="{{ $status }}" {{ $filters['status'] === $status ? 'selected' : '' }}>{{ __(ucfirst(str_replace('_', ' ', $status))) }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-2">
                             <select name="role_id" class="form-control">
-                                <option value="0">All Roles</option>
+                                <option value="0">{{ __('All Roles') }}</option>
                                 @foreach($roles as $role)
                                     <option value="{{ $role->id }}" {{ (int) $filters['role_id'] === $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
                                 @endforeach
@@ -43,8 +43,8 @@
                             </select>
                         </div>
                         <div class="col-md-3 d-flex gap-2">
-                            <button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> Filter</button>
-                            <a href="{{ route('users.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> Reset</a>
+                            <button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> {{ __('Filter') }}</button>
+                            <a href="{{ route('users.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> {{ __('Reset') }}</a>
                         </div>
                     </form>
 
@@ -53,13 +53,13 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Status</th>
-                                    <th>Roles</th>
-                                    <th>Approved</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('Name') }}</th>
+                                    <th>{{ __('Email') }}</th>
+                                    <th>{{ __('Phone') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Roles') }}</th>
+                                    <th>{{ __('Approved') }}</th>
+                                    <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -69,7 +69,7 @@
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
                                         <td>{{ $user->phone ?: '-' }}</td>
-                                        <td>{{ ucfirst(str_replace('_', ' ', $user->account_status ?? 'pending_approval')) }}</td>
+                                        <td>{{ __(ucfirst(str_replace('_', ' ', $user->account_status ?? 'pending_approval'))) }}</td>
                                         <td>
                                             @forelse($user->roles as $role)
                                                 <span class="badge bg-secondary">{{ $role->name }}</span>
@@ -89,12 +89,12 @@
                                         </td>
                                         <td class="action-buttons">
                                             @if(auth()->user()?->hasPermission('role.assign'))
-                                                <a href="{{ route('users.edit', $user) }}" title="Edit User">
+                                                <a href="{{ route('users.edit', $user) }}" title="{{ __('Edit User') }}">
                                                     <i class="icon-pencil"></i>
                                                 </a>
                                             @endif
                                             @if($user->account_status === 'pending_approval' && auth()->user()?->hasPermission('role.assign'))
-                                                <a href="{{ route('users.approval', $user) }}" title="Approve Signup">
+                                                <a href="{{ route('users.approval', $user) }}" title="{{ __('Approve Signup') }}">
                                                     <i class="icon-check"></i>
                                                 </a>
                                             @endif
@@ -102,7 +102,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">No users found.</td>
+                                        <td colspan="8" class="text-center">{{ __('No users found.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

@@ -26,6 +26,6 @@ class EnsureUserHasPermission
             }
         }
 
-        abort(403, 'You do not have permission to access this resource.');
+        abort(403, __('You do not have permission to access this resource.'));
     }
 }

@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
+
         $middleware->alias([
             'role.any' => \App\Http\Middleware\EnsureUserHasAnyRole::class,
             'permission' => \App\Http\Middleware\EnsureUserHasPermission::class,

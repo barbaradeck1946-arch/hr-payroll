@@ -3,7 +3,7 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title">
-        <h1><i class="icon-check"></i> Signup Approval</h1>
+        <h1><i class="icon-check"></i> {{ __('Signup Approval') }}</h1>
     </div>
 
     @include('partials.flash')
@@ -21,15 +21,15 @@
                         @csrf
 
                         <div class="form-group mb-3">
-                            <label>Decision</label>
+                            <label>{{ __('Decision') }}</label>
                             <select name="decision" class="form-control" required>
-                                <option value="approve" {{ old('decision') === 'approve' ? 'selected' : '' }}>Approve</option>
-                                <option value="reject" {{ old('decision') === 'reject' ? 'selected' : '' }}>Reject</option>
+                                <option value="approve" {{ old('decision') === 'approve' ? 'selected' : '' }}>{{ __('Approve') }}</option>
+                                <option value="reject" {{ old('decision') === 'reject' ? 'selected' : '' }}>{{ __('Reject') }}</option>
                             </select>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label>Assign Roles (required for approval)</label>
+                            <label>{{ __('Assign Roles (required for approval)') }}</label>
                             @php($assignedRoleIds = collect(old('role_ids', $user->roles->pluck('id')->all()))->map(fn($id) => (int) $id)->all())
                             <div class="row">
                                 @foreach($roles as $role)
@@ -45,12 +45,12 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label>Reject Reason (if rejected)</label>
+                            <label>{{ __('Reject Reason (if rejected)') }}</label>
                             <input type="text" class="form-control" name="rejected_reason" value="{{ old('rejected_reason') }}" maxlength="255">
                         </div>
 
-                        <button class="btn btn-custom" type="submit"><i class="icon-check"></i> Submit Decision</button>
-                        <a href="{{ route('users.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+                        <button class="btn btn-custom" type="submit"><i class="icon-check"></i> {{ __('Submit Decision') }}</button>
+                        <a href="{{ route('users.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> {{ __('Back') }}</a>
                     </form>
                 </div>
             </div>

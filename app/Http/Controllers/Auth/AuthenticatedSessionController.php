@@ -59,7 +59,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Signed out successfully.');
+        return redirect()->route('login')->with('success', __('Signed out successfully.'));
     }
 
     public function editPassword(): View
@@ -87,6 +87,6 @@ class AuthenticatedSessionController extends Controller
 
         return redirect()
             ->route('dashboard.password.edit')
-            ->with('success', 'Password changed successfully.');
+            ->with('success', __('Password changed successfully.'));
     }
 }

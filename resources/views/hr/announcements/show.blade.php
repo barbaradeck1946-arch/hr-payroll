@@ -3,8 +3,8 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-bell"></i> Notice/Announcement Details</h1>
-        <a href="{{ route('announcements.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+        <h1><i class="icon-bell"></i> {{ __('Notice/Announcement Details') }}</h1>
+        <a href="{{ route('announcements.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> {{ __('Back') }}</a>
     </div>
 
     @include('partials.flash')
@@ -17,8 +17,8 @@
                         <div>
                             <h3 class="mb-1">{{ $announcement->title }}</h3>
                             <div class="small text-muted">
-                                Type: {{ ucfirst($announcement->announcement_type) }} |
-                                Priority: {{ ucfirst($announcement->priority) }} |
+                                {{ __('Type:') }} {{ __(ucfirst($announcement->announcement_type)) }} |
+                                {{ __('Priority:') }} {{ __(ucfirst($announcement->priority)) }} |
                                 Audience:
                                 @if($announcement->audience_type === 'employees')
                                     Selected Employees ({{ ($audienceEmployees ?? collect())->count() }})
@@ -29,7 +29,7 @@
                         </div>
                         <div class="small text-muted text-end">
                             <div>Published: {{ $announcement->publish_at?->format('Y-m-d H:i') ?? '-' }}</div>
-                            <div>Expires: {{ $announcement->expires_at?->format('Y-m-d') ?? 'No Expiry' }}</div>
+                            <div>{{ __('Expires:') }} {{ $announcement->expires_at?->format('Y-m-d') ?? __('No Expiry') }}</div>
                         </div>
                     </div>
 
@@ -41,7 +41,7 @@
 
                     @if($announcement->audience_type === 'employees')
                         <hr>
-                        <h5 class="mb-2">Audience Employees</h5>
+                        <h5 class="mb-2">{{ __('Audience Employees') }}</h5>
                         <div class="row">
                             @forelse(($audienceEmployees ?? collect()) as $employee)
                                 @php($fullName = trim($employee->first_name . ' ' . ($employee->last_name ?? '')))
@@ -49,14 +49,14 @@
                                     <span class="badge bg-secondary">{{ $fullName }} ({{ $employee->employee_code }})</span>
                                 </div>
                             @empty
-                                <div class="col-12 text-muted">No employee targets configured.</div>
+                                <div class="col-12 text-muted">{{ __('No employee targets configured.') }}</div>
                             @endforelse
                         </div>
                     @endif
                     <hr>
 
                     <div class="small text-muted">
-                        Created by: {{ $announcement->creator?->name ?? 'System' }} | Approved by: {{ $announcement->approver?->name ?? '-' }} | Published by: {{ $announcement->publisher?->name ?? '-' }}
+                        {{ __('Created by:') }} {{ $announcement->creator?->name ?? __('System') }} | {{ __('Approved by:') }} {{ $announcement->approver?->name ?? '-' }} | {{ __('Published by:') }} {{ $announcement->publisher?->name ?? '-' }}
                     </div>
                 </div>
             </div>

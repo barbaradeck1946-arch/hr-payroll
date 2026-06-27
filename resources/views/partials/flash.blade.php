@@ -2,19 +2,19 @@
     $flashMessages = [];
 
     if (session('status')) {
-        $flashMessages[] = ['type' => 'success', 'title' => 'Success', 'message' => (string) session('status')];
+        $flashMessages[] = ['type' => 'success', 'title' => __('Success'), 'message' => (string) session('status')];
     }
     if (session('success')) {
-        $flashMessages[] = ['type' => 'success', 'title' => 'Success', 'message' => (string) session('success')];
+        $flashMessages[] = ['type' => 'success', 'title' => __('Success'), 'message' => (string) session('success')];
     }
     if (session('error')) {
-        $flashMessages[] = ['type' => 'error', 'title' => 'Error', 'message' => (string) session('error')];
+        $flashMessages[] = ['type' => 'error', 'title' => __('Error'), 'message' => (string) session('error')];
     }
     if (session('warning')) {
-        $flashMessages[] = ['type' => 'warning', 'title' => 'Warning', 'message' => (string) session('warning')];
+        $flashMessages[] = ['type' => 'warning', 'title' => __('Warning'), 'message' => (string) session('warning')];
     }
     if (session('info')) {
-        $flashMessages[] = ['type' => 'info', 'title' => 'Information', 'message' => (string) session('info')];
+        $flashMessages[] = ['type' => 'info', 'title' => __('Information'), 'message' => (string) session('info')];
     }
 @endphp
 
@@ -38,7 +38,7 @@
                     <div class="app-flash-title">{{ $flash['title'] }}</div>
                     <div class="app-flash-message">{{ $flash['message'] }}</div>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
             </div>
         @endforeach
 
@@ -46,14 +46,14 @@
             <div class="app-flash app-flash-error alert alert-dismissible fade show" role="alert" data-auto-hide="0">
                 <div class="app-flash-icon"><i class="icon-close"></i></div>
                 <div class="app-flash-content">
-                    <div class="app-flash-title">Validation Error</div>
+                    <div class="app-flash-title">{{ __('Validation Error') }}</div>
                     <ul class="app-flash-list mb-0">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
             </div>
         @endif
     </div>

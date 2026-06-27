@@ -33,6 +33,6 @@ class SettingsController extends Controller
             $request->file('company_favicon')
         );
 
-        return back()->with('success', 'Settings updated successfully.');
+        return back()->with('success', __('Settings updated successfully.'));
     }
 }

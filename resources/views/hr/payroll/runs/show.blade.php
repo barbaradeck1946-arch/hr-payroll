@@ -3,15 +3,15 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-docs"></i> Payroll Run</h1>
+        <h1><i class="icon-docs"></i> {{ __('Payroll Run') }}</h1>
         <div class="d-flex gap-2">
             @if($run->status === 'draft' && ($canFinalizePayroll ?? false))
                 <form method="POST" action="{{ route('payroll.runs.finalize', $run) }}" onsubmit="return confirm('Finalize this payroll run? After final submission, salary calculations will be locked for this run.');">
                     @csrf
-                    <button type="submit" class="btn btn-custom"><i class="icon-check"></i> Final Submit</button>
+                    <button type="submit" class="btn btn-custom"><i class="icon-check"></i> {{ __('Final Submit') }}</button>
                 </form>
             @endif
-            <a href="{{ route('payroll.runs.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+            <a href="{{ route('payroll.runs.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> {{ __('Back') }}</a>
         </div>
     </div>
     @include('partials.flash')
@@ -20,24 +20,24 @@
             <div class="card no-border">
                 <div class="content_wrapper content-padded">
                     <div class="row g-2 mb-3">
-                        <div class="col-md-3"><strong>Period:</strong> {{ $run->period_label ?: '-' }}</div>
-                        <div class="col-md-3"><strong>Range:</strong> {{ $run->period_start }} to {{ $run->period_end }}</div>
-                        <div class="col-md-2"><strong>Gross:</strong> {{ number_format((float)$run->gross_total, 2) }}</div>
-                        <div class="col-md-2"><strong>Deductions:</strong> {{ number_format((float)$run->deduction_total, 2) }}</div>
-                        <div class="col-md-2"><strong>Net:</strong> {{ number_format((float)$run->net_total, 2) }}</div>
-                        <div class="col-md-3"><strong>Status:</strong> <span class="badge bg-secondary">{{ ucfirst($run->status) }}</span></div>
-                        <div class="col-md-3"><strong>Finalized By:</strong> {{ $run->processor?->name ?: '-' }}</div>
+                        <div class="col-md-3"><strong>{{ __('Period:') }}</strong> {{ $run->period_label ?: '-' }}</div>
+                        <div class="col-md-3"><strong>{{ __('Range:') }}</strong> {{ $run->period_start }} to {{ $run->period_end }}</div>
+                        <div class="col-md-2"><strong>{{ __('Gross:') }}</strong> {{ number_format((float)$run->gross_total, 2) }}</div>
+                        <div class="col-md-2"><strong>{{ __('Deductions:') }}</strong> {{ number_format((float)$run->deduction_total, 2) }}</div>
+                        <div class="col-md-2"><strong>{{ __('Net:') }}</strong> {{ number_format((float)$run->net_total, 2) }}</div>
+                        <div class="col-md-3"><strong>{{ __('Status:') }}</strong> <span class="badge bg-secondary">{{ __(ucfirst($run->status)) }}</span></div>
+                        <div class="col-md-3"><strong>{{ __('Finalized By:') }}</strong> {{ $run->processor?->name ?: '-' }}</div>
                     </div>
 
                     @if($run->status === 'draft')
                         <div class="alert alert-info">
-                            Review all payroll items below. Final submission will mark this run as processed and post provident fund transactions.
+                            {{ __('Review all payroll items below. Final submission will mark this run as processed and post provident fund transactions.') }}
                         </div>
                     @endif
 
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">
-                            <thead><tr><th>Employee</th><th>Department</th><th>Basic</th><th>Allowances</th><th>Bonus</th><th>Loan</th><th>Other Ded.</th><th>PF</th><th>Tax</th><th>Net</th><th>Status</th><th>Actions</th></tr></thead>
+                            <thead><tr><th>{{ __('Employee') }}</th><th>{{ __('Department') }}</th><th>{{ __('Basic') }}</th><th>{{ __('Allowances') }}</th><th>{{ __('Bonus') }}</th><th>{{ __('Loan') }}</th><th>{{ __('Other Ded.') }}</th><th>{{ __('PF') }}</th><th>{{ __('Tax') }}</th><th>{{ __('Net') }}</th><th>{{ __('Status') }}</th><th>{{ __('Actions') }}</th></tr></thead>
                             <tbody>
                                 @forelse($run->items as $item)
                                     <tr>
@@ -51,11 +51,11 @@
                                         <td>{{ number_format((float)$item->provident_fund_deduction, 2) }}</td>
                                         <td>{{ number_format((float)$item->tax_deduction, 2) }}</td>
                                         <td>{{ number_format((float)$item->net_payable, 2) }}</td>
-                                        <td><span class="badge bg-secondary">{{ ucfirst($item->payment_status) }}</span></td>
-                                        <td class="action-buttons"><a href="{{ route('payroll.items.show', $item) }}" title="Payslip"><i class="icon-doc"></i></a></td>
+                                        <td><span class="badge bg-secondary">{{ __(ucfirst($item->payment_status)) }}</span></td>
+                                        <td class="action-buttons"><a href="{{ route('payroll.items.show', $item) }}" title="{{ __('Payslip') }}"><i class="icon-doc"></i></a></td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="12" class="text-center">No payroll items found.</td></tr>
+                                    <tr><td colspan="12" class="text-center">{{ __('No payroll items found.') }}</td></tr>
                                 @endforelse
                             </tbody>
                         </table>

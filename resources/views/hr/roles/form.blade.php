@@ -3,7 +3,7 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title">
-        <h1><i class="icon-lock"></i> {{ $mode === 'edit' ? 'Edit Role' : 'Add Role' }}</h1>
+        <h1><i class="icon-lock"></i> {{ $mode === 'edit' ? __('Edit Role') : __('Add Role') }}</h1>
     </div>
 
     @include('partials.flash')
@@ -19,20 +19,20 @@
                         @endif
 
                         <div class="form-group mb-3">
-                            <label>Role Name</label>
+                            <label>{{ __('Role Name') }}</label>
                             <input type="text" name="name" class="form-control" value="{{ old('name', $role->name ?? '') }}" required>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label>Description</label>
+                            <label>{{ __('Description') }}</label>
                             <input type="text" name="description" class="form-control" value="{{ old('description', $role->description ?? '') }}">
                         </div>
 
                         <button class="btn btn-custom" type="submit">
                             <i class="{{ $mode === 'edit' ? 'icon-check' : 'icon-plus' }}"></i>
-                            {{ $mode === 'edit' ? 'Update Role' : 'Create Role' }}
+                            {{ $mode === 'edit' ? __('Update Role') : __('Create Role') }}
                         </button>
-                        <a href="{{ route('roles.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+                        <a href="{{ route('roles.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> {{ __('Back') }}</a>
                     </form>
                 </div>
             </div>

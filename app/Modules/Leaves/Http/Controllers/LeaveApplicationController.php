@@ -112,7 +112,7 @@ class LeaveApplicationController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('leave-applications.index')->with('success', 'Leave application submitted successfully.');
+        return redirect()->route('leave-applications.index')->with('success', __('Leave application submitted successfully.'));
     }
 
     // The approvalsIndex method displays a paginated list of leave applications that require the current user's approval. It applies filters based on the request parameters and scopes the results to the user's subordinates if they do not have all-access permissions. The method returns a view with the filtered and paginated applications, along with the list of employees for filtering and the applied filters for reference.
@@ -277,7 +277,7 @@ class LeaveApplicationController extends Controller
             return redirect()->route('leave-approvals.index')->withErrors(['action' => $exception->getMessage()]);
         }
 
-        return redirect()->route('leave-approvals.index')->with('success', 'Leave request processed successfully.');
+        return redirect()->route('leave-approvals.index')->with('success', __('Leave request processed successfully.'));
     }
 
     // The reportsIndex method displays a paginated list of leave applications based on various filters such as status, employee, leave category, and date range. It also scopes the results based on the user's permissions, allowing them to see only their own applications or those of their subordinates if they do not have all-access permissions. The method returns a view with the filtered and paginated applications, along with the list of employees and leave categories for filtering, and the applied filters for reference.

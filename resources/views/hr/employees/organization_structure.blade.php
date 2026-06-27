@@ -3,7 +3,7 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-share-alt"></i> Organization Structure</h1>
+        <h1><i class="icon-share-alt"></i> {{ __('Organization Structure') }}</h1>
     </div>
 
     @include('partials.flash')
@@ -13,9 +13,9 @@
             @if($authEmployee)
                 <div class="card no-border mb-3">
                     <div class="content_wrapper content-padded">
-                        <h5 class="mb-3">My Reporting Line</h5>
+                        <h5 class="mb-3">{{ __('My Reporting Line') }}</h5>
                         @if($supervisorChain->isEmpty())
-                            <div class="alert alert-info mb-2">No supervisor assigned for your profile.</div>
+                            <div class="alert alert-info mb-2">{{ __('No supervisor assigned for your profile.') }}</div>
                         @else
                             <ol class="mb-0">
                                 @foreach($supervisorChain as $supervisor)
@@ -31,18 +31,18 @@
                         @endif
 
                         <hr>
-                        <h5 class="mb-3">My Direct Subordinates</h5>
+                        <h5 class="mb-3">{{ __('My Direct Subordinates') }}</h5>
                         @if($mySubordinates->isEmpty())
-                            <div class="alert alert-info mb-0">No direct subordinates found.</div>
+                            <div class="alert alert-info mb-0">{{ __('No direct subordinates found.') }}</div>
                         @else
                             <div class="table-responsive">
                                 <table class="table table-bordered mb-0">
                                     <thead>
                                         <tr>
-                                            <th>Code</th>
-                                            <th>Name</th>
-                                            <th>Department</th>
-                                            <th>Designation</th>
+                                            <th>{{ __('Code') }}</th>
+                                            <th>{{ __('Name') }}</th>
+                                            <th>{{ __('Department') }}</th>
+                                            <th>{{ __('Designation') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -64,8 +64,8 @@
 
             <div class="card no-border">
                 <div class="content_wrapper content-padded">
-                    <h5 class="mb-3">Company Employee Structure</h5>
-                    @php($grouped = $employees->groupBy(fn ($item) => $item->department?->name ?? 'Unassigned Department'))
+                    <h5 class="mb-3">{{ __('Company Employee Structure') }}</h5>
+                    @php($grouped = $employees->groupBy(fn ($item) => $item->department?->name ?? __('Unassigned Department')))
 
                     @forelse($grouped as $departmentName => $items)
                         <h6 class="mt-3">{{ $departmentName }}</h6>
@@ -73,11 +73,11 @@
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Code</th>
-                                        <th>Employee</th>
-                                        <th>Designation</th>
-                                        <th>Reports To</th>
-                                        <th>Status</th>
+                                        <th>{{ __('Code') }}</th>
+                                        <th>{{ __('Employee') }}</th>
+                                        <th>{{ __('Designation') }}</th>
+                                        <th>{{ __('Reports To') }}</th>
+                                        <th>{{ __('Status') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -93,14 +93,14 @@
                                                     -
                                                 @endif
                                             </td>
-                                            <td>{{ ucfirst(str_replace('_', ' ', $employee->employment_status)) }}</td>
+                                            <td>{{ __(ucfirst(str_replace('_', ' ', $employee->employment_status))) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
                     @empty
-                        <div class="alert alert-info mb-0">No employee data found.</div>
+                        <div class="alert alert-info mb-0">{{ __('No employee data found.') }}</div>
                     @endforelse
                 </div>
             </div>

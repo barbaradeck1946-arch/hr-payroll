@@ -6,10 +6,10 @@
         <h1><i class="icon-plane"></i> Holidays - {{ $year }}</h1>
         <div class="d-flex gap-2">
             <a href="{{ route('holidays.export-current-year', ['year' => $year]) }}" class="btn btn-custom-default">
-                <i class="icon-cloud-download"></i> Export Excel (CSV)
+                <i class="icon-cloud-download"></i> {{ __('Export Excel (CSV)') }}
             </a>
             @if(auth()->user()?->hasPermission('holiday.create'))
-                <a href="{{ route('holidays.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Holiday</a>
+                <a href="{{ route('holidays.create') }}" class="btn btn-custom"><i class="icon-plus"></i> {{ __('Add Holiday') }}</a>
             @endif
         </div>
     </div>
@@ -23,12 +23,12 @@
                     <ul class="nav nav-tabs holiday-tab-nav mb-3" id="holidayTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="holiday-table-tab" data-bs-toggle="tab" data-bs-target="#holiday-table-pane" type="button" role="tab" aria-controls="holiday-table-pane" aria-selected="true">
-                                Table View
+                                {{ __('Table View') }}
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="holiday-calendar-tab" data-bs-toggle="tab" data-bs-target="#holiday-calendar-pane" type="button" role="tab" aria-controls="holiday-calendar-pane" aria-selected="false">
-                                Calendar View
+                                {{ __('Calendar View') }}
                             </button>
                         </li>
                     </ul>
@@ -51,7 +51,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4 d-flex gap-2">
-                                    <button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> Apply</button>
+                                    <button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> {{ __('Apply') }}</button>
                                     <a href="{{ route('holidays.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i></a>
                                 </div>
                             </form>
@@ -60,13 +60,13 @@
                                 <table class="table table-bordered align-middle">
                                     <thead>
                                         <tr>
-                                            <th>Date</th>
-                                            <th>Day</th>
-                                            <th>Title</th>
-                                            <th>Type</th>
-                                            <th>Optional</th>
-                                            <th>Description</th>
-                                            <th>Actions</th>
+                                            <th>{{ __('Date') }}</th>
+                                            <th>{{ __('Day') }}</th>
+                                            <th>{{ __('Title') }}</th>
+                                            <th>{{ __('Type') }}</th>
+                                            <th>{{ __('Optional') }}</th>
+                                            <th>{{ __('Description') }}</th>
+                                            <th>{{ __('Actions') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -75,18 +75,18 @@
                                                 <td>{{ $holiday->holiday_date?->format('d M Y') }}</td>
                                                 <td>{{ $holiday->holiday_date?->format('l') }}</td>
                                                 <td>{{ $holiday->title }}</td>
-                                                <td><span class="holiday-badge holiday-badge-type">{{ ucfirst($holiday->holiday_type) }}</span></td>
+                                                <td><span class="holiday-badge holiday-badge-type">{{ __(ucfirst($holiday->holiday_type)) }}</span></td>
                                                 <td>
                                                     @if($holiday->is_optional)
-                                                        <span class="holiday-badge holiday-badge-optional">Yes</span>
+                                                        <span class="holiday-badge holiday-badge-optional">{{ __('Yes') }}</span>
                                                     @else
-                                                        <span class="holiday-badge holiday-badge-regular">No</span>
+                                                        <span class="holiday-badge holiday-badge-regular">{{ __('No') }}</span>
                                                     @endif
                                                 </td>
                                                 <td>{{ $holiday->description ?: '-' }}</td>
                                                 <td class="action-buttons">
                                                     @if(auth()->user()?->hasPermission('holiday.update'))
-                                                        <a href="{{ route('holidays.edit', $holiday) }}" title="Edit Holiday">
+                                                        <a href="{{ route('holidays.edit', $holiday) }}" title="{{ __('Edit Holiday') }}">
                                                             <i class="icon-pencil"></i>
                                                         </a>
                                                     @endif
@@ -94,7 +94,7 @@
                                                         <form method="POST" action="{{ route('holidays.destroy', $holiday) }}" class="d-inline" onsubmit="return confirm('Delete this holiday?');">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" title="Delete Holiday"><i class="icon-trash"></i></button>
+                                                            <button type="submit" title="{{ __('Delete Holiday') }}"><i class="icon-trash"></i></button>
                                                         </form>
                                                     @endif
                                                 </td>
@@ -114,17 +114,17 @@
                         <div class="tab-pane fade" id="holiday-calendar-pane" role="tabpanel" aria-labelledby="holiday-calendar-tab">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <button class="btn btn-custom-default" type="button" id="holiday-calendar-prev">
-                                    <i class="icon-arrow-left"></i> Previous
+                                    <i class="icon-arrow-left"></i> {{ __('Previous') }}
                                 </button>
                                 <h4 class="mb-0" id="holiday-calendar-month-label"></h4>
                                 <button class="btn btn-custom-default" type="button" id="holiday-calendar-next">
-                                    Next <i class="icon-arrow-right"></i>
+                                    {{ __('Next') }} <i class="icon-arrow-right"></i>
                                 </button>
                             </div>
-                            <p class="text-muted mb-2">Click any highlighted date to view holiday details.</p>
+                            <p class="text-muted mb-2">{{ __('Click any highlighted date to view holiday details.') }}</p>
                             <div class="mb-2 small">
-                                <span class="holiday-badge holiday-badge-holiday">Holiday</span>
-                                <span class="holiday-badge weekend-legend">Weekend</span>
+                                <span class="holiday-badge holiday-badge-holiday">{{ __('Holiday') }}</span>
+                                <span class="holiday-badge weekend-legend">{{ __('Weekend') }}</span>
                             </div>
                             <div class="holiday-calendar-grid" id="holiday-calendar-grid"></div>
                         </div>
@@ -139,8 +139,8 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Holiday Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">{{ __('Holiday Details') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>
             <div class="modal-body" id="holiday-details-body"></div>
         </div>
@@ -233,7 +233,7 @@
                 if (isWeekend) {
                     const weekendChip = document.createElement('span');
                     weekendChip.className = 'holiday-chip weekend';
-                    weekendChip.textContent = 'Weekend';
+                    weekendChip.textContent = @json(__('Weekend'));
                     dayCell.appendChild(weekendChip);
                 }
 
@@ -262,9 +262,9 @@
                     const weekendHtml = isWeekend
                         ? `
                             <div class="border rounded p-2 mb-2">
-                                <h6 class="mb-1">Weekend</h6>
+                                <h6 class="mb-1">{{ __('Weekend') }}</h6>
                                 <div class="small text-muted mb-1">${escapeHtml(dateKey)}</div>
-                                <div>This date is a scheduled weekly weekend.</div>
+                                <div>{{ __('This date is a scheduled weekly weekend.') }}</div>
                             </div>
                         `
                         : '';

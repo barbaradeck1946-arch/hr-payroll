@@ -46,7 +46,7 @@ class DepartmentController extends Controller
     {
         $this->departmentService->createDepartment($request->validated());
 
-        return redirect()->route('departments.index')->with('success', 'Department created successfully.');
+        return redirect()->route('departments.index')->with('success', __('Department created successfully.'));
     }
 
     public function edit(Department $department): View
@@ -62,13 +62,13 @@ class DepartmentController extends Controller
     {
         $this->departmentService->updateDepartment($department, $request->validated());
 
-        return redirect()->route('departments.index')->with('success', 'Department updated successfully.');
+        return redirect()->route('departments.index')->with('success', __('Department updated successfully.'));
     }
 
     public function destroy(Department $department): RedirectResponse
     {
         $this->departmentService->deleteDepartment($department);
 
-        return redirect()->route('departments.index')->with('success', 'Department deleted successfully.');
+        return redirect()->route('departments.index')->with('success', __('Department deleted successfully.'));
     }
 }

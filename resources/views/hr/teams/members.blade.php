@@ -5,7 +5,7 @@
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
         <h1><i class="icon-people"></i> Team Members: {{ $team->name }}</h1>
-        <a href="{{ route('teams.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+        <a href="{{ route('teams.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> {{ __('Back') }}</a>
     </div>
 
     @include('partials.flash')
@@ -18,9 +18,9 @@
                 @forelse($rows as $idx => $row)
                     <div class="row g-2 align-items-end team-member-row">
                         <div class="col-md-4">
-                            <label>Employee</label>
+                            <label>{{ __('Employee') }}</label>
                             <select name="members[{{ $idx }}][employee_id]" class="form-control js-example-basic-single" required>
-                                <option value="">Select Employee</option>
+                                <option value="">{{ __('Select Employee') }}</option>
                                 @foreach($employees as $employee)
                                     @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
                                     @php($departmentName = $employee->department?->name ?? 'No Department')
@@ -29,24 +29,24 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label>Role</label>
+                            <label>{{ __('Role') }}</label>
                             <select name="members[{{ $idx }}][member_role]" class="form-control" required>
                                 @foreach(['lead','member','observer'] as $role)
-                                    <option value="{{ $role }}" {{ ($row['member_role'] ?? 'member') === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
+                                    <option value="{{ $role }}" {{ ($row['member_role'] ?? 'member') === $role ? 'selected' : '' }}>{{ __(ucfirst($role)) }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2"><label>Joined</label><input type="text" name="members[{{ $idx }}][joined_on]" value="{{ $row['joined_on'] ?? '' }}" class="form-control team-date-picker" placeholder="YYYY-MM-DD"></div>
-                        <div class="col-md-2"><label>Left</label><input type="text" name="members[{{ $idx }}][left_on]" value="{{ $row['left_on'] ?? '' }}" class="form-control team-date-picker" placeholder="YYYY-MM-DD"></div>
-                        <div class="col-md-1"><label>Active</label><select name="members[{{ $idx }}][is_active]" class="form-control"><option value="1" {{ (string)($row['is_active'] ?? '1') === '1' ? 'selected' : '' }}>Yes</option><option value="0" {{ (string)($row['is_active'] ?? '1') === '0' ? 'selected' : '' }}>No</option></select></div>
+                        <div class="col-md-2"><label>{{ __('Joined') }}</label><input type="text" name="members[{{ $idx }}][joined_on]" value="{{ $row['joined_on'] ?? '' }}" class="form-control team-date-picker" placeholder="{{ __('YYYY-MM-DD') }}"></div>
+                        <div class="col-md-2"><label>{{ __('Left') }}</label><input type="text" name="members[{{ $idx }}][left_on]" value="{{ $row['left_on'] ?? '' }}" class="form-control team-date-picker" placeholder="{{ __('YYYY-MM-DD') }}"></div>
+                        <div class="col-md-1"><label>{{ __('Active') }}</label><select name="members[{{ $idx }}][is_active]" class="form-control"><option value="1" {{ (string)($row['is_active'] ?? '1') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option><option value="0" {{ (string)($row['is_active'] ?? '1') === '0' ? 'selected' : '' }}>{{ __('No') }}</option></select></div>
                         <div class="col-md-1"><button type="button" class="btn btn-custom-default btn-sm remove-team-member"><i class="icon-trash"></i></button></div>
                     </div>
                 @empty
                 @endforelse
             </div>
             <div class="mt-3 d-flex gap-2">
-                <button type="button" id="add-team-member" class="btn btn-custom-default"><i class="icon-plus"></i> Add Member</button>
-                <button type="submit" class="btn btn-custom"><i class="icon-check"></i> Save Members</button>
+                <button type="button" id="add-team-member" class="btn btn-custom-default"><i class="icon-plus"></i> {{ __('Add Member') }}</button>
+                <button type="submit" class="btn btn-custom"><i class="icon-check"></i> {{ __('Save Members') }}</button>
             </div>
         </form>
     </div></div></div></div>
@@ -85,10 +85,10 @@
 
     function employeeOptions() {
         if (!Array.isArray(employees) || employees.length === 0) {
-            return '<option value="">Select Employee</option>';
+            return '<option value="">{{ __('Select Employee') }}</option>';
         }
 
-        return '<option value="">Select Employee</option>' + employees.map(function (employee) {
+        return '<option value="">{{ __('Select Employee') }}</option>' + employees.map(function (employee) {
             return '<option value="' + employee.id + '">' + employee.name + ' (' + employee.code + ') - ' + employee.department + '</option>';
         }).join('');
     }
@@ -98,11 +98,11 @@
         var row = document.createElement('div');
         row.className = 'row g-2 align-items-end team-member-row';
         row.innerHTML = `
-            <div class="col-md-4"><label>Employee</label><select name="members[${i}][employee_id]" class="form-control js-example-basic-single" required>${employeeOptions()}</select></div>
-            <div class="col-md-2"><label>Role</label><select name="members[${i}][member_role]" class="form-control" required><option value="lead">Lead</option><option value="member" selected>Member</option><option value="observer">Observer</option></select></div>
-            <div class="col-md-2"><label>Joined</label><input type="text" name="members[${i}][joined_on]" class="form-control team-date-picker" placeholder="YYYY-MM-DD"></div>
-            <div class="col-md-2"><label>Left</label><input type="text" name="members[${i}][left_on]" class="form-control team-date-picker" placeholder="YYYY-MM-DD"></div>
-            <div class="col-md-1"><label>Active</label><select name="members[${i}][is_active]" class="form-control"><option value="1" selected>Yes</option><option value="0">No</option></select></div>
+            <div class="col-md-4"><label>{{ __('Employee') }}</label><select name="members[${i}][employee_id]" class="form-control js-example-basic-single" required>${employeeOptions()}</select></div>
+            <div class="col-md-2"><label>{{ __('Role') }}</label><select name="members[${i}][member_role]" class="form-control" required><option value="lead">{{ __('Lead') }}</option><option value="member" selected>{{ __('Member') }}</option><option value="observer">{{ __('Observer') }}</option></select></div>
+            <div class="col-md-2"><label>{{ __('Joined') }}</label><input type="text" name="members[${i}][joined_on]" class="form-control team-date-picker" placeholder="YYYY-MM-DD"></div>
+            <div class="col-md-2"><label>{{ __('Left') }}</label><input type="text" name="members[${i}][left_on]" class="form-control team-date-picker" placeholder="YYYY-MM-DD"></div>
+            <div class="col-md-1"><label>{{ __('Active') }}</label><select name="members[${i}][is_active]" class="form-control"><option value="1" selected>{{ __('Yes') }}</option><option value="0">{{ __('No') }}</option></select></div>
             <div class="col-md-1"><button type="button" class="btn btn-custom-default btn-sm remove-team-member"><i class="icon-trash"></i></button></div>
         `;
         wrapper.appendChild(row);

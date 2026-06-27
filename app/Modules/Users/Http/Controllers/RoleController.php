@@ -50,7 +50,7 @@ class RoleController extends Controller
     {
         $this->rolePermissionService->createRole($request->validated());
 
-        return redirect()->route('roles.index')->with('success', 'Role created successfully.');
+        return redirect()->route('roles.index')->with('success', __('Role created successfully.'));
     }
 
         // Role edit form
@@ -67,7 +67,7 @@ class RoleController extends Controller
     {
         $this->rolePermissionService->updateRole($role, $request->validated());
 
-        return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
+        return redirect()->route('roles.index')->with('success', __('Role updated successfully.'));
     }
     // Role permissions management form
     public function permissions(Role $role): View
@@ -95,6 +95,6 @@ class RoleController extends Controller
             (int) $request->user()->id
         );
 
-        return redirect()->route('roles.permissions', $role)->with('success', 'Role permissions updated successfully.');
+        return redirect()->route('roles.permissions', $role)->with('success', __('Role permissions updated successfully.'));
     }
 }

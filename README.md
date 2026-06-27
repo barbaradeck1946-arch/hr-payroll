@@ -44,40 +44,30 @@ It is designed with a modular Laravel architecture so teams can run day-to-day H
 
 ## Main Features
 
-- Employee management
-- Attendance management with reports
-- Employee clock attendance
-- Manage time change requests
-- Leave management with reports
-- Create leave categories
-- Set leave quota
-- Approve / reject leave applications
-- Payroll management with reports
-- Monthly salary template creation
-- Bonus management
-- Loan management
-- Deduction management
-- Provident fund management
-- Holiday management
-- Department management
-- Designation management
-- Employee role management
-- Training and award management
-- Notice board and announcement management
-- Team management
-- Task management
-- Private notes
-- Team member details view
-- Beautiful file preview and comments
-- Estimate, invoice, and billing system
-- Expense management with reports
-- Expense payment reports
-- Report printing and export
-- Employee notifications
-- Custom permissions for team members
-- Informative dashboard
-- Easy-to-use interface
-- Responsive design
+- Role-based HR dashboard with employee, attendance, leave, notice and quick-note widgets
+- Employee lifecycle management with profile updates, employee status, departments, designations and reporting lines
+- Employee self-service login for own profile, attendance, leave, tasks, payslips, loans, deductions and provident fund records
+- Attendance management with clock in/out, time change requests, reports, print and export
+- Leave management with categories, quotas, balances, applications, approvals and reports
+- Resignation workflow with employee apply, supervisor review and final HR/Admin approval
+- Notices, announcements, holidays and holiday calendar
+- Teams, projects, tasks, members, file preview and comments
+- Salary grades, reusable salary templates and employee-specific salary assignment
+- Payroll draft generation, review, final submission, payslips, payment status and payroll reports
+- Bonus, employee loan, deduction and provident fund management
+- Loan approval workflow with supervisor approval, final approval and salary-based installment deduction
+- Confidential payroll access: employees see only own salary data unless explicit payroll permissions are assigned
+- Reports for employees, attendance, leave and payroll with scoped data access
+- Dynamic database-driven roles and permissions with scope labels
+- Notifications, private notes and user account approval
+- Settings-managed company profile and SMTP configuration
+- Responsive Bootstrap-based admin interface
+
+## Language Support
+
+Zeri HR includes multilingual UI support for core HR, payroll and admin screens.
+
+🇺🇸 English &nbsp; 🇩🇪 German &nbsp; 🇫🇷 French &nbsp; 🇮🇳 Hindi
 
 ## Screenshots
 
@@ -200,6 +190,22 @@ Access is permission-driven. The default seed creates common organization roles 
 
 Menus and module actions are shown or hidden based on assigned permissions.  
 Self-service profile update remains available via topbar dropdown when user is linked to an employee profile.
+
+Basic role scope:
+
+- `Employee`: own profile, attendance, leave, assigned work, payslips, loans, deductions and provident fund records
+- `Department Head` / `Supervisor`: own records plus scoped department/team attendance, leave, resignation and work approvals
+- `HR Admin` / `HR Manager`: employee lifecycle, attendance, leave, profile updates, resignations and HR reports
+- `Payroll Manager` / `Finance Manager`: salary setup, payroll runs, payslips, bonuses, loans, deductions, provident fund and payroll reports
+- `Admin` / `Super Admin`: full system setup, roles, permissions, settings and all modules
+
+Payroll, payslip, loan, deduction and provident fund data are confidential. Department heads and supervisors do not see subordinate salary data unless explicit payroll permissions are assigned.
+
+## Payroll Flow
+
+Payroll is generated as a draft first. HR or Payroll reviews the draft payslips, then final submits the payroll run. Final submission posts salary-linked effects such as due loan installments and provident fund transactions. Salary payment status can be marked after the payroll run is processed.
+
+For full module and permission details, see `Documentation/index.html`.
 
 ## SMTP and Outbound Email
 

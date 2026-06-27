@@ -57,7 +57,7 @@ class LeavePolicyController extends Controller
         //return $request->all();
         $this->leaveService->createPolicy($request->validated());
 
-        return redirect()->route('leave-policies.index')->with('success', 'Leave policy created successfully.');
+        return redirect()->route('leave-policies.index')->with('success', __('Leave policy created successfully.'));
     }
 
     public function edit(LeavePolicy $leavePolicy): View
@@ -74,13 +74,13 @@ class LeavePolicyController extends Controller
     {
         //return $request->all();
         $this->leaveService->updatePolicy($leavePolicy, $request->validated());
-        return redirect()->route('leave-policies.index')->with('success', 'Leave policy updated successfully.');
+        return redirect()->route('leave-policies.index')->with('success', __('Leave policy updated successfully.'));
     }
 
     public function destroy(LeavePolicy $leavePolicy): RedirectResponse
     {
         $this->leaveService->deletePolicy($leavePolicy);
 
-        return redirect()->route('leave-policies.index')->with('success', 'Leave policy deleted successfully.');
+        return redirect()->route('leave-policies.index')->with('success', __('Leave policy deleted successfully.'));
     }
 }

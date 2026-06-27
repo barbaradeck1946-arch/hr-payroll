@@ -3,7 +3,7 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title">
-        <h1><i class="icon-chart"></i> Reports</h1>
+        <h1><i class="icon-chart"></i> {{ __('Reports') }}</h1>
     </div>
 
     @include('partials.flash')
@@ -15,8 +15,8 @@
                     <div class="col-md-3">
                         <a href="{{ route('reports.employees') }}" class="card no-border text-decoration-none">
                             <div class="content_wrapper content-padded">
-                                <h5 class="table_banner_title mb-1">Employee Report</h5>
-                                <p class="text-muted mb-0">Employee list, departments, designations and status.</p>
+                                <h5 class="table_banner_title mb-1">{{ __('Employee Report') }}</h5>
+                                <p class="text-muted mb-0">{{ __('Employee list, departments, designations and status.') }}</p>
                             </div>
                         </a>
                     </div>
@@ -25,8 +25,8 @@
                     <div class="col-md-3">
                         <a href="{{ route('reports.attendance') }}" class="card no-border text-decoration-none">
                             <div class="content_wrapper content-padded">
-                                <h5 class="table_banner_title mb-1">Attendance Report</h5>
-                                <p class="text-muted mb-0">Daily attendance, status and worked minutes.</p>
+                                <h5 class="table_banner_title mb-1">{{ __('Attendance Report') }}</h5>
+                                <p class="text-muted mb-0">{{ __('Daily attendance, status and worked minutes.') }}</p>
                             </div>
                         </a>
                     </div>
@@ -35,8 +35,8 @@
                     <div class="col-md-3">
                         <a href="{{ route('leave-reports.index') }}" class="card no-border text-decoration-none">
                             <div class="content_wrapper content-padded">
-                                <h5 class="table_banner_title mb-1">Leave Report</h5>
-                                <p class="text-muted mb-0">Leave applications, categories, days and approval status.</p>
+                                <h5 class="table_banner_title mb-1">{{ __('Leave Report') }}</h5>
+                                <p class="text-muted mb-0">{{ __('Leave applications, categories, days and approval status.') }}</p>
                             </div>
                         </a>
                     </div>
@@ -45,8 +45,8 @@
                     <div class="col-md-3">
                         <a href="{{ route('reports.payroll') }}" class="card no-border text-decoration-none">
                             <div class="content_wrapper content-padded">
-                                <h5 class="table_banner_title mb-1">Payroll Report</h5>
-                                <p class="text-muted mb-0">Payroll items, gross, deductions and net payable.</p>
+                                <h5 class="table_banner_title mb-1">{{ __('Payroll Report') }}</h5>
+                                <p class="text-muted mb-0">{{ __('Payroll items, gross, deductions and net payable.') }}</p>
                             </div>
                         </a>
                     </div>

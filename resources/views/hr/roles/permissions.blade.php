@@ -48,8 +48,8 @@
                             </div>
                         @endforeach
 
-                        <button class="btn btn-custom" type="submit"><i class="icon-check"></i> Save Permissions</button>
-                        <a href="{{ route('roles.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+                        <button class="btn btn-custom" type="submit"><i class="icon-check"></i> {{ __('Save Permissions') }}</button>
+                        <a href="{{ route('roles.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> {{ __('Back') }}</a>
                     </form>
                 </div>
             </div>

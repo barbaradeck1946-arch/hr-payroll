@@ -22,7 +22,7 @@ class EnsureUserHasAnyRole
 
         $hasRole = $user->roles()->whereIn('slug', $roleSlugs)->exists();
         if (! $hasRole) {
-            abort(403, 'You are not authorized to access this resource.');
+            abort(403, __('You are not authorized to access this resource.'));
         }
 
         return $next($request);

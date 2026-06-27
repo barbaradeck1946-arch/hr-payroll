@@ -4,10 +4,10 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-check"></i> Leave Approvals</h1>
+        <h1><i class="icon-check"></i> {{ __('Leave Approvals') }}</h1>
         <a href="{{ route('leave-approvals.export', ['status' => $filters['status'], 'employee_id' => $filters['employee_id'], 'from_date' => $filters['from_date'], 'to_date' => $filters['to_date']]) }}"
            class="btn btn-custom-default">
-            <i class="icon-cloud-download"></i> Export Excel (CSV)
+            <i class="icon-cloud-download"></i> {{ __('Export Excel (CSV)') }}
         </a>
     </div>
 
@@ -20,15 +20,15 @@
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-2">
                             <select name="status" class="form-control">
-                                <option value="">All Status</option>
+                                <option value="">{{ __('All Status') }}</option>
                                 @foreach(['pending','approved','rejected'] as $status)
-                                    <option value="{{ $status }}" {{ $filters['status'] === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                                    <option value="{{ $status }}" {{ $filters['status'] === $status ? 'selected' : '' }}>{{ __(ucfirst($status)) }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-3">
                             <select name="employee_id" class="form-control js-example-basic-single">
-                                <option value="0">All Employees</option>
+                                <option value="0">{{ __('All Employees') }}</option>
                                 @foreach($employees as $employee)
                                     @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
                                     <option value="{{ $employee->id }}" {{ (int) $filters['employee_id'] === (int) $employee->id ? 'selected' : '' }}>
@@ -38,10 +38,10 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input type="text" name="from_date" class="form-control leave-date-picker" value="{{ $filters['from_date'] }}" placeholder="From date">
+                            <input type="text" name="from_date" class="form-control leave-date-picker" value="{{ $filters['from_date'] }}" placeholder="{{ __('From date') }}">
                         </div>
                         <div class="col-md-2">
-                            <input type="text" name="to_date" class="form-control leave-date-picker" value="{{ $filters['to_date'] }}" placeholder="To date">
+                            <input type="text" name="to_date" class="form-control leave-date-picker" value="{{ $filters['to_date'] }}" placeholder="{{ __('To date') }}">
                         </div>
                         <div class="col-md-2">
                             <select name="per_page" class="form-control">
@@ -60,13 +60,13 @@
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Employee</th>
-                                    <th>Category</th>
-                                    <th>Date Range</th>
-                                    <th>Days</th>
-                                    <th>Reason</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th>{{ __('Employee') }}</th>
+                                    <th>{{ __('Category') }}</th>
+                                    <th>{{ __('Date Range') }}</th>
+                                    <th>{{ __('Days') }}</th>
+                                    <th>{{ __('Reason') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -80,11 +80,11 @@
                                         <td>{{ \Illuminate\Support\Str::limit((string) $application->reason, 80) }}</td>
                                         <td>
                                             @if($application->status === 'approved')
-                                                <span class="badge bg-success">Approved</span>
+                                                <span class="badge bg-success">{{ __('Approved') }}</span>
                                             @elseif($application->status === 'rejected')
-                                                <span class="badge bg-danger">Rejected</span>
+                                                <span class="badge bg-danger">{{ __('Rejected') }}</span>
                                             @else
-                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                                             @endif
                                         </td>
                                         <td>
@@ -93,13 +93,13 @@
                                                     <form method="POST" action="{{ route('leave-approvals.process', $application) }}">
                                                         @csrf
                                                         <input type="hidden" name="action" value="approve">
-                                                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                                        <button type="submit" class="btn btn-sm btn-success">{{ __('Approve') }}</button>
                                                     </form>
                                                     <form method="POST" action="{{ route('leave-approvals.process', $application) }}">
                                                         @csrf
                                                         <input type="hidden" name="action" value="reject">
-                                                        <input type="text" name="approval_remarks" class="form-control form-control-sm" placeholder="Reject reason" required>
-                                                        <button type="submit" class="btn btn-sm btn-danger mt-1">Reject</button>
+                                                        <input type="text" name="approval_remarks" class="form-control form-control-sm" placeholder="{{ __('Reject reason') }}" required>
+                                                        <button type="submit" class="btn btn-sm btn-danger mt-1">{{ __('Reject') }}</button>
                                                     </form>
                                                 </div>
                                             @else
@@ -109,7 +109,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">No leave requests found.</td>
+                                        <td colspan="7" class="text-center">{{ __('No leave requests found.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

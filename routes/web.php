@@ -36,6 +36,18 @@ Route::get('/', function () {
         : redirect()->route('login');
 });
 
+Route::post('/locale', function () {
+    $locale = (string) request()->input('locale', config('app.locale', 'en'));
+
+    if (! array_key_exists($locale, config('locales.supported', []))) {
+        $locale = config('app.locale', 'en');
+    }
+
+    session(['locale' => $locale]);
+
+    return back();
+})->name('locale.update');
+
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login.store');

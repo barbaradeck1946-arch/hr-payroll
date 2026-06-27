@@ -43,7 +43,7 @@ class LeaveCategoryController extends Controller
     public function store(StoreLeaveCategoryRequest $request): RedirectResponse
     {
         $this->leaveService->createCategory($request->validated());
-        return redirect()->route('leave-categories.index')->with('success', 'Leave category created successfully.');
+        return redirect()->route('leave-categories.index')->with('success', __('Leave category created successfully.'));
     }
 
     public function edit(LeaveCategory $leaveCategory): View
@@ -57,12 +57,12 @@ class LeaveCategoryController extends Controller
     public function update(UpdateLeaveCategoryRequest $request, LeaveCategory $leaveCategory): RedirectResponse
     {
         $this->leaveService->updateCategory($leaveCategory, $request->validated());
-        return redirect()->route('leave-categories.index')->with('success', 'Leave category updated successfully.');
+        return redirect()->route('leave-categories.index')->with('success', __('Leave category updated successfully.'));
     }
 
     public function destroy(LeaveCategory $leaveCategory): RedirectResponse
     {
         $this->leaveService->deleteCategory($leaveCategory);
-        return redirect()->route('leave-categories.index')->with('success', 'Leave category deleted successfully.');
+        return redirect()->route('leave-categories.index')->with('success', __('Leave category deleted successfully.'));
     }
 }

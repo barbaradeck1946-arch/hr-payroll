@@ -51,7 +51,7 @@ class PermissionController extends Controller
     public function store(StorePermissionRequest $request): RedirectResponse
     {
         $this->rolePermissionService->createPermission($request->validated());
-        return redirect()->route('permissions.index')->with('success', 'Permission created successfully.');
+        return redirect()->route('permissions.index')->with('success', __('Permission created successfully.'));
     }
 
     // Permission edit form
@@ -68,6 +68,6 @@ class PermissionController extends Controller
     {
         $this->rolePermissionService->updatePermission($permission, $request->validated());
 
-        return redirect()->route('permissions.index')->with('success', 'Permission updated successfully.');
+        return redirect()->route('permissions.index')->with('success', __('Permission updated successfully.'));
     }
 }

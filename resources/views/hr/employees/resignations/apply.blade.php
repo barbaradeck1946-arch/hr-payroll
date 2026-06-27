@@ -4,7 +4,7 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-logout"></i> Resignation Apply</h1>
+        <h1><i class="icon-logout"></i> {{ __('Resignation Apply') }}</h1>
     </div>
 
     @include('partials.flash')
@@ -12,31 +12,31 @@
     <div class="page-content">
         <div class="container-fluid">
             @if(! $employee)
-                <div class="alert alert-danger">Your account is not linked with an employee profile.</div>
+                <div class="alert alert-danger">{{ __('Your account is not linked with an employee profile.') }}</div>
             @else
                 <div class="card no-border mb-3">
                     <div class="content_wrapper content-padded">
-                        <h5 class="table_banner_title mb-3">Submit Resignation Request</h5>
+                        <h5 class="table_banner_title mb-3">{{ __('Submit Resignation Request') }}</h5>
                         <form method="POST" action="{{ route('employee-resignations.store') }}" class="row g-2">
                             @csrf
                             <div class="col-md-3">
-                                <label>Notice Date</label>
-                                <input type="text" name="notice_date" class="form-control resignation-date-picker" value="{{ old('notice_date') }}" placeholder="YYYY-MM-DD" autocomplete="off">
+                                <label>{{ __('Notice Date') }}</label>
+                                <input type="text" name="notice_date" class="form-control resignation-date-picker" value="{{ old('notice_date') }}" placeholder="{{ __('YYYY-MM-DD') }}" autocomplete="off">
                             </div>
                             <div class="col-md-3">
-                                <label>Requested Last Working Day</label>
-                                <input type="text" name="requested_last_working_day" class="form-control resignation-date-picker" value="{{ old('requested_last_working_day') }}" placeholder="YYYY-MM-DD" autocomplete="off" required>
+                                <label>{{ __('Requested Last Working Day') }}</label>
+                                <input type="text" name="requested_last_working_day" class="form-control resignation-date-picker" value="{{ old('requested_last_working_day') }}" placeholder="{{ __('YYYY-MM-DD') }}" autocomplete="off" required>
                             </div>
                             <div class="col-md-12">
-                                <label>Reason</label>
+                                <label>{{ __('Reason') }}</label>
                                 <textarea name="reason" class="form-control" rows="3" required>{{ old('reason') }}</textarea>
                             </div>
                             <div class="col-md-12">
-                                <label>Handover Notes</label>
+                                <label>{{ __('Handover Notes') }}</label>
                                 <textarea name="handover_notes" class="form-control" rows="3">{{ old('handover_notes') }}</textarea>
                             </div>
                             <div class="col-md-12 mt-2">
-                                <button type="submit" class="btn btn-custom"><i class="icon-check"></i> Submit Resignation</button>
+                                <button type="submit" class="btn btn-custom"><i class="icon-check"></i> {{ __('Submit Resignation') }}</button>
                             </div>
                     </form>
                 </div>
@@ -46,19 +46,19 @@
 
             <div class="card no-border">
                 <div class="content_wrapper content-padded">
-                    <h5 class="table_banner_title mb-3">Resignation Requests</h5>
+                    <h5 class="table_banner_title mb-3">{{ __('Resignation Requests') }}</h5>
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Applied At</th>
-                                    <th>Employee</th>
-                                    <th>Supervisor</th>
-                                    <th>Notice Date</th>
-                                    <th>Requested LWD</th>
-                                    <th>Status</th>
-                                    <th>Supervisor Remarks</th>
-                                    <th>Final Remarks</th>
+                                    <th>{{ __('Applied At') }}</th>
+                                    <th>{{ __('Employee') }}</th>
+                                    <th>{{ __('Supervisor') }}</th>
+                                    <th>{{ __('Notice Date') }}</th>
+                                    <th>{{ __('Requested LWD') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Supervisor Remarks') }}</th>
+                                    <th>{{ __('Final Remarks') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -73,13 +73,13 @@
                                         <td>{{ $item->requested_last_working_day }}</td>
                                         <td>
                                             @if($item->status === 'pending_supervisor')
-                                                <span class="badge bg-warning text-dark">Pending Supervisor</span>
+                                                <span class="badge bg-warning text-dark">{{ __('Pending Supervisor') }}</span>
                                             @elseif($item->status === 'pending_final')
-                                                <span class="badge bg-info text-dark">Pending Final</span>
+                                                <span class="badge bg-info text-dark">{{ __('Pending Final') }}</span>
                                             @elseif($item->status === 'approved')
-                                                <span class="badge bg-success">Approved</span>
+                                                <span class="badge bg-success">{{ __('Approved') }}</span>
                                             @elseif($item->status === 'supervisor_rejected' || $item->status === 'final_rejected')
-                                                <span class="badge bg-danger">Rejected</span>
+                                                <span class="badge bg-danger">{{ __('Rejected') }}</span>
                                             @else
                                                 <span class="badge bg-secondary">{{ $item->status }}</span>
                                             @endif
@@ -89,7 +89,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">No resignation requests found.</td>
+                                        <td colspan="8" class="text-center">{{ __('No resignation requests found.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

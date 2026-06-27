@@ -50,7 +50,7 @@ class ProjectController extends Controller
     {
         $this->projectService->createProject($request->validated());
 
-        return redirect()->route('projects.index')->with('success', 'Project created successfully.');
+        return redirect()->route('projects.index')->with('success', __('Project created successfully.'));
     }
 
     public function show(Project $project): View
@@ -80,7 +80,7 @@ class ProjectController extends Controller
 
         $this->projectService->updateProject($project, $request->validated());
 
-        return redirect()->route('projects.index')->with('success', 'Project updated successfully.');
+        return redirect()->route('projects.index')->with('success', __('Project updated successfully.'));
     }
 
     public function destroy(Project $project): RedirectResponse
@@ -89,7 +89,7 @@ class ProjectController extends Controller
 
         $this->projectService->deleteProject($project);
 
-        return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
+        return redirect()->route('projects.index')->with('success', __('Project deleted successfully.'));
     }
 
     public function members(Project $project): View
@@ -108,6 +108,6 @@ class ProjectController extends Controller
 
         $this->projectService->syncMembers($project, $request->validated()['members'] ?? []);
 
-        return redirect()->route('projects.members', $project)->with('success', 'Project members updated successfully.');
+        return redirect()->route('projects.members', $project)->with('success', __('Project members updated successfully.'));
     }
 }

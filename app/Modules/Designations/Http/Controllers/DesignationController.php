@@ -52,7 +52,7 @@ class DesignationController extends Controller
     {
         $this->designationService->createDesignation($request->validated());
 
-        return redirect()->route('designations.index')->with('success', 'Designation created successfully.');
+        return redirect()->route('designations.index')->with('success', __('Designation created successfully.'));
     }
     // Edit designation form
     public function edit(Designation $designation): View
@@ -70,13 +70,13 @@ class DesignationController extends Controller
     {
         $this->designationService->updateDesignation($designation, $request->validated());
 
-        return redirect()->route('designations.index')->with('success', 'Designation updated successfully.');
+        return redirect()->route('designations.index')->with('success', __('Designation updated successfully.'));
     }
     // Delete designation
     public function destroy(Designation $designation): RedirectResponse
     {
         $this->designationService->deleteDesignation($designation);
 
-        return redirect()->route('designations.index')->with('success', 'Designation deleted successfully.');
+        return redirect()->route('designations.index')->with('success', __('Designation deleted successfully.'));
     }
 }

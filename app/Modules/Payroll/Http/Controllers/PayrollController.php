@@ -65,7 +65,7 @@ class PayrollController extends Controller
             if (! $isSingleEmployeeRun && $existingRun && $existingRun->status !== 'draft') {
                 return redirect()
                     ->route('payroll.runs.show', $existingRun)
-                    ->with('error', 'This payroll period is already finalized. Review the existing payroll run or create a new period.');
+                    ->with('error', __('This payroll period is already finalized. Review the existing payroll run or create a new period.'));
             }
 
             return back()->withInput()->with('error', $exception->getMessage());
@@ -101,7 +101,7 @@ class PayrollController extends Controller
             return back()->with('error', $exception->getMessage());
         }
 
-        return redirect()->route('payroll.runs.show', $run)->with('success', 'Payroll finalized successfully.');
+        return redirect()->route('payroll.runs.show', $run)->with('success', __('Payroll finalized successfully.'));
     }
 
     public function showItem(PayrollItem $item): View
@@ -131,7 +131,7 @@ class PayrollController extends Controller
 
         $item->loadMissing('payrollRun');
         if ($item->payrollRun?->status !== 'processed') {
-            return back()->with('error', 'Only finalized payroll items can be marked as paid.');
+            return back()->with('error', __('Only finalized payroll items can be marked as paid.'));
         }
 
         $item->update([
@@ -139,7 +139,7 @@ class PayrollController extends Controller
             'payment_reference' => $validated['payment_reference'] ?? null,
         ]);
 
-        return back()->with('success', 'Payment status updated.');
+        return back()->with('success', __('Payment status updated.'));
     }
 
     /**
@@ -173,7 +173,7 @@ class PayrollController extends Controller
     {
         $this->payrollService->saveSalaryTemplate($this->validateSalaryTemplate($request));
 
-        return redirect()->route('payroll.salary-templates.index')->with('success', 'Salary template created successfully.');
+        return redirect()->route('payroll.salary-templates.index')->with('success', __('Salary template created successfully.'));
     }
 
     public function editSalaryTemplate(SalaryTemplate $template): View
@@ -185,7 +185,7 @@ class PayrollController extends Controller
     {
         $this->payrollService->saveSalaryTemplate($this->validateSalaryTemplate($request, $template), $template);
 
-        return redirect()->route('payroll.salary-templates.index')->with('success', 'Salary template updated successfully.');
+        return redirect()->route('payroll.salary-templates.index')->with('success', __('Salary template updated successfully.'));
     }
 
     public function assignSalaryTemplateForm(): View
@@ -221,7 +221,7 @@ class PayrollController extends Controller
             return back()->withInput()->with('error', $exception->getMessage());
         }
 
-        return redirect()->route('payroll.salary-templates.index')->with('success', 'Salary template assigned successfully.');
+        return redirect()->route('payroll.salary-templates.index')->with('success', __('Salary template assigned successfully.'));
     }
 
     public function bonuses(Request $request): View
@@ -239,7 +239,7 @@ class PayrollController extends Controller
     {
         $this->payrollService->saveBonus($this->validateBonus($request), (int) $request->user()->id);
 
-        return back()->with('success', 'Bonus saved successfully.');
+        return back()->with('success', __('Bonus saved successfully.'));
     }
 
     public function generateBonuses(Request $request): RedirectResponse
@@ -268,7 +268,7 @@ class PayrollController extends Controller
     {
         $bonus->delete();
 
-        return back()->with('success', 'Bonus deleted successfully.');
+        return back()->with('success', __('Bonus deleted successfully.'));
     }
 
     public function loans(Request $request): View
@@ -302,12 +302,12 @@ class PayrollController extends Controller
         if ($user->hasPermission('employee_loan.apply') && ! $user->hasAnyPermission(['employee_loan.create', 'loan.create', 'payroll.manage-loan'])) {
             $this->payrollService->applyLoan($validated, (int) $user->id);
 
-            return back()->with('success', 'Loan request submitted for approval.');
+            return back()->with('success', __('Loan request submitted for approval.'));
         }
 
         $this->payrollService->saveLoan($validated);
 
-        return back()->with('success', 'Loan saved successfully.');
+        return back()->with('success', __('Loan saved successfully.'));
     }
 
     public function showLoan(EmployeeLoan $loan): View
@@ -355,7 +355,7 @@ class PayrollController extends Controller
             return back()->withInput()->with('error', $exception->getMessage());
         }
 
-        return redirect()->route('payroll.loans.show', $loan)->with('success', 'Loan rescheduled successfully.');
+        return redirect()->route('payroll.loans.show', $loan)->with('success', __('Loan rescheduled successfully.'));
     }
 
     public function updateLoanStatus(Request $request, EmployeeLoan $loan): RedirectResponse
@@ -367,7 +367,7 @@ class PayrollController extends Controller
 
         $this->payrollService->updateLoanStatus($loan, $validated);
 
-        return back()->with('success', 'Loan status updated successfully.');
+        return back()->with('success', __('Loan status updated successfully.'));
     }
 
     public function approveLoan(Request $request, EmployeeLoan $loan): RedirectResponse
@@ -393,7 +393,7 @@ class PayrollController extends Controller
             return back()->with('error', $exception->getMessage());
         }
 
-        return back()->with('success', 'Loan approved successfully.');
+        return back()->with('success', __('Loan approved successfully.'));
     }
 
     public function rejectLoan(Request $request, EmployeeLoan $loan): RedirectResponse
@@ -423,7 +423,7 @@ class PayrollController extends Controller
             return back()->with('error', $exception->getMessage());
         }
 
-        return back()->with('success', 'Loan rejected successfully.');
+        return back()->with('success', __('Loan rejected successfully.'));
     }
 
     public function markLoanInstallmentPaid(Request $request, LoanInstallment $installment): RedirectResponse
@@ -434,7 +434,7 @@ class PayrollController extends Controller
 
         $this->payrollService->markLoanInstallmentPaid($installment, $validated['paid_date'] ?? null);
 
-        return back()->with('success', 'Loan installment marked as paid.');
+        return back()->with('success', __('Loan installment marked as paid.'));
     }
 
     public function deductions(Request $request): View
@@ -470,7 +470,7 @@ class PayrollController extends Controller
 
         $this->payrollService->saveDeduction($validated);
 
-        return back()->with('success', 'Deduction saved successfully.');
+        return back()->with('success', __('Deduction saved successfully.'));
     }
 
     public function destroyDeduction(EmployeeDeduction $deduction): RedirectResponse
@@ -483,7 +483,7 @@ class PayrollController extends Controller
 
         $deduction->delete();
 
-        return back()->with('success', 'Deduction deleted successfully.');
+        return back()->with('success', __('Deduction deleted successfully.'));
     }
 
     public function providentFunds(Request $request): View
@@ -523,7 +523,7 @@ class PayrollController extends Controller
 
         $this->payrollService->saveProvidentFund($validated);
 
-        return back()->with('success', 'Provident fund setup saved successfully.');
+        return back()->with('success', __('Provident fund setup saved successfully.'));
     }
 
     /**

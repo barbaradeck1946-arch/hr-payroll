@@ -4,10 +4,10 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-chart"></i> Leave Reports</h1>
+        <h1><i class="icon-chart"></i> {{ __('Leave Reports') }}</h1>
         <a href="{{ route('leave-reports.export', ['employee_id' => $filters['employee_id'], 'leave_category_id' => $filters['leave_category_id'], 'status' => $filters['status'], 'from_date' => $filters['from_date'], 'to_date' => $filters['to_date']]) }}"
            class="btn btn-custom-default">
-            <i class="icon-cloud-download"></i> Export Excel (CSV)
+            <i class="icon-cloud-download"></i> {{ __('Export Excel (CSV)') }}
         </a>
     </div>
 
@@ -20,7 +20,7 @@
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-3">
                             <select name="employee_id" class="form-control js-example-basic-single">
-                                <option value="0">All Employees</option>
+                                <option value="0">{{ __('All Employees') }}</option>
                                 @foreach($employees as $employee)
                                     @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
                                     <option value="{{ $employee->id }}" {{ (int) $filters['employee_id'] === (int) $employee->id ? 'selected' : '' }}>
@@ -31,7 +31,7 @@
                         </div>
                         <div class="col-md-2">
                             <select name="leave_category_id" class="form-control">
-                                <option value="0">All Categories</option>
+                                <option value="0">{{ __('All Categories') }}</option>
                                 @foreach($leaveCategories as $category)
                                     <option value="{{ $category->id }}" {{ (int) $filters['leave_category_id'] === (int) $category->id ? 'selected' : '' }}>
                                         {{ $category->name }}
@@ -41,17 +41,17 @@
                         </div>
                         <div class="col-md-2">
                             <select name="status" class="form-control">
-                                <option value="">All Status</option>
+                                <option value="">{{ __('All Status') }}</option>
                                 @foreach(['pending','approved','rejected'] as $status)
-                                    <option value="{{ $status }}" {{ $filters['status'] === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                                    <option value="{{ $status }}" {{ $filters['status'] === $status ? 'selected' : '' }}>{{ __(ucfirst($status)) }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input type="text" name="from_date" class="form-control leave-date-picker" value="{{ $filters['from_date'] }}" placeholder="From date">
+                            <input type="text" name="from_date" class="form-control leave-date-picker" value="{{ $filters['from_date'] }}" placeholder="{{ __('From date') }}">
                         </div>
                         <div class="col-md-2">
-                            <input type="text" name="to_date" class="form-control leave-date-picker" value="{{ $filters['to_date'] }}" placeholder="To date">
+                            <input type="text" name="to_date" class="form-control leave-date-picker" value="{{ $filters['to_date'] }}" placeholder="{{ __('To date') }}">
                         </div>
                         <div class="col-md-1">
                             <select name="per_page" class="form-control">
@@ -61,8 +61,8 @@
                             </select>
                         </div>
                         <div class="col-md-12 d-flex gap-2 mt-2">
-                            <button type="submit" class="btn btn-custom"><i class="icon-magnifier"></i> Filter</button>
-                            <a href="{{ route('leave-reports.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> Reset</a>
+                            <button type="submit" class="btn btn-custom"><i class="icon-magnifier"></i> {{ __('Filter') }}</button>
+                            <a href="{{ route('leave-reports.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> {{ __('Reset') }}</a>
                         </div>
                     </form>
 
@@ -70,15 +70,15 @@
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Applied At</th>
-                                    <th>Employee</th>
-                                    <th>Employee Code</th>
-                                    <th>Salary Grade</th>
-                                    <th>Category</th>
-                                    <th>Date Range</th>
-                                    <th>Days</th>
-                                    <th>Status</th>
-                                    <th>Approver</th>
+                                    <th>{{ __('Applied At') }}</th>
+                                    <th>{{ __('Employee') }}</th>
+                                    <th>{{ __('Employee Code') }}</th>
+                                    <th>{{ __('Salary Grade') }}</th>
+                                    <th>{{ __('Category') }}</th>
+                                    <th>{{ __('Date Range') }}</th>
+                                    <th>{{ __('Days') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Approver') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -92,12 +92,12 @@
                                         <td>{{ $application->leaveCategory?->name ?? '-' }}</td>
                                         <td>{{ $application->start_date }} to {{ $application->end_date }}</td>
                                         <td>{{ number_format((float) $application->total_days, 2) }}</td>
-                                        <td>{{ ucfirst($application->status) }}</td>
+                                        <td>{{ __(ucfirst($application->status)) }}</td>
                                         <td>{{ $application->approver?->name ?? '-' }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center">No leave records found for selected filters.</td>
+                                        <td colspan="9" class="text-center">{{ __('No leave records found for selected filters.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

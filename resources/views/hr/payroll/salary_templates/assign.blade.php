@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="wrapper-page">
-    <div class="page-title"><h1><i class="icon-user-follow"></i> Assign Salary Template</h1></div>
+    <div class="page-title"><h1><i class="icon-user-follow"></i> {{ __('Assign Salary Template') }}</h1></div>
     @include('partials.flash')
     <div class="page-content">
         <div class="container-fluid">
@@ -12,9 +12,9 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-4 form-group mb-3">
-                                <label>Employee</label>
+                                <label>{{ __('Employee') }}</label>
                                 <select name="employee_id" id="employee_id" class="form-control js-example-basic-single" required>
-                                    <option value="">Select Employee</option>
+                                    <option value="">{{ __('Select Employee') }}</option>
                                     @foreach($employees as $employee)
                                         <option
                                             value="{{ $employee->id }}"
@@ -28,9 +28,9 @@
                                 <small id="salary_grade_help" class="text-muted d-block mt-1"></small>
                             </div>
                             <div class="col-md-4 form-group mb-3">
-                                <label>Salary Template</label>
+                                <label>{{ __('Salary Template') }}</label>
                                 <select name="salary_template_id" id="salary_template_id" class="form-control" required>
-                                    <option value="">Select Template</option>
+                                    <option value="">{{ __('Select Template') }}</option>
                                     @foreach($templates as $template)
                                         <option
                                             value="{{ $template->id }}"
@@ -47,21 +47,21 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-4 form-group mb-3"><label>Pay Frequency</label><select name="pay_frequency" class="form-control"><option value="">Use Template Frequency</option><option value="monthly" {{ old('pay_frequency')==='monthly'?'selected':'' }}>Monthly</option><option value="weekly" {{ old('pay_frequency')==='weekly'?'selected':'' }}>Weekly</option></select></div>
-                            <div class="col-md-3 form-group mb-3"><label>Basic Salary</label><input type="number" step="0.01" min="0" name="basic_salary" id="basic_salary" class="form-control" value="{{ old('basic_salary') }}" required></div>
-                            <div class="col-md-3 form-group mb-3"><label>House Rent</label><input type="number" step="0.01" min="0" name="house_rent" id="house_rent" class="form-control" value="{{ old('house_rent', 0) }}"></div>
-                            <div class="col-md-3 form-group mb-3"><label>Medical Allowance</label><input type="number" step="0.01" min="0" name="medical_allowance" id="medical_allowance" class="form-control" value="{{ old('medical_allowance', 0) }}"></div>
-                            <div class="col-md-3 form-group mb-3"><label>Conveyance Allowance</label><input type="number" step="0.01" min="0" name="conveyance_allowance" id="conveyance_allowance" class="form-control" value="{{ old('conveyance_allowance', 0) }}"></div>
-                            <div class="col-md-3 form-group mb-3"><label>Other Allowance</label><input type="number" step="0.01" min="0" name="other_allowance" id="other_allowance" class="form-control" value="{{ old('other_allowance', 0) }}"></div>
-                            <div class="col-md-3 form-group mb-3"><label>Provident Fund %</label><input type="number" step="0.01" min="0" max="100" name="provident_fund_percent" id="provident_fund_percent" class="form-control" value="{{ old('provident_fund_percent', 0) }}"></div>
-                            <div class="col-md-3 form-group mb-3"><label>Tax %</label><input type="number" step="0.01" min="0" max="100" name="tax_percent" id="tax_percent" class="form-control" value="{{ old('tax_percent', 0) }}"></div>
-                            <div class="col-md-3 form-group mb-3"><label>CTC Amount</label><input type="number" step="0.01" min="0" name="ctc_amount" class="form-control" value="{{ old('ctc_amount') }}"></div>
-                            <div class="col-md-4 form-group mb-3"><label>Effective From</label><input type="text" name="effective_from" class="form-control datetimepicker" value="{{ old('effective_from', now()->toDateString()) }}" required></div>
-                            <div class="col-md-4 form-group mb-3"><label>Effective To</label><input type="text" name="effective_to" class="form-control datetimepicker" value="{{ old('effective_to') }}"></div>
-                            <div class="col-md-12 form-group mb-3"><label>Notes</label><textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea></div>
+                            <div class="col-md-4 form-group mb-3"><label>{{ __('Pay Frequency') }}</label><select name="pay_frequency" class="form-control"><option value="">{{ __('Use Template Frequency') }}</option><option value="monthly" {{ old('pay_frequency')==='monthly'?'selected':'' }}>{{ __('Monthly') }}</option><option value="weekly" {{ old('pay_frequency')==='weekly'?'selected':'' }}>{{ __('Weekly') }}</option></select></div>
+                            <div class="col-md-3 form-group mb-3"><label>{{ __('Basic Salary') }}</label><input type="number" step="0.01" min="0" name="basic_salary" id="basic_salary" class="form-control" value="{{ old('basic_salary') }}" required></div>
+                            <div class="col-md-3 form-group mb-3"><label>{{ __('House Rent') }}</label><input type="number" step="0.01" min="0" name="house_rent" id="house_rent" class="form-control" value="{{ old('house_rent', 0) }}"></div>
+                            <div class="col-md-3 form-group mb-3"><label>{{ __('Medical Allowance') }}</label><input type="number" step="0.01" min="0" name="medical_allowance" id="medical_allowance" class="form-control" value="{{ old('medical_allowance', 0) }}"></div>
+                            <div class="col-md-3 form-group mb-3"><label>{{ __('Conveyance Allowance') }}</label><input type="number" step="0.01" min="0" name="conveyance_allowance" id="conveyance_allowance" class="form-control" value="{{ old('conveyance_allowance', 0) }}"></div>
+                            <div class="col-md-3 form-group mb-3"><label>{{ __('Other Allowance') }}</label><input type="number" step="0.01" min="0" name="other_allowance" id="other_allowance" class="form-control" value="{{ old('other_allowance', 0) }}"></div>
+                            <div class="col-md-3 form-group mb-3"><label>{{ __('Provident Fund %') }}</label><input type="number" step="0.01" min="0" max="100" name="provident_fund_percent" id="provident_fund_percent" class="form-control" value="{{ old('provident_fund_percent', 0) }}"></div>
+                            <div class="col-md-3 form-group mb-3"><label>{{ __('Tax %') }}</label><input type="number" step="0.01" min="0" max="100" name="tax_percent" id="tax_percent" class="form-control" value="{{ old('tax_percent', 0) }}"></div>
+                            <div class="col-md-3 form-group mb-3"><label>{{ __('CTC Amount') }}</label><input type="number" step="0.01" min="0" name="ctc_amount" class="form-control" value="{{ old('ctc_amount') }}"></div>
+                            <div class="col-md-4 form-group mb-3"><label>{{ __('Effective From') }}</label><input type="text" name="effective_from" class="form-control datetimepicker" value="{{ old('effective_from', now()->toDateString()) }}" required></div>
+                            <div class="col-md-4 form-group mb-3"><label>{{ __('Effective To') }}</label><input type="text" name="effective_to" class="form-control datetimepicker" value="{{ old('effective_to') }}"></div>
+                            <div class="col-md-12 form-group mb-3"><label>{{ __('Notes') }}</label><textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea></div>
                         </div>
-                        <button class="btn btn-custom" type="submit"><i class="icon-check"></i> Assign Template</button>
-                        <a href="{{ route('payroll.salary-templates.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+                        <button class="btn btn-custom" type="submit"><i class="icon-check"></i> {{ __('Assign Template') }}</button>
+                        <a href="{{ route('payroll.salary-templates.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> {{ __('Back') }}</a>
                     </form>
                 </div>
             </div>

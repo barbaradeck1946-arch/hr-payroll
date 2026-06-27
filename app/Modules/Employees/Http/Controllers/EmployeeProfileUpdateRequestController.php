@@ -64,7 +64,7 @@ class EmployeeProfileUpdateRequestController extends Controller
         }
 
         return redirect()->route('employees.profile-updates.create')
-            ->with('success', 'Profile update request submitted. HR will review it.');
+            ->with('success', __('Profile update request submitted. HR will review it.'));
     }
 
     public function index(Request $request): View
@@ -106,6 +106,6 @@ class EmployeeProfileUpdateRequestController extends Controller
         }
 
         return redirect()->route('employees.profile-updates.index')
-            ->with('success', 'Profile update request processed successfully.');
+            ->with('success', __('Profile update request processed successfully.'));
     }
 }

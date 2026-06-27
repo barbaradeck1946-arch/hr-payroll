@@ -75,7 +75,7 @@ class AttendanceController extends Controller
 
         $this->attendanceService->addManualLog($employeeId, $validated, $user->id);
 
-        return redirect()->route('attendance.index')->with('success', 'Attendance log added successfully.');
+        return redirect()->route('attendance.index')->with('success', __('Attendance log added successfully.'));
     }
 
     // Export attendance logs as a CSV file based on filters and user access scope.
@@ -376,7 +376,7 @@ class AttendanceController extends Controller
         ]);
 
         return redirect()->route('attendance.api-docs')
-            ->with('success', 'API client created successfully. Copy the token now.')
+            ->with('success', __('API client created successfully. Copy the token now.'))
             ->with('attendance_api_plain_token', $plainToken);
     }
 
@@ -384,7 +384,7 @@ class AttendanceController extends Controller
     {
         $apiClient->update(['is_active' => ! $apiClient->is_active]);
 
-        return redirect()->route('attendance.api-docs')->with('success', 'API client status updated.');
+        return redirect()->route('attendance.api-docs')->with('success', __('API client status updated.'));
     }
 
     /**

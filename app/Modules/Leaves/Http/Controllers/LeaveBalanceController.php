@@ -96,7 +96,7 @@ class LeaveBalanceController extends Controller
 
         $this->leaveService->updateBalance($leaveBalance, $request->validated());
         return redirect()->route('leave-balances.index', ['year' => $leaveBalance->year])
-            ->with('success', 'Leave balance updated successfully.');
+            ->with('success', __('Leave balance updated successfully.'));
     }
 
     /**

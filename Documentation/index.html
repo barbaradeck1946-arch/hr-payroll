@@ -217,7 +217,8 @@
         }
 
         code {
-            background: var(--code);
+            background: #eef4f8;
+            color: var(--primary);
             padding: 2px 5px;
             border-radius: 4px;
             font-size: 13px;
@@ -229,6 +230,13 @@
             padding: 16px;
             border-radius: 8px;
             overflow-x: auto;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
         }
 
         table {
@@ -363,6 +371,7 @@
             <a href="#holidays">Holidays</a>
             <a href="#user-management">Users, Roles and Permissions</a>
             <a href="#settings">Settings</a>
+            <a href="#localization">Localization</a>
             <a href="#reports">Reports</a>
             <a href="#notifications">Notifications</a>
             <a href="#faq">FAQ</a>
@@ -550,7 +559,7 @@ php artisan optimize:clear</code></pre>
             <h3>How It Works Internally</h3>
             <table>
                 <tr><th>Table / Field</th><th>Purpose</th></tr>
-                <tr><td>users</code></td><td>Stores login credentials, account status and role assignment.</td></tr>
+                <tr><td>users</td><td>Stores login credentials, account status and role assignment.</td></tr>
                 <tr><td>employees</td><td>Stores HR profile and employment information.</td></tr>
                 <tr><td>employees.user_id</td><td>Links the employee profile to the login user account.</td></tr>
             </table>
@@ -802,6 +811,19 @@ php artisan optimize:clear</code></pre>
                 <li>Final Submit payroll run. This is the posting step for salary-linked records such as loan installment payment and PF contribution.</li>
                 <li>Mark individual payslips as paid after payment processing.</li>
             </ol>
+            <h3>Payroll Run Generation Logic</h3>
+            <table>
+                <tr><th>Step</th><th>System Logic</th></tr>
+                <tr><td>Period check</td><td>The system checks pay frequency, period start and period end. If a draft run exists for the same period, it is regenerated. If a processed run exists, only a missing selected employee can be added. Approved or paid runs cannot be regenerated.</td></tr>
+                <tr><td>Employee selection</td><td>If no employee is selected, payroll is generated for all active employees. If an employee is selected, payroll is generated only for that active employee.</td></tr>
+                <tr><td>Salary source</td><td>Payroll first uses the employee-specific salary assignment active at the payroll period end date. If no assignment exists, it falls back to the employee salary grade minimum salary.</td></tr>
+                <tr><td>Allowances</td><td>House rent, medical allowance, conveyance allowance and other allowance are taken from the employee salary assignment.</td></tr>
+                <tr><td>Bonus</td><td>Bonus amount is included when the bonus date falls inside the payroll period.</td></tr>
+                <tr><td>Loan deduction</td><td>Only active loans are considered. Pending installments with due dates inside the payroll period are summed into the draft payslip.</td></tr>
+                <tr><td>Other deductions</td><td>Active employee deduction records are attached to the payslip when their effective date range and frequency match the payroll period.</td></tr>
+                <tr><td>PF and tax</td><td>Provident fund and tax are calculated from configured percentages, usually from the employee salary assignment or PF setup.</td></tr>
+                <tr><td>Draft totals</td><td>Gross, deduction total and net payable are calculated for each payslip and summarized in the payroll run.</td></tr>
+            </table>
             <div class="note">Loan balances are not reduced during draft generation. Loan installments are marked paid only when the payroll run is finalized, because the deduction becomes real only when salary is processed.</div>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Payroll Dashboard / Runs</strong>
@@ -1005,6 +1027,13 @@ Net Payable = Gross - Total Deduction</code></pre>
                 <li>After final submission, payslips can be marked as paid when salary payment is completed.</li>
             </ul>
             <div class="warning">Finalized payroll runs cannot be regenerated for the same period. Create a new period or review the finalized run.</div>
+            <h3>Important Status Meaning</h3>
+            <table>
+                <tr><th>Status</th><th>Meaning</th><th>Can Regenerate?</th></tr>
+                <tr><td>Draft</td><td>Payroll is calculated for HR review. Salary-linked postings are not final yet.</td><td>Yes</td></tr>
+                <tr><td>Processed</td><td>Payroll has been final submitted. Loan installments and PF transactions are posted.</td><td>No</td></tr>
+                <tr><td>Approved / Paid</td><td>Payroll has moved beyond processing/payment workflow.</td><td>No</td></tr>
+            </table>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Payroll Run Detail</strong>
                 Add screenshot later at <span class="path">Documentation/assets/screenshots/payroll-run-detail.png</span>
@@ -1105,6 +1134,79 @@ Net Payable = Gross - Total Deduction</code></pre>
                 <tr><td>Admin / Global</td><td>User can access company-wide records, setup, approval, payroll or reports.</td></tr>
                 <tr><td>General</td><td>Basic module visibility or shared access.</td></tr>
             </table>
+            <h3>Payroll Permission Meaning</h3>
+            <p>Payroll, loan, deduction and payslip data are confidential. Department Head, Supervisor, Project Manager and Team Lead roles should not receive global payroll permissions unless the company intentionally allows them to see salary records.</p>
+            <table>
+                <tr><th>Permission</th><th>Apply When</th><th>Data Access Meaning</th></tr>
+                <tr><td><code>payslip.view</code></td><td>Employee should view own payslip details.</td><td>Own payslips only unless the user also has payroll global permissions.</td></tr>
+                <tr><td><code>report.payroll</code> / <code>payroll.report</code></td><td>HR, Payroll Manager, Finance Manager or Admin should see payroll reports.</td><td>Company-wide payroll report access.</td></tr>
+                <tr><td><code>payroll.view</code></td><td>Payroll staff should view payroll runs and payroll data.</td><td>Company-wide payroll access.</td></tr>
+                <tr><td><code>payroll.generate</code> / <code>payroll_run.generate</code></td><td>Payroll staff should generate payroll drafts.</td><td>Can create or regenerate draft payroll runs.</td></tr>
+                <tr><td><code>payroll_run.approve</code></td><td>Authorized payroll approver should final submit payroll.</td><td>Can process draft payroll and post salary-linked loan/PF effects.</td></tr>
+                <tr><td><code>payroll_run.mark-paid</code></td><td>Finance/payroll staff should mark salary payment status.</td><td>Can mark payslips as paid after payroll is processed.</td></tr>
+                <tr><td><code>loan.apply</code> / <code>employee_loan.apply</code></td><td>Employee should request a loan.</td><td>Own loan application only.</td></tr>
+                <tr><td><code>loan.view</code> / <code>employee_loan.view</code></td><td>User should see loan information.</td><td>Own loan data only unless management permissions are assigned.</td></tr>
+                <tr><td><code>loan.approve-supervisor</code> / <code>employee_loan.approve-supervisor</code></td><td>Supervisor or Department Head should review first-stage loan requests.</td><td>Pending team approval loans only.</td></tr>
+                <tr><td><code>loan.approve-final</code> / <code>employee_loan.approve-final</code></td><td>Final loan approver should complete loan approval.</td><td>Final approval workflow access.</td></tr>
+                <tr><td><code>payroll.manage-loan</code></td><td>Payroll or HR finance staff should manage company loan records.</td><td>Company-wide loan management access.</td></tr>
+                <tr><td><code>employee_deduction.view</code></td><td>Employee should view own deductions.</td><td>Own deduction data only unless management permissions are assigned.</td></tr>
+                <tr><td><code>payroll.manage-deduction</code></td><td>Payroll staff should create, update or remove employee deductions.</td><td>Company-wide deduction management access.</td></tr>
+                <tr><td><code>provident_fund.view</code></td><td>User should see PF details.</td><td>Self or scoped access depending on assigned management permissions.</td></tr>
+                <tr><td><code>payroll.manage-pf</code></td><td>Payroll staff should manage PF setup and transactions.</td><td>Company-wide provident fund management access.</td></tr>
+            </table>
+            <h3>Recommended Role Assignment</h3>
+            <table>
+                <tr><th>Role</th><th>Recommended Payroll Access</th><th>Do Not Assign By Default</th></tr>
+                <tr><td>Admin / Super Admin</td><td>All permissions.</td><td>-</td></tr>
+                <tr><td>HR Admin / HR Manager</td><td>Employee, attendance, leave and HR reports. Add payroll permissions only if HR handles salary processing.</td><td>Global payroll permissions if HR should not see salary.</td></tr>
+                <tr><td>Payroll Manager</td><td><code>payroll.view</code>, <code>payroll.generate</code>, <code>payroll_run.*</code>, <code>payroll.report</code>, salary, bonus, loan, deduction, PF and payslip permissions.</td><td>-</td></tr>
+                <tr><td>Finance Manager</td><td>Payroll report, payslip export/print, loan, deduction and payment status permissions if finance processes salary payment.</td><td>Employee HR administration permissions unless required.</td></tr>
+                <tr><td>Department Head / Supervisor</td><td>Own payslip, own loan, own deductions, team attendance/leave approval, team work scope. Loan supervisor approval only if part of loan workflow.</td><td><code>payroll.view</code>, <code>payroll.report</code>, <code>report.payroll</code>, <code>payroll.manage-deduction</code>, <code>payroll.manage-loan</code>.</td></tr>
+                <tr><td>Employee</td><td>Own profile, own attendance, own leave, own tasks/projects, own payslips, own loans, own deductions and own PF.</td><td>Any global payroll, loan, deduction or report permission.</td></tr>
+                <tr><td>Auditor</td><td>Read-only report permissions only when company policy allows salary auditing.</td><td>Create, update, delete, generate or final approval permissions.</td></tr>
+            </table>
+            <h3>Role-Based Operation Guide</h3>
+            <p>This guide explains what each common role should normally do in the system. The final behavior still depends on the permissions assigned to the role from the database.</p>
+            <table>
+                <tr><th>Role</th><th>Normal Responsibility</th><th>Typical Modules</th><th>Data Scope</th></tr>
+                <tr><td>Employee</td><td>Self-service user. Updates personal information, clocks attendance, applies for leave or resignation, views own work and views own finance records.</td><td>Dashboard, Profile, Attendance, Leave, Holidays, Announcements, Teams/Projects/Tasks, Payslips, Loans, Deductions, Provident Fund, Resignation.</td><td>Own records only.</td></tr>
+                <tr><td>Supervisor</td><td>First-line approver for direct reports. Reviews team attendance issues, leave requests, task progress and assigned workflow approvals.</td><td>Dashboard, Employee summary for subordinates, Attendance, Leave approvals, Teams/Projects/Tasks, Loan supervisor approval if enabled.</td><td>Own records plus direct subordinate/team workflow records. No salary/payroll visibility by default.</td></tr>
+                <tr><td>Department Head</td><td>Department-level manager. Monitors department employees, attendance, leave, resignations and department work. Can approve department workflow items when permission is assigned.</td><td>Dashboard, Employees, Attendance reports, Leave approvals/reports, Resignation supervisor approval, Teams/Projects/Tasks, Announcements.</td><td>Own records plus department records. Payroll, payslip, deduction and loan finance data remain self-only unless explicit finance permissions are assigned.</td></tr>
+                <tr><td>Project Manager / Team Lead</td><td>Manages work delivery. Creates or updates teams/projects/tasks and tracks assigned members.</td><td>Teams, Projects, Tasks, Files, Comments, Work reports.</td><td>Assigned teams/projects/tasks and members. No HR payroll access by default.</td></tr>
+                <tr><td>HR Admin / HR Manager</td><td>Maintains employee records and HR policies. Handles employee lifecycle from onboarding to resignation and HR reporting.</td><td>Employees, Departments, Designations, Attendance administration, Leave setup, Profile update approvals, Resignation approvals, Announcements, Holidays, HR reports.</td><td>Company-wide HR records. Payroll access only if salary processing responsibility is assigned.</td></tr>
+                <tr><td>Payroll Manager</td><td>Maintains salary setup and processes payroll. Reviews draft payroll, final submits payroll and manages salary-linked deductions.</td><td>Salary Grades, Salary Templates, Employee Salary Assignments, Bonuses, Loans, Deductions, Provident Fund, Payroll Runs, Payslips, Payroll Reports.</td><td>Company-wide payroll and finance records.</td></tr>
+                <tr><td>Finance Manager</td><td>Reviews salary payable, loan recovery and payment status. Can export reports and mark payment status when assigned.</td><td>Payroll Reports, Payslips, Loans, Deductions, Provident Fund, Billing/Expenses if enabled.</td><td>Company-wide finance records only when granted by permission.</td></tr>
+                <tr><td>Admin / Super Admin</td><td>System owner. Configures roles, permissions, users, settings, seed data and global module access.</td><td>All modules, User Management, Roles, Permissions, Settings, Audit, Reports.</td><td>Company-wide system access.</td></tr>
+            </table>
+            <h3>Employee Lifecycle by Role</h3>
+            <table>
+                <tr><th>Workflow</th><th>Employee</th><th>Supervisor / Department Head</th><th>HR / Admin</th><th>Payroll / Finance</th></tr>
+                <tr><td>Sign up / account request</td><td>Registers account when public registration is enabled, or waits for HR/Admin-created login.</td><td>No action unless company policy requires manager verification.</td><td>Approves or rejects account, links user to employee profile and assigns role.</td><td>No action.</td></tr>
+                <tr><td>Employee onboarding</td><td>Completes personal profile and uploads required documents when allowed.</td><td>Can review team assignment or reporting line if assigned.</td><td>Creates employee record, department, designation, salary grade, manager, user login and employment status.</td><td>Assigns salary template, salary snapshot, PF setup, loan/deduction opening records if needed.</td></tr>
+                <tr><td>Profile update</td><td>Submits profile change request for editable personal data.</td><td>Can review if profile approval workflow is assigned to department level.</td><td>Reviews, approves or rejects profile update requests.</td><td>No action.</td></tr>
+                <tr><td>Attendance</td><td>Clocks in/out and views own attendance history.</td><td>Views subordinate or department attendance and approves time corrections when assigned.</td><td>Manages attendance records, imports device data and runs attendance reports.</td><td>Uses finalized attendance summary only if company policy affects payroll.</td></tr>
+                <tr><td>Leave</td><td>Applies for leave and views own leave balance/status.</td><td>Approves or rejects team leave requests when assigned.</td><td>Configures leave categories, quotas, balances and final approvals if required.</td><td>No action unless unpaid leave affects payroll calculation by policy.</td></tr>
+                <tr><td>Teams, projects and tasks</td><td>Views assigned teams/projects/tasks and updates own task progress when allowed.</td><td>Creates or manages team/project work when assigned.</td><td>Can monitor organization-level work records if permission is assigned.</td><td>No action.</td></tr>
+                <tr><td>Loan request</td><td>Applies for own loan and views own loan/installment status.</td><td>Approves first-stage team loan requests when loan supervisor permission is assigned.</td><td>Can review policy compliance if assigned.</td><td>Final approves, activates loan, manages installment schedule and payroll deduction.</td></tr>
+                <tr><td>Deductions and PF</td><td>Views own deduction and provident fund records.</td><td>No access by default.</td><td>No access unless HR handles salary policy.</td><td>Creates and manages employee deductions and PF transactions.</td></tr>
+                <tr><td>Payroll and payslip</td><td>Views own payslips only.</td><td>Views own payslips only. Does not see subordinate salary by default.</td><td>Can view payroll only when payroll permissions are assigned.</td><td>Generates draft payroll, reviews payslips, final submits payroll, posts loan/PF effects and marks payment status.</td></tr>
+                <tr><td>Resignation</td><td>Applies for resignation and tracks own application.</td><td>Reviews own department or subordinate resignation applications when supervisor approval permission is assigned.</td><td>Performs final approval/rejection, updates employee status and offboarding records.</td><td>Processes final settlement items when payroll/finance permissions are assigned.</td></tr>
+            </table>
+            <h3>Module-Wise Permission Meaning</h3>
+            <table>
+                <tr><th>Module</th><th>Self / Employee</th><th>Department / Team</th><th>Admin / Global</th></tr>
+                <tr><td>Dashboard</td><td><code>dashboard.view_self</code> shows own attendance, leave, notices and quick notes.</td><td><code>dashboard.view_department</code> shows department/team summary widgets.</td><td><code>dashboard.view_all</code> shows company-wide dashboard data.</td></tr>
+                <tr><td>Employees</td><td><code>employee.view-profile</code> and profile update request permissions allow own profile actions.</td><td>Department heads can see department employees when scoped by controller rules and assigned permissions.</td><td><code>employee.view</code>, <code>employee.create</code>, <code>employee.update</code>, <code>employee.delete</code> manage employee records.</td></tr>
+                <tr><td>Attendance</td><td><code>attendance.clock</code> and basic attendance view allow own attendance actions.</td><td><code>attendance.report</code> or approval permissions can show subordinate/team attendance based on scope.</td><td><code>attendance.manage</code>, import/export and report permissions manage all attendance records.</td></tr>
+                <tr><td>Leave</td><td><code>leave.apply</code> allows own leave application and own leave status.</td><td><code>leave.approve</code> allows assigned approval-scope leave processing.</td><td>Leave category, quota, balance and report permissions manage all leave setup and records.</td></tr>
+                <tr><td>Work</td><td>Project/team/task view permissions show assigned work only.</td><td>Project Manager, Team Lead or Supervisor permissions allow assigned team/project/task management.</td><td>Create, update, delete and manage-member permissions can manage wider work records.</td></tr>
+                <tr><td>Payroll</td><td><code>payslip.view</code> shows own payslips only.</td><td>Department/team roles should not receive salary visibility by default.</td><td><code>payroll.view</code>, <code>payroll.generate</code>, <code>payroll.report</code> and <code>payroll_run.*</code> manage payroll.</td></tr>
+                <tr><td>Loans</td><td><code>loan.apply</code>, <code>employee_loan.apply</code> and own view permissions handle own loans.</td><td>Supervisor approval permissions show pending team loan approvals only.</td><td><code>payroll.manage-loan</code> and loan management permissions manage all loans.</td></tr>
+                <tr><td>Deductions</td><td><code>employee_deduction.view</code> shows own deductions.</td><td>No department/team deduction access by default.</td><td><code>payroll.manage-deduction</code> and deduction create/update/delete permissions manage all deductions.</td></tr>
+                <tr><td>Resignation</td><td><code>employee.resignation-apply</code> allows own resignation request.</td><td><code>employee.resignation-supervisor-approve</code> handles department/subordinate applications.</td><td><code>employee.resignation-final-approve</code> handles final HR/Admin approval and employee status update.</td></tr>
+                <tr><td>Reports</td><td>Self-service reports show own data when implemented for that module.</td><td>Department reports show only department/team data where scoped.</td><td>Global report permissions show company-wide report data. Payroll report requires payroll-specific permissions.</td></tr>
+            </table>
+            <div class="warning">Do not use generic report or module visibility permissions as salary access. Salary, payslip, payroll report, loan, deduction and PF access should be assigned deliberately to HR, Payroll, Finance or Admin roles only.</div>
             <div class="screenshot">
                 <strong>Screenshot Placeholder: Role Permissions</strong>
                 Add screenshot later at <span class="path">Documentation/assets/screenshots/role-permissions.png</span>
@@ -1125,6 +1227,27 @@ Net Payable = Gross - Total Deduction</code></pre>
                 <strong>Screenshot Placeholder: Settings</strong>
                 Add screenshot later at <span class="path">Documentation/assets/screenshots/settings.png</span>
             </div>
+        </section>
+
+        <section id="localization">
+            <h2>Localization</h2>
+            <p>Zeri HR supports multilingual UI labels for dashboard, employees, departments, designations, attendance, leave, payroll, users, roles, permissions, holidays, notices, teams, projects, settings and reports.</p>
+            <h3>Supported Languages</h3>
+            <table>
+                <tr><th>Language</th><th>Code</th><th>Coverage</th></tr>
+                <tr><td>🇺🇸 English</td><td><code>en</code></td><td>Default system language.</td></tr>
+                <tr><td>🇩🇪 German</td><td><code>de</code></td><td>Core HR, payroll and admin UI labels.</td></tr>
+                <tr><td>🇫🇷 French</td><td><code>fr</code></td><td>Core HR, payroll and admin UI labels.</td></tr>
+                <tr><td>🇮🇳 Hindi</td><td><code>hi</code></td><td>Core HR, payroll and admin UI labels.</td></tr>
+            </table>
+            <h3>How Language Selection Works</h3>
+            <ul>
+                <li>Users can change the interface language from the topbar language selector.</li>
+                <li>The selected language is stored in the session and applied through the locale middleware.</li>
+                <li>Translation files are stored in <code>lang/en.json</code>, <code>lang/de.json</code>, <code>lang/fr.json</code> and <code>lang/hi.json</code>.</li>
+                <li>Database content such as employee names, department names, project names and notice titles remains user-entered content and is not automatically translated.</li>
+            </ul>
+            <div class="note">When adding new screens, wrap visible static labels with Laravel translation helpers and add the keys to all supported language JSON files.</div>
         </section>
 
         <section id="reports">

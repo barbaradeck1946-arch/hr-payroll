@@ -3,9 +3,9 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-organization"></i> Departments</h1>
+        <h1><i class="icon-organization"></i> {{ __('Departments') }}</h1>
         @if(auth()->user()?->hasPermission('department.create'))
-            <a href="{{ route('departments.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Department</a>
+            <a href="{{ route('departments.create') }}" class="btn btn-custom"><i class="icon-plus"></i> {{ __('Add Department') }}</a>
         @endif
     </div>
 
@@ -17,13 +17,13 @@
                 <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-4">
-                            <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search name/code/description">
+                            <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="{{ __('Search name/code/description') }}">
                         </div>
                         <div class="col-md-2">
                             <select name="status" class="form-control">
-                                <option value="">All Status</option>
-                                <option value="active" {{ $filters['status'] === 'active' ? 'selected' : '' }}>Active</option>
-                                    <option value="inactive" {{ $filters['status'] === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                <option value="">{{ __('All Status') }}</option>
+                                <option value="active" {{ $filters['status'] === 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                    <option value="inactive" {{ $filters['status'] === 'inactive' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -34,8 +34,8 @@
                             </select>
                         </div>
                         <div class="col-md-4 d-flex gap-2">
-                            <button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> Filter</button>
-                                <a href="{{ route('departments.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> Reset</a>
+                            <button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> {{ __('Filter') }}</button>
+                                <a href="{{ route('departments.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> {{ __('Reset') }}</a>
                         </div>
                     </form>
 
@@ -43,13 +43,13 @@
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Code</th>
-                                    <th>Head</th>
-                                    <th>Employees</th>
-                                    <th>Designations</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('Name') }}</th>
+                                    <th>{{ __('Code') }}</th>
+                                    <th>{{ __('Head') }}</th>
+                                    <th>{{ __('Employees') }}</th>
+                                    <th>{{ __('Designations') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -69,14 +69,14 @@
                                         <td>{{ $department->designations_count }}</td>
                                         <td>
                                             @if($department->is_active)
-                                                <span class="badge bg-success">Active</span>
+                                                <span class="badge bg-success">{{ __('Active') }}</span>
                                             @else
-                                                <span class="badge bg-secondary">Inactive</span>
+                                                <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                                             @endif
                                         </td>
                                         <td class="action-buttons">
                                             @if(auth()->user()?->hasPermission('department.update'))
-                                                <a href="{{ route('departments.edit', $department) }}" title="Edit Department">
+                                                <a href="{{ route('departments.edit', $department) }}" title="{{ __('Edit Department') }}">
                                                     <i class="icon-pencil"></i>
                                                 </a>
                                             @endif
@@ -84,14 +84,14 @@
                                                 <form method="POST" action="{{ route('departments.destroy', $department) }}" onsubmit="return confirm('Delete this department?');" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" title="Delete Department"><i class="icon-trash"></i></button>
+                                                    <button type="submit" title="{{ __('Delete Department') }}"><i class="icon-trash"></i></button>
                                                 </form>
                                             @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">No departments found.</td>
+                                        <td colspan="7" class="text-center">{{ __('No departments found.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

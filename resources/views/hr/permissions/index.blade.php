@@ -3,9 +3,9 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-key"></i> Permissions</h1>
+        <h1><i class="icon-key"></i> {{ __('Permissions') }}</h1>
         @if(auth()->user()?->hasPermission('role.update'))
-            <a href="{{ route('permissions.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Permission</a>
+            <a href="{{ route('permissions.create') }}" class="btn btn-custom"><i class="icon-plus"></i> {{ __('Add Permission') }}</a>
         @endif
     </div>
 
@@ -17,11 +17,11 @@
                 <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-3">
-                            <input type="text" name="q" class="form-control" value="{{ $filters['q'] }}" placeholder="Search permission">
+                            <input type="text" name="q" class="form-control" value="{{ $filters['q'] }}" placeholder="{{ __('Search permission') }}">
                         </div>
                         <div class="col-md-3">
                             <select name="group_name" class="form-control">
-                                <option value="">All Groups</option>
+                                <option value="">{{ __('All Groups') }}</option>
                                 @foreach($groups as $group)
                                     <option value="{{ $group }}" {{ $filters['group_name'] === $group ? 'selected' : '' }}>{{ str_replace('_', ' ', $group) }}</option>
                                 @endforeach
@@ -35,8 +35,8 @@
                             </select>
                         </div>
                         <div class="col-md-4 d-flex gap-2">
-                            <button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> Filter</button>
-                            <a href="{{ route('permissions.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> Reset</a>
+                            <button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> {{ __('Filter') }}</button>
+                            <a href="{{ route('permissions.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> {{ __('Reset') }}</a>
                         </div>
                     </form>
 
@@ -44,11 +44,11 @@
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Group</th>
-                                    <th>Name</th>
-                                    <th>Access Scope</th>
-                                    <th>Slug</th>
-                                    <th>Action</th>
+                                    <th>{{ __('Group') }}</th>
+                                    <th>{{ __('Name') }}</th>
+                                    <th>{{ __('Access Scope') }}</th>
+                                    <th>{{ __('Slug') }}</th>
+                                    <th>{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -63,7 +63,7 @@
                                         <td>{{ $permission->slug }}</td>
                                         <td class="action-buttons">
                                             @if(auth()->user()?->hasPermission('role.update'))
-                                                <a href="{{ route('permissions.edit', $permission) }}" title="Edit Permission">
+                                                <a href="{{ route('permissions.edit', $permission) }}" title="{{ __('Edit Permission') }}">
                                                     <i class="icon-pencil"></i>
                                                 </a>
                                             @endif
@@ -71,7 +71,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center">No permissions found.</td>
+                                        <td colspan="5" class="text-center">{{ __('No permissions found.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

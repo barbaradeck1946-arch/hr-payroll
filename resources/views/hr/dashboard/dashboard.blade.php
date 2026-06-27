@@ -5,9 +5,9 @@
     $perms = $dashboardPermissions ?? [];
     $can = fn (string $permission): bool => $perms[$permission] ?? false;
     $scopeLabel = match ($dashboardScope ?? 'self') {
-        'all' => 'Company overview',
-        'department' => 'Department overview',
-        default => 'Personal overview',
+        'all' => __('Company overview'),
+        'department' => __('Department overview'),
+        default => __('Personal overview'),
     };
     $visibleCards = collect($summaryCards ?? [])->filter(fn ($card) => $can($card['permission'] ?? ''))->values();
     $attendance = $attendanceSummary ?? ['present' => 0, 'absent' => 0, 'late' => 0, 'leave' => 0];
@@ -16,7 +16,7 @@
 
 <div class="wrapper-page">
     <div class="page-title">
-        <h1><i class="icon-grid"></i> Dashboard</h1>
+        <h1><i class="icon-grid"></i> {{ __('Dashboard') }}</h1>
     </div>
 
     @include('partials.flash')
@@ -25,9 +25,9 @@
         <div class="container-fluid hr-dashboard">
             <div class="dashboard-hero">
                 <div>
-                    <span class="dashboard-kicker">HR dashboard</span>
+                    <span class="dashboard-kicker">{{ __('HR dashboard') }}</span>
                     <h2>{{ $scopeLabel }}</h2>
-                    <p>Basic employee visibility, daily attendance, notices, notes, and upcoming events.</p>
+                    <p>{{ __('Basic employee visibility, daily attendance, notices, notes, and upcoming events.') }}</p>
                 </div>
                 <div class="dashboard-hero-date">
                     <span>{{ now()->format('l') }}</span>
@@ -40,7 +40,7 @@
                     @foreach($visibleCards as $card)
                         <div class="dashboard-stat dashboard-stat-{{ $card['tone'] ?? 'neutral' }}">
                             <div>
-                                <span>{{ $card['label'] }}</span>
+                                <span>{{ __($card['label']) }}</span>
                                 <strong>{{ is_float($card['value']) ? number_format($card['value'], 1) : number_format((int) $card['value']) }}</strong>
                             </div>
                             <i class="{{ $card['icon'] }}"></i>
@@ -57,8 +57,8 @@
                                 <div class="dashboard-panel">
                                     <div class="dashboard-panel-header">
                                         <div>
-                                            <h3>{{ ($dashboardScope ?? 'self') === 'self' ? 'My Monthly Attendance Summary' : 'Attendance Summary' }}</h3>
-                                            <p>Present, absent, late, and leave counts.</p>
+                                            <h3>{{ ($dashboardScope ?? 'self') === 'self' ? __('My Monthly Attendance Summary') : __('Attendance Summary') }}</h3>
+                                            <p>{{ __('Present, absent, late, and leave counts.') }}</p>
                                         </div>
                                     </div>
                                     <div class="dashboard-chart-wrap">
@@ -79,8 +79,8 @@
                                 <div class="dashboard-panel">
                                     <div class="dashboard-panel-header">
                                         <div>
-                                            <h3>Department-wise Employees</h3>
-                                            <p>Active employee count by department.</p>
+                                            <h3>{{ __('Department-wise Employees') }}</h3>
+                                            <p>{{ __('Active employee count by department.') }}</p>
                                         </div>
                                     </div>
                                     <div class="dashboard-chart-wrap">
@@ -99,19 +99,19 @@
                                 <div class="dashboard-panel">
                                     <div class="dashboard-panel-header">
                                         <div>
-                                            <h3>{{ ($dashboardScope ?? 'self') === 'self' ? 'My Recent Attendance' : (($dashboardScope ?? 'self') === 'department' ? 'Today Team Attendance' : 'Today Attendance') }}</h3>
-                                            <p>Latest attendance entries within your dashboard scope.</p>
+                                            <h3>{{ ($dashboardScope ?? 'self') === 'self' ? __('My Recent Attendance') : (($dashboardScope ?? 'self') === 'department' ? __('Today Team Attendance') : __('Today Attendance')) }}</h3>
+                                            <p>{{ __('Latest attendance entries within your dashboard scope.') }}</p>
                                         </div>
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table dashboard-table">
                                             <thead>
                                                 <tr>
-                                                    <th>Employee</th>
-                                                    <th>Department</th>
-                                                    <th>Status</th>
-                                                    <th>Check In</th>
-                                                    <th>Check Out</th>
+                                                    <th>{{ __('Employee') }}</th>
+                                                    <th>{{ __('Department') }}</th>
+                                                    <th>{{ __('Status') }}</th>
+                                                    <th>{{ __('Check In') }}</th>
+                                                    <th>{{ __('Check Out') }}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -121,14 +121,14 @@
                                                             <strong>{{ trim($row->employee?->first_name . ' ' . $row->employee?->last_name) ?: '-' }}</strong>
                                                             <div class="small text-muted">{{ $row->employee?->employee_code }}</div>
                                                         </td>
-                                                        <td>{{ $row->employee?->department?->name ?? 'Unassigned' }}</td>
-                                                        <td><span class="dashboard-status status-{{ $row->status }}">{{ ucfirst($row->status) }}</span></td>
+                                                        <td>{{ $row->employee?->department?->name ?? __('Unassigned') }}</td>
+                                                        <td><span class="dashboard-status status-{{ $row->status }}">{{ __(ucfirst($row->status)) }}</span></td>
                                                         <td>{{ $row->check_in_at?->format('h:i A') ?? '-' }}</td>
                                                         <td>{{ $row->check_out_at?->format('h:i A') ?? '-' }}</td>
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="5" class="text-center text-muted">No attendance entries available.</td>
+                                                        <td colspan="5" class="text-center text-muted">{{ __('No attendance entries available.') }}</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
@@ -143,18 +143,18 @@
                                 <div class="dashboard-panel">
                                     <div class="dashboard-panel-header">
                                         <div>
-                                            <h3>{{ ($dashboardScope ?? 'self') === 'self' ? 'My Leave Requests' : (($dashboardScope ?? 'self') === 'department' ? 'Team Pending Leave Requests' : 'Pending Leave Requests') }}</h3>
-                                            <p>Open leave requests for this dashboard scope.</p>
+                                            <h3>{{ ($dashboardScope ?? 'self') === 'self' ? __('My Leave Requests') : (($dashboardScope ?? 'self') === 'department' ? __('Team Pending Leave Requests') : __('Pending Leave Requests')) }}</h3>
+                                            <p>{{ __('Open leave requests for this dashboard scope.') }}</p>
                                         </div>
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table dashboard-table">
                                             <thead>
                                                 <tr>
-                                                    <th>Employee</th>
-                                                    <th>Leave</th>
-                                                    <th>Dates</th>
-                                                    <th>Days</th>
+                                                    <th>{{ __('Employee') }}</th>
+                                                    <th>{{ __('Leave') }}</th>
+                                                    <th>{{ __('Dates') }}</th>
+                                                    <th>{{ __('Days') }}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -167,7 +167,7 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="4" class="text-center text-muted">No pending leave requests.</td>
+                                                        <td colspan="4" class="text-center text-muted">{{ __('No pending leave requests.') }}</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
@@ -182,21 +182,21 @@
                                 <div class="dashboard-panel">
                                     <div class="dashboard-panel-header">
                                         <div>
-                                            <h3>{{ ($dashboardScope ?? 'self') === 'department' ? 'Upcoming Team Events' : 'Upcoming Holidays & Birthdays' }}</h3>
-                                            <p>Events in the next 45 days.</p>
+                                            <h3>{{ ($dashboardScope ?? 'self') === 'department' ? __('Upcoming Team Events') : __('Upcoming Holidays & Birthdays') }}</h3>
+                                            <p>{{ __('Events in the next 45 days.') }}</p>
                                         </div>
                                     </div>
                                     <div class="dashboard-event-list">
                                         @forelse(($upcomingEvents ?? collect()) as $event)
                                             <div class="dashboard-event">
-                                                <span>{{ $event['type'] }}</span>
+                                                <span>{{ __($event['type']) }}</span>
                                                 <div>
                                                     <strong>{{ $event['title'] }}</strong>
-                                                    <p>{{ $event['date']?->format('M d') ?? '-' }} · {{ $event['meta'] }}</p>
+                                                    <p>{{ $event['date']?->format('M d') ?? '-' }} · {{ __($event['meta']) }}</p>
                                                 </div>
                                             </div>
                                         @empty
-                                            <div class="dashboard-empty">No upcoming holidays or birthdays.</div>
+                                            <div class="dashboard-empty">{{ __('No upcoming holidays or birthdays.') }}</div>
                                         @endforelse
                                     </div>
                                 </div>
@@ -211,15 +211,15 @@
                             <div class="dashboard-panel">
                                 <div class="dashboard-panel-header">
                                     <div>
-                                        <h3>Notice Board</h3>
-                                        <p>Published HR/Admin notices.</p>
+                                        <h3>{{ __('Notice Board') }}</h3>
+                                        <p>{{ __('Published HR/Admin notices.') }}</p>
                                     </div>
                                     <div class="d-flex gap-2">
                                         @if($canViewAnnouncements ?? false)
-                                            <a href="{{ route('announcements.index') }}" class="btn btn-sm btn-outline-secondary">View</a>
+                                            <a href="{{ route('announcements.index') }}" class="btn btn-sm btn-outline-secondary">{{ __('View') }}</a>
                                         @endif
                                         @if($canCreateAnnouncement ?? false)
-                                            <a href="{{ route('announcements.create') }}" class="btn btn-sm btn-primary">Add</a>
+                                            <a href="{{ route('announcements.create') }}" class="btn btn-sm btn-primary">{{ __('Add') }}</a>
                                         @endif
                                     </div>
                                 </div>
@@ -227,13 +227,13 @@
                                     @forelse(($latestAnnouncements ?? collect()) as $item)
                                         <a href="{{ ($canViewAnnouncements ?? false) ? route('announcements.show', $item) : '#' }}" class="dashboard-notice">
                                             <span class="{{ $item->announcement_type === 'notice' ? 'notice' : 'announcement' }}">
-                                                {{ ucfirst($item->announcement_type) }}
+                                                {{ __(ucfirst($item->announcement_type)) }}
                                             </span>
                                             <strong>{{ $item->title }}</strong>
-                                            <small>{{ $item->publish_at?->format('M d, Y') ?? 'Draft date unavailable' }}</small>
+                                            <small>{{ $item->publish_at?->format('M d, Y') ?? __('Draft date unavailable') }}</small>
                                         </a>
                                     @empty
-                                        <div class="dashboard-empty">No active notices available.</div>
+                                        <div class="dashboard-empty">{{ __('No active notices available.') }}</div>
                                     @endforelse
                                 </div>
                             </div>
@@ -243,8 +243,8 @@
                             <div class="dashboard-panel">
                                 <div class="dashboard-panel-header">
                                     <div>
-                                        <h3>Quick Notes</h3>
-                                        <p>Private notes for your own follow-up.</p>
+                                        <h3>{{ __('Quick Notes') }}</h3>
+                                        <p>{{ __('Private notes for your own follow-up.') }}</p>
                                     </div>
                                     <i class="icon-notebook dashboard-panel-icon"></i>
                                 </div>
@@ -256,9 +256,9 @@
                                     data-can-delete="{{ ($canDeletePrivateNotes ?? false) ? '1' : '0' }}"
                                 >
                                     @if(!($canViewPrivateNotes ?? false))
-                                        <li class="todo-item quick-note-empty dashboard-empty">You do not have permission to view private notes.</li>
+                                        <li class="todo-item quick-note-empty dashboard-empty">{{ __('You do not have permission to view private notes.') }}</li>
                                     @elseif(($privateNotes ?? collect())->isEmpty())
-                                        <li class="todo-item quick-note-empty dashboard-empty">No notes yet. Add your first private note below.</li>
+                                        <li class="todo-item quick-note-empty dashboard-empty">{{ __('No notes yet. Add your first private note below.') }}</li>
                                     @else
                                         @foreach(($privateNotes ?? collect()) as $note)
                                             @php($noteInputId = 'quick_note_' . $note->id)
@@ -277,7 +277,7 @@
                                                         <div class="small quick-note-body {{ $note->is_completed ? 'text-decoration-line-through text-muted' : 'text-muted' }}">{{ $note->note_body }}</div>
                                                     </div>
                                                     @if($canUpdatePrivateNotes ?? false)
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary quick-note-edit-btn" title="Edit note" data-action="{{ route('dashboard.quick-notes.update', $note) }}">
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary quick-note-edit-btn" title="{{ __('Edit note') }}" data-action="{{ route('dashboard.quick-notes.update', $note) }}">
                                                             <i class="icon-pencil"></i>
                                                         </button>
                                                     @endif
@@ -285,7 +285,7 @@
                                                         <form method="POST" action="{{ route('dashboard.quick-notes.delete', $note) }}" class="quick-note-delete-form">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete note"><i class="icon-trash"></i></button>
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete note') }}"><i class="icon-trash"></i></button>
                                                         </form>
                                                     @endif
                                                 </div>
@@ -297,7 +297,7 @@
                                     <form method="POST" action="{{ route('dashboard.quick-notes.store') }}" id="add_todo" class="quick-note-add-form dashboard-note-form">
                                         @csrf
                                         <div class="input-group">
-                                            <input type="text" name="note_body" class="form-control" placeholder="Add private note" required maxlength="2000">
+                                            <input type="text" name="note_body" class="form-control" placeholder="{{ __('Add private note') }}" required maxlength="2000">
                                             <button type="submit" class="btn btn-primary"><i class="fa fa-plus"></i></button>
                                         </div>
                                     </form>
@@ -309,8 +309,8 @@
                             <div class="dashboard-panel">
                                 <div class="dashboard-panel-header">
                                     <div>
-                                        <h3>Basic Alerts</h3>
-                                        <p>Simple items needing attention.</p>
+                                        <h3>{{ __('Basic Alerts') }}</h3>
+                                        <p>{{ __('Simple items needing attention.') }}</p>
                                     </div>
                                 </div>
                                 <div class="dashboard-alert-list">
@@ -320,7 +320,7 @@
                                             <span>{{ $alert['label'] }}</span>
                                         </div>
                                     @empty
-                                        <div class="dashboard-empty">No alerts right now.</div>
+                                        <div class="dashboard-empty">{{ __('No alerts right now.') }}</div>
                                     @endforelse
                                 </div>
                             </div>
@@ -341,7 +341,7 @@
         new Chart(attendanceCanvas.getContext('2d'), {
             type: 'doughnut',
             data: {
-                labels: ['Present', 'Absent', 'Late', 'On Leave'],
+                labels: {!! json_encode([__('Present'), __('Absent'), __('Late'), __('On Leave')]) !!},
                 datasets: [{
                     data: [
                         Number(attendanceCanvas.dataset.present || 0),
@@ -369,7 +369,7 @@
             data: {
                 labels: JSON.parse(departmentCanvas.dataset.labels || '[]'),
                 datasets: [{
-                    label: 'Employees',
+                    label: @json(__('Employees')),
                     data: JSON.parse(departmentCanvas.dataset.values || '[]'),
                     backgroundColor: '#0f8f8c',
                     borderWidth: 0
@@ -436,7 +436,7 @@
         if (items.length === 0 && !empty) {
             var emptyLi = document.createElement('li');
             emptyLi.className = 'todo-item quick-note-empty dashboard-empty';
-            emptyLi.innerHTML = 'No notes yet. Add your first private note below.';
+            emptyLi.innerHTML = @json(__('No notes yet. Add your first private note below.'));
             list.appendChild(emptyLi);
         }
         if (items.length > 0 && empty) {
@@ -459,7 +459,7 @@
             '<div class="small quick-note-body text-muted">' + body + '</div>' +
             '</div>';
         if (canUpdate) {
-            html += '<button type="button" class="btn btn-sm btn-outline-secondary quick-note-edit-btn" title="Edit note" data-action="/dashboard/quick-notes/' + id + '">' +
+            html += '<button type="button" class="btn btn-sm btn-outline-secondary quick-note-edit-btn" title="{{ __('Edit note') }}" data-action="/dashboard/quick-notes/' + id + '">' +
                 '<i class="icon-pencil"></i>' +
                 '</button>';
         }
@@ -467,7 +467,7 @@
             html += '<form method="POST" action="/dashboard/quick-notes/' + id + '" class="quick-note-delete-form">' +
                 '<input type="hidden" name="_token" value="' + csrf + '">' +
                 '<input type="hidden" name="_method" value="DELETE">' +
-                '<button type="submit" class="btn btn-sm btn-outline-danger" title="Delete note"><i class="icon-trash"></i></button>' +
+                '<button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete note') }}"><i class="icon-trash"></i></button>' +
                 '</form>';
         }
         return html + '</div>';
@@ -522,7 +522,7 @@
         if (!item) return;
         var bodyNode = item.querySelector('.quick-note-body');
         var titleNode = item.querySelector('.quick-note-title');
-        var nextBody = window.prompt('Edit note', bodyNode ? (bodyNode.textContent || '').trim() : '');
+        var nextBody = window.prompt(@json(__('Edit note')), bodyNode ? (bodyNode.textContent || '').trim() : '');
         if (nextBody === null || nextBody.trim() === '') return;
 
         fetchAction(button.getAttribute('data-action') || '', {
@@ -541,7 +541,7 @@
         var form = event.target.closest('.quick-note-delete-form');
         if (!form) return;
         event.preventDefault();
-        if (!window.confirm('Delete this note permanently?')) return;
+        if (!window.confirm(@json(__('Delete this note permanently?')))) return;
         fetchForm(form).then(function (json) {
             if (!json || !json.ok) return;
             var item = form.closest('.todo-item');

@@ -66,7 +66,7 @@ class HolidayController extends Controller
     {
         $this->holidayService->createHoliday($request->validated());
 
-        return redirect()->route('holidays.index')->with('success', 'Holiday created successfully.');
+        return redirect()->route('holidays.index')->with('success', __('Holiday created successfully.'));
     }
 
     public function edit(Holiday $holiday): View
@@ -82,14 +82,14 @@ class HolidayController extends Controller
     {
         $this->holidayService->updateHoliday($holiday, $request->validated());
 
-        return redirect()->route('holidays.index')->with('success', 'Holiday updated successfully.');
+        return redirect()->route('holidays.index')->with('success', __('Holiday updated successfully.'));
     }
 
     public function destroy(Holiday $holiday): RedirectResponse
     {
         $this->holidayService->deleteHoliday($holiday);
 
-        return redirect()->route('holidays.index')->with('success', 'Holiday deleted successfully.');
+        return redirect()->route('holidays.index')->with('success', __('Holiday deleted successfully.'));
     }
 
     public function exportCurrentYearCsv(Request $request): Response

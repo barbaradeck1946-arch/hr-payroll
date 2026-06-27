@@ -57,7 +57,7 @@ class UserController extends Controller
     {
         $this->userManagementService->createUser($request->validated(), (int) $request->user()->id);
 
-        return redirect()->route('users.index')->with('success', 'User created successfully. Login credentials have been sent by email.');
+        return redirect()->route('users.index')->with('success', __('User created successfully. Login credentials have been sent by email.'));
     }
 
     // User edit form
@@ -78,7 +78,7 @@ class UserController extends Controller
     {
         $this->userManagementService->updateUser($user, $request->validated(), (int) $request->user()->id);
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('users.index')->with('success', __('User updated successfully.'));
     }
 
     // User approval form
@@ -97,6 +97,6 @@ class UserController extends Controller
     {
         $this->userManagementService->approveOrReject($user, $request->validated(), (int) $request->user()->id);
 
-        return redirect()->route('users.index')->with('success', 'Signup request processed successfully.');
+        return redirect()->route('users.index')->with('success', __('Signup request processed successfully.'));
     }
 }

@@ -43,7 +43,7 @@ class SalaryGradeController extends Controller
     {
         $this->salaryGradeService->createSalaryGrade($request->validated());
 
-        return redirect()->route('salary-grades.index')->with('success', 'Salary grade created successfully.');
+        return redirect()->route('salary-grades.index')->with('success', __('Salary grade created successfully.'));
     }
 
     public function edit(SalaryGrade $salaryGrade): View
@@ -58,13 +58,13 @@ class SalaryGradeController extends Controller
     {
         $this->salaryGradeService->updateSalaryGrade($salaryGrade, $request->validated());
 
-        return redirect()->route('salary-grades.index')->with('success', 'Salary grade updated successfully.');
+        return redirect()->route('salary-grades.index')->with('success', __('Salary grade updated successfully.'));
     }
 
     public function destroy(SalaryGrade $salaryGrade): RedirectResponse
     {
         $this->salaryGradeService->deleteSalaryGrade($salaryGrade);
 
-        return redirect()->route('salary-grades.index')->with('success', 'Salary grade deleted successfully.');
+        return redirect()->route('salary-grades.index')->with('success', __('Salary grade deleted successfully.'));
     }
 }

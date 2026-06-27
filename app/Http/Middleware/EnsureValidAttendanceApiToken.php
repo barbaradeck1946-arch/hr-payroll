@@ -13,12 +13,12 @@ class EnsureValidAttendanceApiToken
     {
         $authHeader = (string) $request->header('Authorization');
         if (! str_starts_with($authHeader, 'Bearer ')) {
-            abort(401, 'Missing Bearer token.');
+            abort(401, __('Missing Bearer token.'));
         }
 
         $plainToken = trim(substr($authHeader, 7));
         if ($plainToken === '') {
-            abort(401, 'Invalid Bearer token.');
+            abort(401, __('Invalid Bearer token.'));
         }
 
         $tokenHash = hash('sha256', $plainToken);
@@ -28,11 +28,11 @@ class EnsureValidAttendanceApiToken
             ->first();
 
         if (! $client) {
-            abort(401, 'Invalid API token.');
+            abort(401, __('Invalid API token.'));
         }
 
         if (! $client->allowsIp($request->ip())) {
-            abort(403, 'IP not allowed for this API token.');
+            abort(403, __('IP not allowed for this API token.'));
         }
 
         $client->forceFill(['last_used_at' => now()])->save();

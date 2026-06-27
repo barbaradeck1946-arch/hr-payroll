@@ -49,7 +49,7 @@ class PayrollService
             ->find((int) $payload['employee_id']);
 
         if (! $employee) {
-            throw new RuntimeException('Employee not found.');
+            throw new RuntimeException(__('Employee not found.'));
         }
 
         $payload = array_merge([
@@ -121,7 +121,7 @@ class PayrollService
             ->get();
 
         if ($employees->isEmpty()) {
-            throw new RuntimeException('No active employees found for bonus generation.');
+            throw new RuntimeException(__('No active employees found for bonus generation.'));
         }
 
         $created = 0;
@@ -147,7 +147,7 @@ class PayrollService
         });
 
         if ($created === 0) {
-            throw new RuntimeException('Bonus rule did not produce any payable bonus amount.');
+            throw new RuntimeException(__('Bonus rule did not produce any payable bonus amount.'));
         }
 
         return $created;
@@ -218,7 +218,7 @@ class PayrollService
 
             if ($step === 'supervisor') {
                 if ($loan->status !== 'pending_supervisor') {
-                    throw new RuntimeException('Only supervisor-pending loans can be supervisor approved.');
+                    throw new RuntimeException(__('Only supervisor-pending loans can be supervisor approved.'));
                 }
 
                 $loan->update([
@@ -232,11 +232,11 @@ class PayrollService
             }
 
             if ($step !== 'final') {
-                throw new RuntimeException('Invalid loan approval step.');
+                throw new RuntimeException(__('Invalid loan approval step.'));
             }
 
             if (! in_array($loan->status, ['pending_supervisor', 'pending_final'], true)) {
-                throw new RuntimeException('Only pending loans can be final approved.');
+                throw new RuntimeException(__('Only pending loans can be final approved.'));
             }
 
             $loan->update([
@@ -257,7 +257,7 @@ class PayrollService
     public function rejectLoan(EmployeeLoan $loan, int $userId, ?string $remarks = null): EmployeeLoan
     {
         if (! in_array($loan->status, ['pending_supervisor', 'pending_final'], true)) {
-            throw new RuntimeException('Only pending loans can be rejected.');
+            throw new RuntimeException(__('Only pending loans can be rejected.'));
         }
 
         $loan->update([
@@ -277,7 +277,7 @@ class PayrollService
     {
         return DB::transaction(function () use ($loan, $payload): EmployeeLoan {
             if ($loan->installments()->where('status', 'paid')->exists()) {
-                throw new RuntimeException('Paid loan installments exist. This loan cannot be rescheduled.');
+                throw new RuntimeException(__('Paid loan installments exist. This loan cannot be rescheduled.'));
             }
 
             $payload['interest_rate_percent'] = $payload['interest_rate_percent'] ?? 0;
@@ -347,7 +347,7 @@ class PayrollService
                     return $this->addEmployeeToProcessedRun($run, (int) $payload['employee_id'], $processedBy);
                 }
 
-                throw new RuntimeException('This payroll period is already finalized. Create a new period or review the existing run.');
+                throw new RuntimeException(__('This payroll period is already finalized. Create a new period or review the existing run.'));
             }
 
             if (! $run) {
@@ -382,7 +382,7 @@ class PayrollService
                 ->get();
 
             if ($employees->isEmpty()) {
-                throw new RuntimeException('No active employees found for payroll generation.');
+                throw new RuntimeException(__('No active employees found for payroll generation.'));
             }
 
             foreach ($employees as $employee) {
@@ -401,11 +401,11 @@ class PayrollService
             $run = PayrollRun::query()->lockForUpdate()->with('items')->findOrFail($run->id);
 
             if ($run->status !== 'draft') {
-                throw new RuntimeException('Only draft payroll runs can be finalized.');
+                throw new RuntimeException(__('Only draft payroll runs can be finalized.'));
             }
 
             if ($run->items->isEmpty()) {
-                throw new RuntimeException('Payroll run has no payslips to finalize.');
+                throw new RuntimeException(__('Payroll run has no payslips to finalize.'));
             }
 
             ProvidentFundTransaction::query()->where('payroll_run_id', $run->id)->delete();
@@ -430,11 +430,11 @@ class PayrollService
         $run = PayrollRun::query()->lockForUpdate()->findOrFail($run->id);
 
         if ($run->status !== 'processed') {
-            throw new RuntimeException('Only processed payroll runs can receive a missing employee payslip. Create a new payroll period for approved or paid runs.');
+            throw new RuntimeException(__('Only processed payroll runs can receive a missing employee payslip. Create a new payroll period for approved or paid runs.'));
         }
 
         if ($run->items()->where('employee_id', $employeeId)->exists()) {
-            throw new RuntimeException('This employee already exists in the selected payroll run.');
+            throw new RuntimeException(__('This employee already exists in the selected payroll run.'));
         }
 
         $employee = Employee::query()
@@ -443,7 +443,7 @@ class PayrollService
             ->find($employeeId);
 
         if (! $employee) {
-            throw new RuntimeException('Selected employee is not active or does not exist.');
+            throw new RuntimeException(__('Selected employee is not active or does not exist.'));
         }
 
         $item = $this->createPayrollItem(
@@ -539,7 +539,7 @@ class PayrollService
         $draftDeduction = round((float) $item->loan_deduction, 2);
 
         if (abs($pendingDueAmount - $draftDeduction) > 0.01) {
-            throw new RuntimeException('Loan installment amounts changed after payroll draft generation. Regenerate the payroll draft before final submission.');
+            throw new RuntimeException(__('Loan installment amounts changed after payroll draft generation. Regenerate the payroll draft before final submission.'));
         }
 
         if ($pendingDueAmount <= 0) {

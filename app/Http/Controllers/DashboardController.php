@@ -311,10 +311,10 @@ class DashboardController extends Controller
             ->first();
 
         return array_values(array_filter([
-            $absentToday > 0 ? ['tone' => 'danger', 'label' => $scope === 'self' ? 'Absent attendance recorded this month.' : $absentToday . ' employees absent today.'] : null,
-            $pendingLeaveRequests > 0 ? ['tone' => 'warning', 'label' => $pendingLeaveRequests . ' leave requests pending.'] : null,
-            $missingCheckout > 0 ? ['tone' => 'info', 'label' => $missingCheckout . ' employees have missing checkout today.'] : null,
-            $upcomingHoliday ? ['tone' => 'neutral', 'label' => 'Upcoming holiday: ' . $upcomingHoliday->title . ' on ' . $upcomingHoliday->holiday_date?->format('M d') . '.'] : null,
+            $absentToday > 0 ? ['tone' => 'danger', 'label' => $scope === 'self' ? __('Absent attendance recorded this month.') : __(':count employees absent today.', ['count' => $absentToday])] : null,
+            $pendingLeaveRequests > 0 ? ['tone' => 'warning', 'label' => __(':count leave requests pending.', ['count' => $pendingLeaveRequests])] : null,
+            $missingCheckout > 0 ? ['tone' => 'info', 'label' => __(':count employees have missing checkout today.', ['count' => $missingCheckout])] : null,
+            $upcomingHoliday ? ['tone' => 'neutral', 'label' => __('Upcoming holiday: :title on :date.', ['title' => $upcomingHoliday->title, 'date' => $upcomingHoliday->holiday_date?->format('M d')])] : null,
         ]));
     }
 
@@ -356,7 +356,7 @@ class DashboardController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Quick note added.');
+        return redirect()->route('dashboard')->with('success', __('Quick note added.'));
     }
 
     public function toggleQuickNote(Request $request, PrivateNote $privateNote): RedirectResponse|JsonResponse
@@ -401,7 +401,7 @@ class DashboardController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Note deleted permanently.');
+        return redirect()->route('dashboard')->with('success', __('Note deleted permanently.'));
     }
 
     public function updateQuickNote(Request $request, PrivateNote $privateNote): RedirectResponse|JsonResponse
@@ -438,6 +438,6 @@ class DashboardController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Note updated.');
+        return redirect()->route('dashboard')->with('success', __('Note updated.'));
     }
 }

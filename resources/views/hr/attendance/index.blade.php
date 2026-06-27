@@ -4,16 +4,16 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-clock"></i> Attendance</h1>
+        <h1><i class="icon-clock"></i> {{ __('Attendance') }}</h1>
         <div class="d-flex gap-2">
             @if($canManageAttendance && $hasAllAccess)
                 <a href="{{ route('attendance.template-download') }}" class="btn btn-custom-default">
-                    <i class="icon-doc"></i> Template Download
+                    <i class="icon-doc"></i> {{ __('Template Download') }}
                 </a>
             @endif
             <a href="{{ route('attendance.export', ['from_date' => $filters['from_date'], 'to_date' => $filters['to_date'], 'employee_id' => $filters['employee_id']]) }}"
                 class="btn btn-custom-default">
-                <i class="icon-cloud-download"></i> Export Excel (CSV)
+                <i class="icon-cloud-download"></i> {{ __('Export Excel (CSV)') }}
             </a>
         </div>
     </div>
@@ -24,12 +24,12 @@
         <div class="container-fluid">
             <div class="card no-border mb-3" id="attendance-entry-form">
                 <div class="content_wrapper content-padded">
-                    <h5 class="table_banner_title mb-3">Manual Attendance Entry</h5>
+                    <h5 class="table_banner_title mb-3">{{ __('Manual Attendance Entry') }}</h5>
                     <form method="POST" action="{{ route('attendance.store') }}" class="row g-2">
                         @csrf
                         @if($canManageAttendance && $hasAllAccess)
                             <div class="col-md-3">
-                                <label>Employee</label>
+                                <label>{{ __('Employee') }}</label>
                                 <select name="employee_id" class="form-control js-example-basic-single">
                                     @foreach($employees as $employee)
                                         @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
@@ -41,25 +41,25 @@
                             </div>
                         @endif
                         <div class="col-md-3">
-                             <label>Date</label>
+                             <label>{{ __('Date') }}</label>
                             <input type="text"
                                 name="attendance_date"
-                                class="form-control attendance-date-picker" placeholder="YYYY-MM-DD"
+                                class="form-control attendance-date-picker" placeholder="{{ __('YYYY-MM-DD') }}"
                                 autocomplete="off"
                                 value="{{ old('attendance_date', now()->format('Y-m-d')) }}"
                                 required
                             >
                         </div>
                         <div class="col-md-2">
-                            <label>Entry Type</label>
+                            <label>{{ __('Entry Type') }}</label>
                             @php($entryType = old('entry_type', 'checkin'))
                             <select name="entry_type" class="form-control" required>
-                                <option value="checkin" {{ $entryType === 'checkin' ? 'selected' : '' }}>Check-in</option>
-                                <option value="checkout" {{ $entryType === 'checkout' ? 'selected' : '' }}>Check-out</option>
+                                <option value="checkin" {{ $entryType === 'checkin' ? 'selected' : '' }}>{{ __('Check-in') }}</option>
+                                <option value="checkout" {{ $entryType === 'checkout' ? 'selected' : '' }}>{{ __('Check-out') }}</option>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label>Time (hh:mm AM/PM)</label>
+                            <label>{{ __('Time (hh:mm AM/PM)') }}</label>
                             <input type="text" name="entry_time"
                                 class="form-control attendance-time-picker"
                                 placeholder="09:01 AM"
@@ -69,11 +69,11 @@
                             >
                         </div>
                         <div class="col-md-2">
-                                <label>Remarks</label>
-                                <input type="text" name="remarks" class="form-control" value="{{ old('remarks') }}" placeholder="Optional">
+                                <label>{{ __('Remarks') }}</label>
+                                <input type="text" name="remarks" class="form-control" value="{{ old('remarks') }}" placeholder="{{ __('Optional') }}">
                             </div>
                         <div class="col-md-12 mt-2">
-                            <button type="submit" class="btn btn-custom"><i class="icon-plus"></i> Add Attendance</button>
+                            <button type="submit" class="btn btn-custom"><i class="icon-plus"></i> {{ __('Add Attendance') }}</button>
                             </div>
                     </form>
                 </div>
@@ -82,20 +82,20 @@
             @if($canManageAttendance && $hasAllAccess)
                 <div class="card no-border mb-3">
                     <div class="content_wrapper content-padded">
-                        <h5 class="table_banner_title mb-3">Excel Import (CSV)</h5>
+                        <h5 class="table_banner_title mb-3">{{ __('Excel Import (CSV)') }}</h5>
                         <form method="POST" action="{{ route('attendance.import') }}" enctype="multipart/form-data" class="row g-2">
                             @csrf
                             <div class="col-md-6">
-                                <label>Upload CSV File</label>
+                                <label>{{ __('Upload CSV File') }}</label>
                                 <div class="d-flex align-items-center gap-2">
                                     <input id="attendance_file" type="file" name="attendance_file" accept=".csv,text/csv" required>
-                                    <label for="attendance_file" class="btn btn-custom mb-0">Choose CSV</label>
-                                    <span id="attendance_file_name" class="text-muted">No file selected</span>
+                                    <label for="attendance_file" class="btn btn-custom mb-0">{{ __('Choose CSV') }}</label>
+                                    <span id="attendance_file_name" class="text-muted">{{ __('No file selected') }}</span>
                                     </div>
                                         <small class="text-muted">Use template columns: employee_code, attendance_date, entry_type, entry_time, remarks.</small>
                             </div>
                             <div class="col-md-6 d-flex align-items-end">
-                                <button type="submit" class="btn btn-custom"><i class="icon-cloud-upload"></i> Import Attendance</button>
+                                <button type="submit" class="btn btn-custom"><i class="icon-cloud-upload"></i> {{ __('Import Attendance') }}</button>
                                 </div>
                         </form>
                     </div>
@@ -104,18 +104,18 @@
 
             <div class="card no-border">
                 <div class="content_wrapper content-padded">
-                    <h5 class="table_banner_title mb-3">Attendance History</h5>
+                    <h5 class="table_banner_title mb-3">{{ __('Attendance History') }}</h5>
 
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-2">
-                            <input type="text" name="from_date" class="form-control attendance-date-picker" value="{{ $filters['from_date'] }}" placeholder="From date">
+                            <input type="text" name="from_date" class="form-control attendance-date-picker" value="{{ $filters['from_date'] }}" placeholder="{{ __('From date') }}">
                             </div>
                         <div class="col-md-2">
-                            <input type="text" name="to_date" class="form-control attendance-date-picker" value="{{ $filters['to_date'] }}" placeholder="To date">
+                            <input type="text" name="to_date" class="form-control attendance-date-picker" value="{{ $filters['to_date'] }}" placeholder="{{ __('To date') }}">
                             </div>
                         <div class="col-md-3">
                             <select name="employee_id" class="form-control js-example-basic-single">
-                                <option value="0">All Employees</option>
+                                <option value="0">{{ __('All Employees') }}</option>
                                 @foreach($employees as $employee)
                                     @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
                                     <option value="{{ $employee->id }}" {{ (int) $filters['employee_id'] === (int) $employee->id ? 'selected' : '' }}>
@@ -132,7 +132,7 @@
                                 </select>
                         </div>
                         <div class="col-md-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-custom"><i class="icon-magnifier"></i> Filter</button>
+                            <button type="submit" class="btn btn-custom"><i class="icon-magnifier"></i> {{ __('Filter') }}</button>
                                 <a href="{{ route('attendance.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i></a>
                             </div>
                     </form>
@@ -141,13 +141,13 @@
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Employee</th>
-                                    <th>Code</th>
-                                    <th>First Check-in</th>
-                                    <th>Last Check-out</th>
-                                    <th>Duration</th>
-                                    <th>Entries (Same Day)</th>
+                                    <th>{{ __('Date') }}</th>
+                                    <th>{{ __('Employee') }}</th>
+                                    <th>{{ __('Code') }}</th>
+                                    <th>{{ __('First Check-in') }}</th>
+                                    <th>{{ __('Last Check-out') }}</th>
+                                    <th>{{ __('Duration') }}</th>
+                                    <th>{{ __('Entries (Same Day)') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -170,7 +170,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">No attendance data found for selected filters.</td>
+                                        <td colspan="7" class="text-center">{{ __('No attendance data found for selected filters.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -222,7 +222,7 @@
                 if (attendanceFile.files && attendanceFile.files.length > 0) {
                     attendanceFileName.textContent = attendanceFile.files[0].name;
                 } else {
-                    attendanceFileName.textContent = 'No file selected';
+                    attendanceFileName.textContent = @json(__('No file selected'));
                 }
             });
         }

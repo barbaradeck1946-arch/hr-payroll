@@ -3,7 +3,7 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-layers"></i> Profile Update Requests</h1>
+        <h1><i class="icon-layers"></i> {{ __('Profile Update Requests') }}</h1>
     </div>
 
     @include('partials.flash')
@@ -14,14 +14,14 @@
                 <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-4">
-                            <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search by employee code or name">
+                            <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="{{ __('Search by employee code or name') }}">
                         </div>
                         <div class="col-md-3">
                             <select name="approval_status" class="form-control">
-                                <option value="">All Status</option>
+                                <option value="">{{ __('All Status') }}</option>
                                 @foreach(['pending','approved','rejected'] as $status)
                                     <option value="{{ $status }}" {{ $filters['approval_status'] === $status ? 'selected' : '' }}>
-                                        {{ ucfirst($status) }}
+                                        {{ __(ucfirst($status)) }}
                                     </option>
                                 @endforeach
                             </select>
@@ -34,8 +34,8 @@
                                 </select>
                         </div>
                             <div class="col-md-3 d-flex gap-2">
-                                <button type="submit" class="btn btn-custom"><i class="icon-magnifier"></i> Filter</button>
-                                <a href="{{ route('employees.profile-updates.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> Reset</a>
+                                <button type="submit" class="btn btn-custom"><i class="icon-magnifier"></i> {{ __('Filter') }}</button>
+                                <a href="{{ route('employees.profile-updates.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> {{ __('Reset') }}</a>
                             </div>
                     </form>
 
@@ -43,12 +43,12 @@
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Employee</th>
-                                    <th>Submitted By</th>
-                                    <th>Submitted At</th>
-                                    <th>Status</th>
-                                    <th>Reviewed By</th>
-                                    <th>Action</th>
+                                    <th>{{ __('Employee') }}</th>
+                                    <th>{{ __('Submitted By') }}</th>
+                                    <th>{{ __('Submitted At') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Reviewed By') }}</th>
+                                    <th>{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -60,14 +60,14 @@
                                             </td>
                                             <td>{{ $item->submittedBy?->name ?? '-' }}</td>
                                             <td>{{ $item->submitted_at?->format('Y-m-d H:i') ?? '-' }}</td>
-                                            <td>{{ ucfirst($item->approval_status) }}</td>
+                                            <td>{{ __(ucfirst($item->approval_status)) }}</td>
                                             <td>{{ $item->reviewedBy?->name ?? '-' }}</td>
                                             <td class="action-buttons">
-                                                <a href="{{ route('employees.profile-updates.show', $item) }}" title="View Request"><i class="icon-eye"></i></a>
+                                                <a href="{{ route('employees.profile-updates.show', $item) }}" title="{{ __('View Request') }}"><i class="icon-eye"></i></a>
                                             </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="6" class="text-center">No profile update request found.</td></tr>
+                                    <tr><td colspan="6" class="text-center">{{ __('No profile update request found.') }}</td></tr>
                                 @endforelse
                             </tbody>
                         </table>

@@ -3,9 +3,9 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-wallet"></i> Salary Grades</h1>
+        <h1><i class="icon-wallet"></i> {{ __('Salary Grades') }}</h1>
         @if(auth()->user()?->hasAnyPermission(['salary_grade.create', 'payroll.manage-salary-templates']))
-            <a href="{{ route('salary-grades.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Salary Grade</a>
+            <a href="{{ route('salary-grades.create') }}" class="btn btn-custom"><i class="icon-plus"></i> {{ __('Add Salary Grade') }}</a>
         @endif
     </div>
 
@@ -17,13 +17,13 @@
                 <div class="content_wrapper content-padded">
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-4">
-                            <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="Search grade/band/code/description">
+                            <input type="text" name="q" value="{{ $filters['q'] }}" class="form-control" placeholder="{{ __('Search grade/band/code/description') }}">
                         </div>
                         <div class="col-md-2">
                             <select name="status" class="form-control">
-                                <option value="">All Status</option>
-                                <option value="active" {{ $filters['status'] === 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="inactive" {{ $filters['status'] === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                <option value="">{{ __('All Status') }}</option>
+                                <option value="active" {{ $filters['status'] === 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                <option value="inactive" {{ $filters['status'] === 'inactive' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -34,8 +34,8 @@
                             </select>
                         </div>
                         <div class="col-md-4 d-flex gap-2">
-                            <button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> Filter</button>
-                            <a href="{{ route('salary-grades.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> Reset</a>
+                            <button class="btn btn-custom" type="submit"><i class="icon-magnifier"></i> {{ __('Filter') }}</button>
+                            <a href="{{ route('salary-grades.index') }}" class="btn btn-custom-default"><i class="icon-refresh"></i> {{ __('Reset') }}</a>
                         </div>
                     </form>
 
@@ -43,14 +43,14 @@
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Grade Name</th>
-                                    <th>Grade Code</th>
-                                    <th>Band</th>
-                                    <th>Salary Range</th>
-                                    <th>Employees</th>
-                                    <th>Leave Policies</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('Grade Name') }}</th>
+                                    <th>{{ __('Grade Code') }}</th>
+                                    <th>{{ __('Band') }}</th>
+                                    <th>{{ __('Salary Range') }}</th>
+                                    <th>{{ __('Employees') }}</th>
+                                    <th>{{ __('Leave Policies') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -72,14 +72,14 @@
                                         <td>{{ $salaryGrade->leave_policies_count }}</td>
                                         <td>
                                             @if($salaryGrade->is_active)
-                                                <span class="badge bg-success">Active</span>
+                                                <span class="badge bg-success">{{ __('Active') }}</span>
                                             @else
-                                                <span class="badge bg-secondary">Inactive</span>
+                                                <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                                             @endif
                                         </td>
                                         <td class="action-buttons">
                                             @if(auth()->user()?->hasAnyPermission(['salary_grade.update', 'payroll.manage-salary-templates']))
-                                                <a href="{{ route('salary-grades.edit', $salaryGrade) }}" title="Edit Salary Grade">
+                                                <a href="{{ route('salary-grades.edit', $salaryGrade) }}" title="{{ __('Edit Salary Grade') }}">
                                                     <i class="icon-pencil"></i>
                                                 </a>
                                             @endif
@@ -87,14 +87,14 @@
                                                 <form method="POST" action="{{ route('salary-grades.destroy', $salaryGrade) }}" onsubmit="return confirm('Delete this salary grade?');" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" title="Delete Salary Grade"><i class="icon-trash"></i></button>
+                                                    <button type="submit" title="{{ __('Delete Salary Grade') }}"><i class="icon-trash"></i></button>
                                                 </form>
                                             @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">No salary grades found.</td>
+                                        <td colspan="8" class="text-center">{{ __('No salary grades found.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

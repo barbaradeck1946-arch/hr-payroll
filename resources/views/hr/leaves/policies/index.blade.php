@@ -4,9 +4,9 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-calendar"></i> Leave Policies (Salary Grade Wise)</h1>
+        <h1><i class="icon-calendar"></i> {{ __('Leave Policies (Salary Grade Wise)') }}</h1>
         @if(auth()->user()?->hasPermission('leave.manage-quotas'))
-            <a href="{{ route('leave-policies.create') }}" class="btn btn-custom"><i class="icon-plus"></i> Add Policy</a>
+            <a href="{{ route('leave-policies.create') }}" class="btn btn-custom"><i class="icon-plus"></i> {{ __('Add Policy') }}</a>
         @endif
     </div>
 
@@ -26,7 +26,7 @@
                         </div>
                         <div class="col-md-3">
                             <select name="salary_grade_id" class="form-control">
-                                <option value="0">All Salary Grades</option>
+                                <option value="0">{{ __('All Salary Grades') }}</option>
                                 @foreach($salaryGrades as $salaryGrade)
                                     <option value="{{ $salaryGrade->id }}" {{ (int) $filters['salary_grade_id'] === (int) $salaryGrade->id ? 'selected' : '' }}>
                                         {{ $salaryGrade->grade_name }} ({{ $salaryGrade->grade_code }})
@@ -36,7 +36,7 @@
                         </div>
                         <div class="col-md-3">
                             <select name="leave_category_id" class="form-control">
-                                <option value="0">All Leave Categories</option>
+                                <option value="0">{{ __('All Leave Categories') }}</option>
                                 @foreach($leaveCategories as $leaveCategory)
                                     <option value="{{ $leaveCategory->id }}" {{ (int) $filters['leave_category_id'] === (int) $leaveCategory->id ? 'selected' : '' }}>
                                         {{ $leaveCategory->name }} ({{ $leaveCategory->code }})
@@ -46,9 +46,9 @@
                         </div>
                         <div class="col-md-2">
                             <select name="status" class="form-control">
-                                <option value="">All Status</option>
-                                <option value="active" {{ $filters['status'] === 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="inactive" {{ $filters['status'] === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                <option value="">{{ __('All Status') }}</option>
+                                <option value="active" {{ $filters['status'] === 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                <option value="inactive" {{ $filters['status'] === 'inactive' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                             </select>
                         </div>
                         <div class="col-md-2 d-flex gap-2">
@@ -61,14 +61,14 @@
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Category</th>
-                                    <th>Salary Grade</th>
-                                    <th>Effective</th>
-                                    <th>Allocated</th>
-                                    <th>Carry Forward</th>
-                                    <th>Earned Leave</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('Category') }}</th>
+                                    <th>{{ __('Salary Grade') }}</th>
+                                    <th>{{ __('Effective') }}</th>
+                                    <th>{{ __('Allocated') }}</th>
+                                    <th>{{ __('Carry Forward') }}</th>
+                                    <th>{{ __('Earned Leave') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -82,43 +82,43 @@
                                                 - {{ $policy->effective_to_year }}
                                             @endif
                                         </td>
-                                        <td>{{ number_format((float) $policy->days_allocated, 2) }} {{ $policy->is_prorated ? '(Prorated)' : '' }}</td>
+                                        <td>{{ number_format((float) $policy->days_allocated, 2) }} {{ $policy->is_prorated ? __('(Prorated)') : '' }}</td>
                                         <td>
-                                            {{ ucfirst($policy->carry_forward_mode) }}
+                                            {{ __(ucfirst($policy->carry_forward_mode)) }}
                                             @if($policy->carry_forward_mode === 'limited')
                                                 ({{ number_format((float) ($policy->carry_forward_limit ?? 0), 2) }})
                                             @endif
                                         </td>
                                         <td>
                                             @if($policy->is_earned_leave)
-                                                {{ ucfirst((string) $policy->earned_credit_frequency) }}: {{ number_format((float) ($policy->earned_credit_days ?? 0), 2) }}
+                                                {{ __(ucfirst((string) $policy->earned_credit_frequency)) }}: {{ number_format((float) ($policy->earned_credit_days ?? 0), 2) }}
                                             @else
                                                 No
                                             @endif
                                         </td>
                                         <td>
                                             @if($policy->is_active)
-                                                <span class="badge bg-success">Active</span>
+                                                <span class="badge bg-success">{{ __('Active') }}</span>
                                             @else
-                                                <span class="badge bg-secondary">Inactive</span>
+                                                <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                                             @endif
                                         </td>
                                         <td class="action-buttons">
                                             @if(auth()->user()?->hasPermission('leave.manage-quotas'))
-                                                <a href="{{ route('leave-policies.edit', $policy) }}" title="Edit">
+                                                <a href="{{ route('leave-policies.edit', $policy) }}" title="{{ __('Edit') }}">
                                                     <i class="icon-pencil"></i>
                                                 </a>
                                                 <form method="POST" action="{{ route('leave-policies.destroy', $policy) }}" onsubmit="return confirm('Delete this leave policy?');" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" title="Delete"><i class="icon-trash"></i></button>
+                                                    <button type="submit" title="{{ __('Delete') }}"><i class="icon-trash"></i></button>
                                                 </form>
                                             @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">No leave policies found.</td>
+                                        <td colspan="8" class="text-center">{{ __('No leave policies found.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

@@ -45,7 +45,7 @@ class EmployeeProfileUpdateRequestService
                     'reviewed_at' => $latestReviewed->reviewed_at,
                 ]);
             } else {
-                throw new RuntimeException('You already have a pending profile update request.');
+                throw new RuntimeException(__('You already have a pending profile update request.'));
             }
         }
 
@@ -80,7 +80,7 @@ class EmployeeProfileUpdateRequestService
             $decision = $payload['decision'];
 
             if ($request->approval_status !== 'pending') {
-                throw new RuntimeException('Only pending requests can be processed.');
+                throw new RuntimeException(__('Only pending requests can be processed.'));
             }
 
             if ($decision === 'approve') {

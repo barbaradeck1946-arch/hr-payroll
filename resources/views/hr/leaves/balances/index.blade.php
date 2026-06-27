@@ -4,7 +4,7 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-calendar"></i> {{ $isSelfView ? 'My Leave Balance' : 'Leave Balances' }}</h1>
+        <h1><i class="icon-calendar"></i> {{ $isSelfView ? __('My Leave Balance') : __('Leave Balances') }}</h1>
     </div>
 
     @include('partials.flash')
@@ -14,17 +14,17 @@
             @if($canManageBalances && $hasAllAccess)
                 <div class="card no-border mb-3">
                     <div class="content_wrapper content-padded">
-                        <h5 class="table_banner_title mb-3">Balance Sync (Salary Grade Policy to Employee)</h5>
+                        <h5 class="table_banner_title mb-3">{{ __('Balance Sync (Salary Grade Policy to Employee)') }}</h5>
                         <form method="POST" action="{{ route('leave-balances.sync') }}" class="row g-2">
                             @csrf
                             <div class="col-md-2">
-                                <label>Year</label>
+                                <label>{{ __('Year') }}</label>
                                 <input type="number" min="2000" max="2100" name="year" class="form-control" value="{{ $filters['year'] }}" required>
                             </div>
                             <div class="col-md-4">
-                                <label>Employee (Optional)</label>
+                                <label>{{ __('Employee (Optional)') }}</label>
                                 <select name="employee_id" class="form-control js-example-basic-single">
-                                    <option value="0">All Employees</option>
+                                    <option value="0">{{ __('All Employees') }}</option>
                                     @foreach($employees as $employee)
                                         @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
                                         <option value="{{ $employee->id }}">{{ $name !== '' ? $name : 'Employee' }} ({{ $employee->employee_code }})</option>
@@ -32,16 +32,16 @@
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label>Salary Grade (Optional)</label>
+                                <label>{{ __('Salary Grade (Optional)') }}</label>
                                 <select name="salary_grade_id" class="form-control">
-                                    <option value="0">All Salary Grades</option>
+                                    <option value="0">{{ __('All Salary Grades') }}</option>
                                     @foreach($salaryGrades as $salaryGrade)
                                         <option value="{{ $salaryGrade->id }}">{{ $salaryGrade->grade_name }} ({{ $salaryGrade->grade_code }})</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-custom w-100"><i class="icon-refresh"></i> Sync</button>
+                                <button type="submit" class="btn btn-custom w-100"><i class="icon-refresh"></i> {{ __('Sync') }}</button>
                             </div>
                         </form>
                     </div>
@@ -50,7 +50,7 @@
 
             <div class="card no-border">
                 <div class="content_wrapper content-padded">
-                    <h5 class="table_banner_title mb-3">{{ $isSelfView ? 'My Leave Balance History' : 'Employee Leave Balance List' }}</h5>
+                    <h5 class="table_banner_title mb-3">{{ $isSelfView ? __('My Leave Balance History') : __('Employee Leave Balance List') }}</h5>
 
                     <form method="GET" class="row g-2 mb-3">
                         <div class="col-md-2">
@@ -59,7 +59,7 @@
                         @if(! $isSelfView)
                             <div class="col-md-3">
                                 <select name="employee_id" class="form-control js-example-basic-single">
-                                    <option value="0">All Employees</option>
+                                    <option value="0">{{ __('All Employees') }}</option>
                                     @foreach($employees as $employee)
                                         @php($name = trim(($employee->first_name ?? '').' '.($employee->last_name ?? '')))
                                         <option value="{{ $employee->id }}" {{ (int) $filters['employee_id'] === (int) $employee->id ? 'selected' : '' }}>
@@ -70,7 +70,7 @@
                             </div>
                             <div class="col-md-3">
                                 <select name="salary_grade_id" class="form-control">
-                                    <option value="0">All Salary Grades</option>
+                                    <option value="0">{{ __('All Salary Grades') }}</option>
                                     @foreach($salaryGrades as $salaryGrade)
                                         <option value="{{ $salaryGrade->id }}" {{ (int) $filters['salary_grade_id'] === (int) $salaryGrade->id ? 'selected' : '' }}>
                                             {{ $salaryGrade->grade_name }} ({{ $salaryGrade->grade_code }})
@@ -81,7 +81,7 @@
                         @endif
                         <div class="{{ $isSelfView ? 'col-md-4' : 'col-md-2' }}">
                             <select name="leave_category_id" class="form-control">
-                                <option value="0">{{ $isSelfView ? 'My Categories' : 'All Categories' }}</option>
+                                <option value="0">{{ $isSelfView ? __('My Categories') : __('All Categories') }}</option>
                                 @foreach($leaveCategories as $leaveCategory)
                                     <option value="{{ $leaveCategory->id }}" {{ (int) $filters['leave_category_id'] === (int) $leaveCategory->id ? 'selected' : '' }}>
                                         {{ $leaveCategory->name }}
@@ -106,19 +106,19 @@
                         <table class="table table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Year</th>
-                                    <th>Employee</th>
-                                    <th>Salary Grade</th>
-                                    <th>Category</th>
-                                    <th>Opening</th>
-                                    <th>Allocated</th>
-                                    <th>Carry Fwd</th>
-                                    <th>Earned</th>
-                                    <th>Availed</th>
-                                    <th>Adjustments</th>
-                                    <th>Closing</th>
+                                    <th>{{ __('Year') }}</th>
+                                    <th>{{ __('Employee') }}</th>
+                                    <th>{{ __('Salary Grade') }}</th>
+                                    <th>{{ __('Category') }}</th>
+                                    <th>{{ __('Opening') }}</th>
+                                    <th>{{ __('Allocated') }}</th>
+                                    <th>{{ __('Carry Fwd') }}</th>
+                                    <th>{{ __('Earned') }}</th>
+                                    <th>{{ __('Availed') }}</th>
+                                    <th>{{ __('Adjustments') }}</th>
+                                    <th>{{ __('Closing') }}</th>
                                     @if($canManageBalances)
-                                        <th>Action</th>
+                                        <th>{{ __('Action') }}</th>
                                     @endif
                                 </tr>
                             </thead>
@@ -140,7 +140,7 @@
                                         <td><strong>{{ number_format((float) $balance->closing_balance, 2) }}</strong></td>
                                         @if($canManageBalances)
                                             <td class="action-buttons">
-                                                <a href="{{ route('leave-balances.edit', $balance) }}" title="Edit Balance">
+                                                <a href="{{ route('leave-balances.edit', $balance) }}" title="{{ __('Edit Balance') }}">
                                                     <i class="icon-pencil"></i>
                                                 </a>
                                             </td>
@@ -148,7 +148,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="{{ $canManageBalances ? 12 : 11 }}" class="text-center">No leave balance records found.</td>
+                                        <td colspan="{{ $canManageBalances ? 12 : 11 }}" class="text-center">{{ __('No leave balance records found.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

@@ -37,6 +37,6 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        return redirect()->route('login')->with('success', 'Signup successful. Please wait for admin approval before login.');
+        return redirect()->route('login')->with('success', __('Signup successful. Please wait for admin approval before login.'));
     }
 }

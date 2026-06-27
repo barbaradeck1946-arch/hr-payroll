@@ -53,7 +53,7 @@ class TaskController extends Controller
     {
         $this->taskService->createTask($request->validated(), $request->user()?->employee?->id);
 
-        return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
+        return redirect()->route('tasks.index')->with('success', __('Task created successfully.'));
     }
 
     public function show(Task $task): View
@@ -83,7 +83,7 @@ class TaskController extends Controller
 
         $this->taskService->updateTask($task, $request->validated());
 
-        return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
+        return redirect()->route('tasks.index')->with('success', __('Task updated successfully.'));
     }
 
     public function destroy(Task $task): RedirectResponse
@@ -92,7 +92,7 @@ class TaskController extends Controller
 
         $this->taskService->deleteTask($task);
 
-        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
+        return redirect()->route('tasks.index')->with('success', __('Task deleted successfully.'));
     }
 
     public function updateStatus(UpdateTaskStatusRequest $request, Task $task): RedirectResponse
@@ -102,7 +102,7 @@ class TaskController extends Controller
         $validated = $request->validated();
         $this->taskService->updateStatus($task, (string) $validated['status'], (int) ($validated['progress_percent'] ?? (int) $task->progress_percent));
 
-        return redirect()->route('tasks.show', $task)->with('success', 'Task status updated successfully.');
+        return redirect()->route('tasks.show', $task)->with('success', __('Task status updated successfully.'));
     }
 
     public function addComment(AddTaskCommentRequest $request, Task $task): RedirectResponse
@@ -111,6 +111,6 @@ class TaskController extends Controller
 
         $this->taskService->addComment($task, $request->user()?->employee?->id, (string) $request->validated()['comment']);
 
-        return redirect()->route('tasks.show', $task)->with('success', 'Task comment added successfully.');
+        return redirect()->route('tasks.show', $task)->with('success', __('Task comment added successfully.'));
     }
 }

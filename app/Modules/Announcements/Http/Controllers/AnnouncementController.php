@@ -108,18 +108,18 @@ class AnnouncementController extends Controller
             (int) $request->user()->id
         );
 
-        return redirect()->route('announcements.index')->with('success', 'Notice/announcement created and sent for approval.');
+        return redirect()->route('announcements.index')->with('success', __('Notice/announcement created and sent for approval.'));
     }
 
     public function approve(Request $request, Announcement $announcement): RedirectResponse
     {
         if ($announcement->approval_status === 'approved') {
-            return redirect()->route('announcements.index')->with('info', 'Item is already approved.');
+            return redirect()->route('announcements.index')->with('info', __('Item is already approved.'));
         }
 
         $this->announcementService->approveAnnouncement($announcement, (int) $request->user()->id);
 
-        return redirect()->route('announcements.index')->with('success', 'Notice/announcement approved successfully.');
+        return redirect()->route('announcements.index')->with('success', __('Notice/announcement approved successfully.'));
     }
 
     public function publish(Request $request, Announcement $announcement): RedirectResponse
@@ -130,6 +130,6 @@ class AnnouncementController extends Controller
             return redirect()->route('announcements.index')->withErrors($exception->errors());
         }
 
-        return redirect()->route('announcements.index')->with('success', 'Notice/announcement published successfully.');
+        return redirect()->route('announcements.index')->with('success', __('Notice/announcement published successfully.'));
     }
 }

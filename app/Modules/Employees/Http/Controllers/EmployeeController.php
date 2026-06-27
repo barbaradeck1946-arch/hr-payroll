@@ -61,7 +61,7 @@ class EmployeeController extends Controller
             $request->file('avatar')
         );
 
-        return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
+        return redirect()->route('employees.index')->with('success', __('Employee created successfully.'));
     }
 
     public function show(Employee $employee): View
@@ -120,7 +120,7 @@ class EmployeeController extends Controller
             $request->file('avatar')
         );
 
-        return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        return redirect()->route('employees.index')->with('success', __('Employee updated successfully.'));
     }
     
     // Remove the specified resource from storage.
@@ -130,6 +130,6 @@ class EmployeeController extends Controller
 
         $this->employeeService->deleteEmployee($employee);
 
-        return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
+        return redirect()->route('employees.index')->with('success', __('Employee deleted successfully.'));
     }
 }

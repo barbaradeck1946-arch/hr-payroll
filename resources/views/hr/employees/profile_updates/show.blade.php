@@ -3,8 +3,8 @@
 @section('content')
 <div class="wrapper-page">
     <div class="page-title d-flex justify-content-between align-items-center">
-        <h1><i class="icon-doc"></i> Request Review</h1>
-        <a href="{{ route('employees.profile-updates.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> Back</a>
+        <h1><i class="icon-doc"></i> {{ __('Request Review') }}</h1>
+        <a href="{{ route('employees.profile-updates.index') }}" class="btn btn-custom-default"><i class="icon-arrow-left"></i> {{ __('Back') }}</a>
     </div>
 
     @include('partials.flash')
@@ -18,9 +18,9 @@
                         <small class="text-muted">({{ $requestItem->employee?->employee_code }})</small>
                     </h5>
                     <div class="row mt-2">
-                        <div class="col-md-4"><strong>Status:</strong> {{ ucfirst($requestItem->approval_status) }}</div>
-                        <div class="col-md-4"><strong>Submitted At:</strong> {{ $requestItem->submitted_at?->format('Y-m-d H:i') ?? '-' }}</div>
-                        <div class="col-md-4"><strong>Submitted By:</strong> {{ $requestItem->submittedBy?->name ?? '-' }}</div>
+                        <div class="col-md-4"><strong>{{ __('Status:') }}</strong> {{ __(ucfirst($requestItem->approval_status)) }}</div>
+                        <div class="col-md-4"><strong>{{ __('Submitted At:') }}</strong> {{ $requestItem->submitted_at?->format('Y-m-d H:i') ?? '-' }}</div>
+                        <div class="col-md-4"><strong>{{ __('Submitted By:') }}</strong> {{ $requestItem->submittedBy?->name ?? '-' }}</div>
                     </div>
 
                     @php($payload = $requestItem->payload ?? [])
@@ -42,24 +42,24 @@
                     @php($requestedAvatarPath = is_array($requestedGeneralInfo) ? ($requestedGeneralInfo['avatar_path'] ?? null) : null)
 
                     <hr>
-                        <h5>General Information</h5>
+                        <h5>{{ __('General Information') }}</h5>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <div class="profile-review-avatar">
-                                <span>Current Image</span>
+                                <span>{{ __('Current Image') }}</span>
                                 <img src="{{ $requestItem->employee?->avatar_path ? asset($requestItem->employee->avatar_path) : asset('assets/img/user/default.jpg') }}" alt="Current profile image">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="profile-review-avatar">
-                                <span>Requested Image</span>
+                                <span>{{ __('Requested Image') }}</span>
                                 <img src="{{ $requestedAvatarPath ? asset($requestedAvatarPath) : ($requestItem->employee?->avatar_path ? asset($requestItem->employee->avatar_path) : asset('assets/img/user/default.jpg')) }}" alt="Requested profile image">
                             </div>
                         </div>
                     </div>
                     <div class="table-responsive mb-3">
                         <table class="table table-bordered">
-                            <thead><tr><th>Current</th><th>Requested</th></tr></thead>
+                            <thead><tr><th>{{ __('Current') }}</th><th>{{ __('Requested') }}</th></tr></thead>
                             <tbody>
                             <tr>
                                 <td><pre class="mb-0">{{ json_encode($currentGeneralInfo, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) }}</pre></td>
@@ -69,26 +69,26 @@
                          </table>
                     </div>
 
-                    <h5>Read-only Organization Info</h5>
+                    <h5>{{ __('Read-only Organization Info') }}</h5>
                     <div class="table-responsive mb-3">
                         <table class="table table-bordered">
-                            <thead><tr><th>Field</th><th>Value</th></tr></thead>
+                            <thead><tr><th>{{ __('Field') }}</th><th>{{ __('Value') }}</th></tr></thead>
                             <tbody>
-                                <tr><td>Employee Code</td><td>{{ $requestItem->employee?->employee_code ?: '-' }}</td></tr>
-                                <tr><td>Work Email</td><td>{{ $requestItem->employee?->work_email ?: '-' }}</td></tr>
-                                <tr><td>Login Email</td><td>{{ $requestItem->employee?->user?->email ?: '-' }}</td></tr>
-                                <tr><td>Department</td><td>{{ $requestItem->employee?->department?->name ?: '-' }}</td></tr>
-                                <tr><td>Designation</td><td>{{ $requestItem->employee?->designation?->name ?: '-' }}</td></tr>
-                                <tr><td>Salary Grade</td><td>{{ $requestItem->employee?->salaryGrade ? $requestItem->employee->salaryGrade->grade_name.' ('.$requestItem->employee->salaryGrade->grade_code.')' : '-' }}</td></tr>
-                                <tr><td>Reporting To</td><td>{{ $requestItem->employee?->manager ? trim($requestItem->employee->manager->first_name.' '.$requestItem->employee->manager->last_name).' ('.$requestItem->employee->manager->employee_code.')' : '-' }}</td></tr>
+                                <tr><td>{{ __('Employee Code') }}</td><td>{{ $requestItem->employee?->employee_code ?: '-' }}</td></tr>
+                                <tr><td>{{ __('Work Email') }}</td><td>{{ $requestItem->employee?->work_email ?: '-' }}</td></tr>
+                                <tr><td>{{ __('Login Email') }}</td><td>{{ $requestItem->employee?->user?->email ?: '-' }}</td></tr>
+                                <tr><td>{{ __('Department') }}</td><td>{{ $requestItem->employee?->department?->name ?: '-' }}</td></tr>
+                                <tr><td>{{ __('Designation') }}</td><td>{{ $requestItem->employee?->designation?->name ?: '-' }}</td></tr>
+                                <tr><td>{{ __('Salary Grade') }}</td><td>{{ $requestItem->employee?->salaryGrade ? $requestItem->employee->salaryGrade->grade_name.' ('.$requestItem->employee->salaryGrade->grade_code.')' : '-' }}</td></tr>
+                                <tr><td>{{ __('Reporting To') }}</td><td>{{ $requestItem->employee?->manager ? trim($requestItem->employee->manager->first_name.' '.$requestItem->employee->manager->last_name).' ('.$requestItem->employee->manager->employee_code.')' : '-' }}</td></tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <h5>Addresses</h5>
+                    <h5>{{ __('Addresses') }}</h5>
                     <div class="table-responsive mb-3">
                         <table class="table table-bordered">
-                            <thead><tr><th>Current</th><th>Requested</th></tr></thead>
+                            <thead><tr><th>{{ __('Current') }}</th><th>{{ __('Requested') }}</th></tr></thead>
                             <tbody>
                             <tr>
                                 <td><pre class="mb-0">{{ json_encode($requestItem->employee?->addresses?->toArray() ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) }}</pre></td>
@@ -98,10 +98,10 @@
                             </table>
                     </div>
 
-                    <h5>Bank Accounts</h5>
+                    <h5>{{ __('Bank Accounts') }}</h5>
                     <div class="table-responsive mb-3">
                         <table class="table table-bordered">
-                            <thead><tr><th>Current</th><th>Requested</th></tr></thead>
+                            <thead><tr><th>{{ __('Current') }}</th><th>{{ __('Requested') }}</th></tr></thead>
                             <tbody><tr>
                                 <td><pre class="mb-0">{{ json_encode($requestItem->employee?->bankAccounts?->toArray() ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) }}</pre></td>
                                 <td><pre class="mb-0">{{ json_encode($payload['bank_accounts'] ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) }}</pre></td>
@@ -109,10 +109,10 @@
                         </table>
                     </div>
 
-                    <h5>Emergency Contacts</h5>
+                    <h5>{{ __('Emergency Contacts') }}</h5>
                     <div class="table-responsive mb-3">
                         <table class="table table-bordered">
-                            <thead><tr><th>Current</th><th>Requested</th></tr></thead>
+                            <thead><tr><th>{{ __('Current') }}</th><th>{{ __('Requested') }}</th></tr></thead>
                             <tbody><tr>
                                 <td><pre class="mb-0">{{ json_encode($requestItem->employee?->emergencyContacts?->toArray() ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) }}</pre></td>
                                 <td><pre class="mb-0">{{ json_encode($payload['emergency_contacts'] ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) }}</pre></td>
@@ -120,10 +120,10 @@
                         </table>
                     </div>
 
-                    <h5>Documents</h5>
+                    <h5>{{ __('Documents') }}</h5>
                     <div class="table-responsive mb-3">
                         <table class="table table-bordered">
-                            <thead><tr><th>Current</th><th>Requested</th></tr></thead>
+                            <thead><tr><th>{{ __('Current') }}</th><th>{{ __('Requested') }}</th></tr></thead>
                             <tbody><tr>
                                 <td><pre class="mb-0">{{ json_encode($requestItem->employee?->documents?->toArray() ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) }}</pre></td>
                                  <td><pre class="mb-0">{{ json_encode($payload['documents'] ?? [], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) }}</pre></td>
@@ -136,19 +136,19 @@
                         <form method="POST" action="{{ route('employees.profile-updates.process', $requestItem) }}">
                             @csrf
                             <div class="form-group mb-3">
-                                <label>Review Comments</label>
-                                <textarea name="review_comments" class="form-control" rows="3" placeholder="Add review comments">{{ old('review_comments') }}</textarea>
+                                <label>{{ __('Review Comments') }}</label>
+                                <textarea name="review_comments" class="form-control" rows="3" placeholder="{{ __('Add review comments') }}">{{ old('review_comments') }}</textarea>
                             </div>
                             <button class="btn btn-custom" type="submit" name="decision" value="approve">
-                                <i class="icon-check"></i> Approve & Apply
+                                <i class="icon-check"></i> {{ __('Approve & Apply') }}
                             </button>
                             <button class="btn btn-custom-default" type="submit" name="decision" value="reject">
-                                <i class="icon-close"></i> Reject
+                                <i class="icon-close"></i> {{ __('Reject') }}
                             </button>
                         </form>
                     @else
                         <div class="alert alert-secondary mt-3">
-                            Reviewed by {{ $requestItem->reviewedBy?->name ?? 'N/A' }} on {{ $requestItem->reviewed_at?->format('Y-m-d H:i') ?? '-' }}.
+                            {{ __('Reviewed by :name on :date.', ['name' => $requestItem->reviewedBy?->name ?? __('N/A'), 'date' => $requestItem->reviewed_at?->format('Y-m-d H:i') ?? '-']) }}
                             <br>
                             Comments: {{ $requestItem->review_comments ?: '-' }}
                         </div>
